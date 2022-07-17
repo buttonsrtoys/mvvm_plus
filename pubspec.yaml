@@ -1,4 +1,4 @@
-name: get_mvvm
+name: view
 description: Simple MVVM state management package loosely based on GetIt
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1
