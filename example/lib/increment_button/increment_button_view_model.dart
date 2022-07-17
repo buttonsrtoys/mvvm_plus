@@ -1,4 +1,4 @@
-import 'package:get_mvvm/view.dart';
+import 'package:view/view.dart';
 
 enum IncrementType { number, letter }
 

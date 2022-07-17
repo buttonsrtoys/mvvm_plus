@@ -25,4 +25,4 @@ is readily available. The `ViewModel` was registered to demo using `View.get` fo
 registration would be required (e.g., when the retrieved `ViewModel` is on another branch of the 
 widget tree.)
 
-<img src="https://github.com/buttonsrtoys/get_mvvm/blob/main/example/example.gif" width="400"/>
+<img src="https://github.com/buttonsrtoys/view/blob/main/example/example.gif" width="400"/>

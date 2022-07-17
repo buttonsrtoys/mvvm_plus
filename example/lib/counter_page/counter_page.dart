@@ -2,7 +2,7 @@ import 'package:example/counter_page/counter_page_view_model.dart';
 import 'package:example/increment_button/increment_button.dart';
 import 'package:example/services/letter_color_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:get_mvvm/view.dart';
+import 'package:view/view.dart';
 
 class CounterPage extends View<CounterPageViewModel> {
   CounterPage({
