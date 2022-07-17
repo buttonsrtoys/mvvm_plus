@@ -1,6 +1,6 @@
 import 'package:example/counter_page/counter_page_view_model.dart';
 import 'package:example/increment_button/increment_button.dart';
-import 'package:example/services/letter_color_notifier.dart';
+import 'package:example/services/color_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:view/view.dart';
 
@@ -17,7 +17,7 @@ class CounterPage extends View<CounterPageViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = View.get<LetterColorNotifier>();
+    final upperCaseColorNotifier = View.get<ColorNotifier>();
 
     return Scaffold(
       appBar: AppBar(

@@ -67,17 +67,20 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// [View] and [ChangeNotifierRegistrar] automatically call [register] and [unregister] so this function is not
   /// typically consumed.
+  ///
+  /// Returns the unregistered [ChangeNotifier].
   @visibleForTesting
-  static void unregister<U extends ChangeNotifier>({String? name}) {
+  static ChangeNotifier? unregister<U extends ChangeNotifier>({String? name}) {
     if (!View.isRegistered<U>(name: name)) {
       throw Exception(
         'Error: Tried to unregister an instance of type $U with name $name but it is not registered.',
       );
     }
-    _registeredChangeNotifiers[U]!.remove(name);
+    final changeNotifier = _registeredChangeNotifiers[U]!.remove(name);
     if (_registeredChangeNotifiers[U]!.isEmpty) {
       _registeredChangeNotifiers.remove(U);
     }
+    return changeNotifier;
   }
 
   /// Determines whether a [ChangeNotifier] is registered and therefore retrievable with [View.get]
@@ -212,7 +215,8 @@ class _ChangeNotifierRegistrarState<T extends ChangeNotifier> extends State<Chan
 
   @override
   void dispose() {
-    View.unregister<T>(name: widget.name);
+    final changeNotifier = View.unregister<T>(name: widget.name);
+    changeNotifier!.dispose();
     super.dispose();
   }
 

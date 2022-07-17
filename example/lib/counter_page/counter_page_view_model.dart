@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:example/services/color_service.dart';
-import 'package:example/services/letter_color_notifier.dart';
+import 'package:example/services/color_notifier.dart';
 import 'package:view/view.dart';
 
 class CounterPageViewModel extends ViewModel {
   @override
   void initState() {
     // give the services the color listeners
-    listenTo<LetterColorNotifier>(listener: letterColorChanged);
+    listenTo<ColorNotifier>(listener: letterColorChanged);
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
   }
 
