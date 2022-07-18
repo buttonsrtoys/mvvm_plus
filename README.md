@@ -2,7 +2,7 @@
 
 `view` (not to be confused with Vue) is a state management package for Flutter that implements MVVM. 
 
-`view` is effectively syntactic sugar for a `StatefulWidget` with some extras to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
+`view` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
 As with every implementation of MVVM, `view` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
