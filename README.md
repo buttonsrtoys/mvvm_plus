@@ -2,7 +2,7 @@
 
 `view` (not to be confused with Vue) is a state management package for Flutter that implements MVVM. 
 
-`view` is effectively syntactic sugar for a `StatefulWidget` with some extras to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to many Flutter developers.
+`view` is effectively syntactic sugar for a `StatefulWidget` with some extras to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
 As with every implementation of MVVM, `view` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
@@ -20,29 +20,20 @@ With `view`, the View is a Flutter widget and View Model is a Dart model. Views 
 
 ## Views and View Models
 
-The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function:
+The heart of `view` is its `View` class, which is simply a stateful widget that maintains state in a separate `ViewModel` class:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
-
-      @override
       Widget build(BuildContext context) {
-        return Container();
+        return Text(viewModel.someText); // <- the "viewModel" member is your custom ViewModel instance
       }
     }
 
-While `StatefulWidget` combines state and presentation into the same widget, `View` separates its
-state in a separate `ViewModel` instance that is readily available as a member of your `View` class:
+The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function. Your custom `ViewModel` is a Dart class that inherits the `ViewModel` class:
 
-    class MyWidget extends View<MyWidgetViewModel> {
-      Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- "viewModel" is your custom View Model instance
-      }
+    class MyWidgetViewModel extends ViewModel {
+      String someText;
     }
-
-Your custom `ViewModel` is a Dart class that inherits the `ViewModel` class:
-
-    class MyWidgetViewModel extends ViewModel {}
 
 Like the Flutter `State` class associated with `StatefulWidget`s, the `ViewModel` class provides `initState()` and `dispose()`functions that subclasses can override. This is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
 
@@ -108,7 +99,7 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `View` constructor can register a View Model, but sometimes you want registered models that are not associated with Views. `view` supports this with its `ChangeNotifierRegistrar`:
+The `View` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `view` supports this with its `ChangeNotifierRegistrar`:
 
     ChangeNotifierRegistrar<MyChangeNotifier>(
       changeNotifierBuilder: () => MyChangeNotifier(),
