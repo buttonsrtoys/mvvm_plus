@@ -20,7 +20,7 @@ With `view`, the View is a Flutter widget and the View Model is a Dart model.
 
 ## Views and View Models
 
-The heart of `view` is its `View` class, which is a stateful widget that maintains its state in a separate `ViewModel` class:
+The heart of `view` is its `View` class, which is a stateful widget that maintains its state in a separate `ViewModel` instance:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -29,7 +29,7 @@ The heart of `view` is its `View` class, which is a stateful widget that maintai
       }
     }
 
-The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function (shown above). Your custom `ViewModel` is a Dart class that inherits the `ViewModel` class:
+The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function (shown above). Your custom `ViewModel` is a Dart class that inherits from `ViewModel`:
 
     class MyWidgetViewModel extends ViewModel {
       String someText;
