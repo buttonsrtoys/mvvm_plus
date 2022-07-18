@@ -38,19 +38,30 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   final String? name;
 
   final _viewModelHolder = _ViewModelHolder<T>();
+
+  /// Returns the custom [ViewModel] associated with this [View].
   T get viewModel => _viewModelHolder.viewModel!;
 
+  /// Same functionality as [StatelessWidget.build]. E.g., override this function to define your interface.
+  ///
+  /// [View] is extened like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
+  /// [StatefulWidget]. Therefore, [createState] builds this widget and [build] is instead called from
+  /// [_ViewState.build].
   Widget build(BuildContext context);
 
+  /// DO NOT OVERRIDE
+  ///
+  /// [createState] provides the logic for this [View] class so should not be overridden. Instead, override the [build]
+  /// function to extend this class.
   @nonVirtual
   @override
   State<View<T>> createState() => _ViewState<T>();
 
   /// Register a [ChangeNotifier] for retrieving with [View.get]
   ///
-  /// [View] and [ChangeNotifierRegistrar] automatically call [register] and [unregister] so this function is not
-  /// typically consumed.
-  @visibleForTesting
+  /// [View], [ChangeNotifierRegistrar], and [MultiChangeNotifierRegistrar] automatically call [register] and
+  /// [unregister] so this function is not typically used. It is only used to manually registor or unregister
+  /// a [ChangeNotifier]. E.g., if you could register/unregister a [ValueNotifier].
   static void register<U extends ChangeNotifier>(ChangeNotifier changeNotifier, {String? name}) {
     if (View.isRegistered<U>(name: name)) {
       throw Exception(
@@ -65,11 +76,10 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 
   /// Unregister a [ChangeNotifier] so that it can no longer be retrieved with [View.get]
   ///
-  /// [View] and [ChangeNotifierRegistrar] automatically call [register] and [unregister] so this function is not
-  /// typically consumed.
+  /// Calling this function does not call the [dispose] function of the [ChangeNotifier].
+  /// See [register] for more information about when this function is needed.
   ///
   /// Returns the unregistered [ChangeNotifier].
-  @visibleForTesting
   static ChangeNotifier? unregister<U extends ChangeNotifier>({String? name}) {
     if (!View.isRegistered<U>(name: name)) {
       throw Exception(
@@ -174,9 +184,9 @@ abstract class ViewModel extends ChangeNotifier {
   /// Listen to [ChangeNotifier]
   ///
   /// If [listener] is null then [View] is queued to build when [T] calls [notifyListeners]. When [listener] is
-  /// non-null, the listener is instead. Note that when [listener] is non-null, [View] is not implicitly queued to
-  /// build when [notifyListeners] is called. Rather, if you want to queue a build after [listener] finishes, you must
-  /// add a call [notifyListeners] to your [listener].
+  /// non-null, the listener is called instead. Note that when [listener] is non-null, [View] is not implicitly queued
+  /// to build when [notifyListeners] is called. Rather, if you want to queue a build after [listener] finishes, you
+  /// must add a call [notifyListeners] to your [listener].
   void listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
     assert(T != ChangeNotifier, _missingGenericError('listenTo', 'ChangeNotifier'));
     final changeNotifier = View.get<T>(name: name);
