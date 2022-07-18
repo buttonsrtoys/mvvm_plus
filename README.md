@@ -2,13 +2,13 @@
 
 `view` (not to be confused with Vue) is a state management package for Flutter that implements MVVM. 
 
-`view` is effectively syntactic sugar for a `StatefulWidget` with some extras to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to many Flutter developers.
+`view` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
 As with every implementation of MVVM, `view` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
       [View] <--> [View Model] <--> [Model]
 
-With `view`, the View is a Flutter widget and View Model is a Dart model. Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
+With `view`, the View is a Flutter widget and the View Model is a Dart model. 
 
 `view` goals:
 - Provide a state management framework that clearly separates business logic from the presentation.
@@ -20,31 +20,24 @@ With `view`, the View is a Flutter widget and View Model is a Dart model. Views 
 
 ## Views and View Models
 
-The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function:
+The heart of `view` is its `View` class, which is a stateful widget that maintains its state in a separate `ViewModel` instance:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
-
-      @override
       Widget build(BuildContext context) {
-        return Container();
+        return Text(viewModel.someText); // <- state maintained in your custom "viewModel" instance
       }
     }
 
-While `StatefulWidget` combines state and presentation into the same widget, `View` separates its
-state in a separate `ViewModel` instance that is readily available as a member of your `View` class:
+The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function (shown above). Your custom `ViewModel` is a Dart class that inherits from `ViewModel`:
 
-    class MyWidget extends View<MyWidgetViewModel> {
-      Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- "viewModel" is your custom View Model instance
-      }
+    class MyWidgetViewModel extends ViewModel {
+      String someText;
     }
 
-Your custom `ViewModel` is a Dart class that inherits the `ViewModel` class:
+Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
 
-    class MyWidgetViewModel extends ViewModel {}
-
-Like the Flutter `State` class associated with `StatefulWidget`s, the `ViewModel` class provides `initState()` and `dispose()`functions that subclasses can override. This is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
+Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel` class provides `initState()` and `dispose()` which is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
 
     class MyWidgetViewModel extends ViewModel {
       @override
@@ -108,7 +101,7 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `View` constructor can register a View Model, but sometimes you want registered models that are not associated with Views. `view` supports this with its `ChangeNotifierRegistrar`:
+The `View` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `view` supports this with its `ChangeNotifierRegistrar`:
 
     ChangeNotifierRegistrar<MyChangeNotifier>(
       changeNotifierBuilder: () => MyChangeNotifier(),
@@ -119,7 +112,7 @@ The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the wi
 
 ## Listening to ViewModels and ChangeNotifiers
 
-`View.get` retrieves a View Model but does not queue a View build or call a listener. To queue a build when the registered View Model calls `notifyListeners` use `ViewModel.listenTo`:
+`View.get` retrieves a View Model but does not queue a View build or call a listener. For that use `ViewModel.listenTo`:
 
     class MyWidgetViewModel extends ViewModel {
       @override
@@ -149,6 +142,6 @@ Either way, listeners passed to `listenTo` are automatically removed when your V
 
 ## That's it! 
 
-The example app in this repo demos much of the above functionality and shows how small and organized `view` classes typically are.
+The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `view` classes typically are.
 
 If you have questions or suggestions on anything `view`, please do not hesitate to contact me.
