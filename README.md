@@ -8,7 +8,7 @@ As with every implementation of MVVM, `view` divides responsibilities into an im
 
       [View] <--> [View Model] <--> [Model]
 
-With `view`, the View is a Flutter widget and View Model is a Dart model. Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
+With `view`, the View is a Flutter widget and the View Model is a Dart model. 
 
 `view` goals:
 - Provide a state management framework that clearly separates business logic from the presentation.
@@ -35,7 +35,9 @@ The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., y
       String someText;
     }
 
-Like the Flutter `State` class associated with `StatefulWidget`s, the `ViewModel` class provides `initState()` and `dispose()`functions that subclasses can override. This is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
+Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
+
+Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel` class provides `initState()` and `dispose()`functions that subclasses can override. This is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
 
     class MyWidgetViewModel extends ViewModel {
       @override
