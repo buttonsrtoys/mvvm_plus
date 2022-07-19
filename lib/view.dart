@@ -37,14 +37,17 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   final bool registerViewModel;
   final String? name;
 
-  final _viewModelHolder = _ViewModelHolder<T>();
-
   /// Returns the custom [ViewModel] associated with this [View].
-  T get viewModel => _viewModelHolder.viewModel!;
+  ///
+  /// This getter should only be called within the overridden [build] function.
+  @protected
+  T get viewModel => _viewModelInstance.value!;
+
+  final _viewModelInstance = _ViewModelInstance<T>();
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define your interface.
   ///
-  /// [View] is extened like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
+  /// [View] is extended like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
   /// [StatefulWidget]. Therefore, [createState] builds this widget and [build] is instead called from
   /// [_ViewState.build].
   Widget build(BuildContext context);
@@ -60,7 +63,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   /// Register a [ChangeNotifier] for retrieving with [View.get]
   ///
   /// [View], [ChangeNotifierRegistrar], and [MultiChangeNotifierRegistrar] automatically call [register] and
-  /// [unregister] so this function is not typically used. It is only used to manually registor or unregister
+  /// [unregister] so this function is not typically used. It is only used to manually register or unregister
   /// a [ChangeNotifier]. E.g., if you could register/unregister a [ValueNotifier].
   static void register<U extends ChangeNotifier>(ChangeNotifier changeNotifier, {String? name}) {
     if (View.isRegistered<U>(name: name)) {
@@ -140,14 +143,14 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
 
   @override
   Widget build(BuildContext context) {
-    widget._viewModelHolder.viewModel = _viewModel;
+    widget._viewModelInstance.value = _viewModel;
     return widget.build(context);
   }
 }
 
-/// Wrapper for ViewModel to transfer from [_ViewState] to [View]
-class _ViewModelHolder<T> {
-  T? viewModel;
+/// Wrapper for ViewModel instance that is assigned in [_ViewState] and accessed in [View]
+class _ViewModelInstance<T> {
+  T? value;
 }
 
 /// [ChangeNotifier] subscription
