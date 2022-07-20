@@ -10,14 +10,14 @@ class CounterPage extends View<CounterPageViewModel> {
     super.key,
   }) : super(
           viewModelBuilder: () => CounterPageViewModel(),
-          registerViewModel: true, // <- makes retrievable with View.get
+          registerViewModel: true, // <- makes gettable with View.get (overkill for this simple example)
         );
 
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = View.get<ColorNotifier>();
+    final colorNotifier = View.get<ColorNotifier>();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,7 +33,7 @@ class CounterPage extends View<CounterPageViewModel> {
               children: <Widget>[
                 Text(
                   viewModel.lowercaseCounter,
-                  style: TextStyle(fontSize: 64, color: upperCaseColorNotifier.color),
+                  style: TextStyle(fontSize: 64, color: colorNotifier.color),
                 ),
                 Text(
                   '${viewModel.numberCounter}',
