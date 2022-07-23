@@ -55,7 +55,7 @@ Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel`
 
 ## Rebuilding the View
 
-`ViewModel` inherits from `ChangeNotifier`, so you call `notifyListeners()` from your `ViewModel` when you want to rebuild your `mvvm_get`:
+`ViewModel` inherits from `ChangeNotifier`, so you call `notifyListeners()` from your `ViewModel` when you want to rebuild `View`:
 
     class MyWidgetViewModel extends ViewModel {
       int counter;
@@ -77,13 +77,13 @@ Occasionally you need to access another widget's `ViewModel` instance (e.g., if 
       );
     }
 
-Widgets and models can then "get" the registered View Model with the `mvvm_get` static function `get`:
+Widgets and models can then "get" the registered View Model with the `Mvvm` static function `get`:
 
-    final otherViewModel = View.get<MyOtherWidgetViewModel>();
+    final otherViewModel = Mvvm.get<MyOtherWidgetViewModel>();
 
-Like `get_it`, `mvvm_get` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `mvvm_get` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like `get_it`, `mvvm_get` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
-Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `mvvm_get` instances that instantiated them. So, when a `mvvm_get` instance is removed from the widget tree, its `ViewModel` is disposed.
+Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `View` instances that instantiated them. So, when a `View` instance is removed from the widget tree, its `ViewModel` is disposed.
 
 On rare occasions when you need to register multiple View Models of the same type, just give each View Model instance a unique name:
 
@@ -98,12 +98,12 @@ On rare occasions when you need to register multiple View Models of the same typ
 
 and then get the `ViewModel` by type and name:
 
-    final headerText = View.get<MyOtherWidgetViewModel>(name: 'Header').someText;
-    final footerText = View.get<MyOtherWidgetViewModel>(name: 'Footer').someText;
+    final headerText = Mvvm.get<MyOtherWidgetViewModel>(name: 'Header').someText;
+    final footerText = Mvvm.get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 
 ## Adding additional ChangeNotifiers 
 
-The `mvvm_get` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_get` supports this with its `ChangeNotifierRegistrar`:
+The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_get` supports this with its `ChangeNotifierRegistrar`:
 
     ChangeNotifierRegistrar<MyChangeNotifier>(
       changeNotifierBuilder: () => MyChangeNotifier(),
@@ -114,7 +114,7 @@ The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the wi
 
 ## Listening to ViewModels and ChangeNotifiers
 
-`View.get` retrieves a View Model but does not queue a View build or call a listener. For that use `ViewModel.listenTo`:
+`Mvvm.get` retrieves a View Model but does not queue a View build or call a listener. For that use `ViewModel.listenTo`:
 
     class MyWidgetViewModel extends ViewModel {
       @override
@@ -124,7 +124,7 @@ The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the wi
       }
     }
 
-The above queues `mvvm_get` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
+The above queues `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
 
     @override
     void initState() {
