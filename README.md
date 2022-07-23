@@ -1,6 +1,6 @@
 # mvvm_get
 
-`mvvm_get` (not to be confused with Vue) is a state management package for Flutter that implements MVVM. 
+`mvvm_get` is a state management package for Flutter that implements MVVM. 
 
 `mvvm_get` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
