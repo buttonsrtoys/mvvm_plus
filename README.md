@@ -67,12 +67,13 @@ Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel`
 
 ## Retrieving View Models from anywhere
 
-Occasionally you need to access another widget's `ViewModel` instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the View Model with the "registerViewModel" parameter of the `mvvm_get` constructor (similar to how `get_it` works):
+Occasionally you need to access another widget's `ViewModel` instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the View Model with the "register" parameter of the `ViewModel` constructor (similar to how `get_it` works):
 
     class MyOtherWidget extends View<MyOtherWidgetViewModel> {
       MyOtherWidget(super.key) : super(
-        viewModelBuilder: () => MyOtherWidgetViewModel(),
-        registerViewModel: true, // <- registers the View Model so other widgets and models can access
+        viewModelBuilder: () => MyOtherWidgetViewModel(
+          register: true, // <- registers the View Model so other widgets and models can access
+        ),
       );
     }
 
@@ -88,9 +89,10 @@ On rare occasions when you need to register multiple View Models of the same typ
 
     class MyOtherWidget extends View<MyOtherWidgetViewModel> {
       MyOtherWidget(super.key) : super(
-        viewModelBuilder: () => MyOtherWidgetViewModel(),
-        registerViewModel: true,
-        name: 'Header', // <- distinguishes View Model from other registered View Models of the same type
+        viewModelBuilder: () => MyOtherWidgetViewModel(
+          register: true,
+          name: 'Header', // <- distinguishes View Model from other registered View Models of the same type
+        ),
       );
     }
 
