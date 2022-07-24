@@ -110,7 +110,7 @@ The `ViewModel` constructor optionally registers a View Model, but sometimes you
       child: MyWidget(),
     );
 
-The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the widget tree and unregisters them when removed. To register multiple `ChangeNotifier`s with a single widget, check out `MultiChangeNotifierRegistrar`.
+The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the widget tree and unregisters it when removed. To register multiple `ChangeNotifier`s with a single widget, check out `MultiChangeNotifierRegistrar`.
 
 ## Listening to ViewModels and ChangeNotifiers
 
