@@ -1,8 +1,8 @@
 e get_mvvm
 
-`get_mvvm` is a state management package for Flutter that implements MVVM. 
+`get_mvvm` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`get_mvvm` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
+`get_mvvm` employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
