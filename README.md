@@ -1,4 +1,4 @@
-e get_mvvm
+# get_mvvm
 
 `get_mvvm` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
