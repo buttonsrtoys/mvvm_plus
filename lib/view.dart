@@ -18,8 +18,8 @@ import 'package:view/registrar.dart';
 ///
 /// [viewModelBuilder] is a builder for a [ViewModel] subclass.
 /// [registerViewModel] is whether the built [ViewModel] is "registered", meaning that it can be located with
-/// [Registrar.get]. View Models are typically only registered when they need to be located by a descendant of this widget
-/// or by a widget on another branch of the widget tree. Note that the [View] has member [viewModel], so doesn't
+/// [Registrar.get]. View Models are typically only registered when they need to be located by a descendant of this
+/// widget or by a widget on another branch of the widget tree. Note that the [View] has member [viewModel], so doesn't
 /// need [Registrar.get].
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
 /// On rare occasions when multiple View Models of the same type are registered, unique names are required to register
@@ -34,16 +34,16 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
             registerViewModel || name == null,
             'Error: View was called with "name" set but not "registerViewModel". You must '
             'also set "registerViewModel" when "name" is set.'),
-        assert(T != ViewModel,
-            _missingGenericError('View constructor', 'ViewModel'));
+        assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
   final bool registerViewModel;
   final String? name;
 
   final _viewModelHolder = _ViewModelHolder<T>();
 
-  // Rich, this needs to be a getter for ViewModel
-  // U get<U extends Object>() => Registrar.get<U>();
+  /// getter for a registered [ViewModel]
+  ///
+  // Rich, elaborate about how registraction works
   U get<U extends Object>() => viewModel.get<U>();
 
   /// Returns the custom [ViewModel] associated with this [View].
@@ -80,8 +80,9 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
   void dispose() {
     if (widget.registerViewModel) {
       Registrar.unregister<T>(name: widget.name);
+    } else {
+      _viewModel.dispose();
     }
-    _viewModel.dispose();
     super.dispose();
   }
 
@@ -141,17 +142,17 @@ abstract class ViewModel extends ChangeNotifier {
   ///
   /// If [listener] is null then [View] is queued to build when [T] calls [notifyListeners]. When [listener] is
   /// non-null, the listener is called instead. Note that when [listener] is non-null, [View] is not implicitly queued
-  /// to build when [notifyListeners] is called. Rather, if you want to queue a build after [listener] finishes, you
+  /// to build when [notifyListeners] is called. If you want to queue a build after [listener] finishes, you
   /// must add a call [notifyListeners] to your [listener].
-  T get<T extends Object>({String? name, void Function()? listener}) {
+  T get<T extends Object>({String? name, bool listen = false}) {
     assert(T != Object, _missingGenericError('listenTo', 'Object'));
     final object = Registrar.get<T>(name: name);
-    if (object is ChangeNotifier) {
-      // Rich, needs to check subscription to see if already subscribed
-      final void Function() listenerToAdd = listener ?? _buildView;
-      object.addListener(listenerToAdd);
-      _subscriptions.add(
-          Subscription(changeNotifier: object, listener: listenerToAdd));
+    if (listen && object is ChangeNotifier) {
+      final subscription = Subscription(changeNotifier: object, listener: _buildView);
+      if (!_subscriptions.contains(subscription)) {
+        object.addListener(_buildView);
+        _subscriptions.add(subscription);
+      }
     }
     return object;
   }

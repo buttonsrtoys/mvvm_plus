@@ -40,8 +40,8 @@ class Registrar <T extends Object> extends StatefulWidget {
 
   /// Unregister an [Object] so that it can no longer be retrieved with [Registrar.get]
   ///
-  /// Returns the unregistered [Object].
-  static Object? unregister<T extends Object>({String? name}) {
+  /// If [T] is a ChangeNotifier then its `dispose()` method is called.
+  static void unregister<T extends Object>({String? name}) {
     if (!Registrar.isRegistered<T>(name: name)) {
       throw Exception(
         'Error: Tried to unregister an instance of type $T with name $name but it is not registered.',
@@ -51,7 +51,9 @@ class Registrar <T extends Object> extends StatefulWidget {
     if (_registry[T]!.isEmpty) {
       _registry.remove(T);
     }
-    return object;
+    if (object is ChangeNotifier) {
+      object.dispose();
+    }
   }
 
   /// Determines whether an [Object] is registered and therefore retrievable with [Registrar.get]
@@ -81,10 +83,7 @@ class _RegistrarState<T extends Object> extends State<Registrar> {
 
   @override
   void dispose() {
-    final object = Registrar.unregister<T>(name: widget.name);
-    if (object is ChangeNotifier) {
-      object.dispose();
-    }
+    Registrar.unregister<T>(name: widget.name);
     super.dispose();
   }
 
@@ -132,10 +131,7 @@ class _MultiRegistrarState extends State<MultiRegistrar> {
   @override
   void dispose() {
     for (final delegate in widget.delegates) {
-      final object = delegate._unregister();
-      if (object is ChangeNotifier) {
-        object.dispose();
-      }
+      delegate._unregister();
     }
     super.dispose();
   }
@@ -164,8 +160,8 @@ class RegistrarDelegate<T extends Object> {
     Registrar.register<T>(builder(), name: name);
   }
 
-  Object? _unregister() {
-    return Registrar.unregister<T>(name: name);
+  void _unregister() {
+    Registrar.unregister<T>(name: name);
   }
 }
 

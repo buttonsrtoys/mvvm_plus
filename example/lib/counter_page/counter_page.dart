@@ -2,6 +2,7 @@ import 'package:example/counter_page/counter_page_view_model.dart';
 import 'package:example/increment_button/increment_button.dart';
 import 'package:example/services/color_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:view/registrar.dart';
 import 'package:view/view.dart';
 
 class CounterPage extends View<CounterPageViewModel> {
@@ -17,7 +18,7 @@ class CounterPage extends View<CounterPageViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = View.get<ColorNotifier>();
+    final upperCaseColorNotifier = Registrar.get<ColorNotifier>();
 
     return Scaffold(
       appBar: AppBar(
@@ -49,7 +50,7 @@ class CounterPage extends View<CounterPageViewModel> {
         onIncrementNumber: () => viewModel.incrementNumberCounter(),
         // Alternatively, view models can be registered and retrieved with "View.get" (see below). That is overkill for
         // this simple example as "viewModel" is available but, hey, we're demoing! :)
-        onIncrementLetter: () => View.get<CounterPageViewModel>().incrementLetterCounter(),
+        onIncrementLetter: () => Registrar.get<CounterPageViewModel>().incrementLetterCounter(),
       ),
     );
   }
