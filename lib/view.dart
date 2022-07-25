@@ -40,21 +40,24 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   final bool registerViewModel;
   final String? name;
 
-  final _viewModelHolder = _ViewModelInstance<T>();
+  final _viewModelInstance = _ViewModelInstance<T>();
 
   /// Returns the custom [ViewModel] associated with this [View].
-  T get viewModel => _viewModelHolder.value!;
+  T get viewModel {
+    assert(
+        _viewModelInstance.value != null,
+        'Error in View. It appears that `View.createState` was overridden, which '
+        'which is forbidden. See the comments in `View.createState` for more detail.');
+    return _viewModelInstance.value!;
+  }
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define your interface.
   ///
-  /// [View] is extened like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
+  /// [View] is extended like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
   /// [StatefulWidget]. Therefore, [createState] builds this widget and [build] is instead called from
   /// [_ViewState.build].
   Widget build(BuildContext context);
 
-  // Rich, put a test in viewModel that confirms this function has not been overridden
-  /// DO NOT OVERRIDE
-  ///
   /// [createState] provides the logic for this [View] class so should not be overridden. Instead, override the [build]
   /// function to extend this class.
   @nonVirtual
@@ -93,7 +96,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
 
   @override
   Widget build(BuildContext context) {
-    widget._viewModelHolder.value = _viewModel;
+    widget._viewModelInstance.value = _viewModel;
     return widget.build(context);
   }
 }

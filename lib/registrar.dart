@@ -2,24 +2,29 @@ import 'package:flutter/widgets.dart';
 
 /// A widget that registers singletons lazily
 ///
-/// The lifecycle of the [Object] is bound to this widget. The object is registered when this widget is added to the
-/// widget tree and unregistered when removed. If an [Object] is of type [ChangeNotifier] then its
-/// [ChangeNotifier.dispose] when it is unregistered.
+/// The lifecycle of the [T] object is bound to this widget. The object is registered when this widget is added to the
+/// widget tree and unregistered when removed. If [T] is of type [ChangeNotifier] then its [ChangeNotifier.dispose]
+/// is called when it is unregistered.
 ///
-/// [builder] builds the [Object].
-/// Rich, add [instance]
+/// [builder] builds the [T].
+/// [instance] is an instance of [T]
 /// [name] is a unique name key and only needed when more than one [Object] is registered of the same type.
 /// [child] is the child widget.
 ///
-/// Rich, explain diff between [builder] and [instance]
+/// You can pass [builder] or [instance] but not both. Passing [builder] is recommended, as it makes the implementation
+/// lazy. I.e., the instance will only be created the first time it is used. If you already have an instance, then
+/// use [instance].
 class Registrar<T extends Object> extends StatefulWidget {
   Registrar({
-    required this.builder,
+    this.builder,
+    this.instance,
     this.name,
     required this.child,
     super.key,
-  }) : assert(T != Object, _missingGenericError('Registrar constructor', 'Object'));
-  final T Function() builder;
+  })  : assert(T != Object, _missingGenericError('Registrar constructor', 'Object')),
+        assert(builder == null ? instance != null : instance == null);
+  final T Function()? builder;
+  final T? instance;
   final String? name;
   final Widget child;
 
@@ -82,7 +87,7 @@ class _RegistrarState<T extends Object> extends State<Registrar<T>> {
   @override
   void initState() {
     super.initState();
-    Registrar.register<T>(builder: widget.builder, name: widget.name);
+    Registrar.register<T>(instance: widget.instance, builder: widget.builder, name: widget.name);
   }
 
   @override
@@ -152,21 +157,23 @@ class _MultiRegistrarState extends State<MultiRegistrar> {
 /// Delegate for [Registrar]. See [MultiRegistrar] for more information.
 ///
 /// [builder] builds the [Object].
-/// [instance] Rich, add this
+/// [instance] is an instance of [T]
 /// [name] is a unique name key and only needed when more than one [Object] is registered of the same type.
 ///
 /// See [Registrar] for the difference between using [builder] and [instance]
 class RegistrarDelegate<T extends Object> {
   RegistrarDelegate({
-    required this.builder,
+    this.builder,
+    this.instance,
     this.name,
   }) : assert(T != Object, _missingGenericError('RegistrarDelegate constructor', 'Object'));
 
-  final T Function() builder;
+  final T Function()? builder;
   final String? name;
+  final T? instance;
 
   void _register() {
-    Registrar.register<T>(builder: builder, name: name);
+    Registrar.register<T>(instance: instance, builder: builder, name: name);
   }
 
   void _unregister() {
@@ -178,8 +185,9 @@ class RegistrarDelegate<T extends Object> {
 ///
 /// [instance] is a value of type [T]
 /// [builder] is a function that builds [instance]
-/// The constructor can receive either [instance] or [builder] but not both.
-/// The implementation is lazy. I.e., [builder] is not executed until the first get.
+///
+/// The constructor can receive either [instance] or [builder] but not both. Passing [builder] is recommended as it
+/// makes the implementation lazy. I.e., [builder] is executed on the first get.
 class _RegistryEntry<T> {
   _RegistryEntry({
     this.builder,
