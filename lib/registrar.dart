@@ -2,8 +2,10 @@ import 'package:flutter/widgets.dart';
 
 /// A widget that registers singletons lazily
 ///
+/// The lifecycle of the [Object] is bound to this widget.
+///
 /// [builder] builds the [Object].
-/// [name] is a unique name key and only needed when more than one [ChangeNotifier] is registered of the same type.
+/// [name] is a unique name key and only needed when more than one [Object] is registered of the same type.
 /// [child] is the child widget.
 class Registrar <T extends Object> extends StatefulWidget {
   Registrar({
@@ -19,11 +21,11 @@ class Registrar <T extends Object> extends StatefulWidget {
   @override
   State<Registrar> createState() => _RegistrarState<T>();
 
-  /// Register a [Object] for retrieving with [Registrar.get]
+  /// Register an [Object] for retrieving with [Registrar.get]
   ///
-  /// [Registrar], [ChangeNotifierRegistrar], and [MultiObjectRegistrar] automatically call [register] and
-  /// [unregister] so this function is not typically used. It is only used to manually registor or unregister
-  /// a [Object]. E.g., if you could register/unregister a [ValueNotifier].
+  /// [Registrar] and [MultiRegistrar] automatically call [register] and [unregister] so this function
+  /// is not typically used. It is only used to manually register or unregister an [Object]. E.g., if
+  /// you could register/unregister a [ValueNotifier].
   static void register<T extends Object>(Object object, {String? name}) {
     if (Registrar.isRegistered<T>(name: name)) {
       throw Exception(
@@ -36,7 +38,7 @@ class Registrar <T extends Object> extends StatefulWidget {
     _registry[T]![name] = object;
   }
 
-  /// Unregister a [Object] so that it can no longer be retrieved with [Registrar.get]
+  /// Unregister an [Object] so that it can no longer be retrieved with [Registrar.get]
   ///
   /// Returns the unregistered [Object].
   static Object? unregister<T extends Object>({String? name}) {
@@ -52,7 +54,7 @@ class Registrar <T extends Object> extends StatefulWidget {
     return object;
   }
 
-  /// Determines whether a [Object] is registered and therefore retrievable with [Registrar.get]
+  /// Determines whether an [Object] is registered and therefore retrievable with [Registrar.get]
   static bool isRegistered<T extends Object>({String? name}) {
     assert(T != Object, _missingGenericError('isRegistered', 'Object'));
     return _registry.containsKey(T) && _registry[T]!.containsKey(name);
@@ -79,7 +81,10 @@ class _RegistrarState<T extends Object> extends State<Registrar> {
 
   @override
   void dispose() {
-    Registrar.unregister<T>(name: widget.name);
+    final object = Registrar.unregister<T>(name: widget.name);
+    if (object is ChangeNotifier) {
+      object.dispose();
+    }
     super.dispose();
   }
 
@@ -96,8 +101,8 @@ class _RegistrarState<T extends Object> extends State<Registrar> {
 /// usage:
 ///   MultiRegistrar(
 ///     delegates: [
-///       RegistrarDelegate<MyService>(changeNotifierBuilder: () => MyService()),
-///       RegistrarDelegate<MyOtherService>(changeNotifierBuilder: () => MyOtherService()),
+///       RegistrarDelegate<MyService>(builder: () => MyService()),
+///       RegistrarDelegate<MyOtherService>(builder: () => MyOtherService()),
 ///     ],
 ///     child: MyWidget(),
 ///   );
@@ -127,7 +132,10 @@ class _MultiRegistrarState extends State<MultiRegistrar> {
   @override
   void dispose() {
     for (final delegate in widget.delegates) {
-      delegate._unregister();
+      final object = delegate._unregister();
+      if (object is ChangeNotifier) {
+        object.dispose();
+      }
     }
     super.dispose();
   }
@@ -156,65 +164,8 @@ class RegistrarDelegate<T extends Object> {
     Registrar.register<T>(builder(), name: name);
   }
 
-  void _unregister() {
-    Registrar.unregister<T>(name: name);
-  }
-}
-
-/// Delegate for [Registrar]. See [MultiRegistrar] for more information.
-///
-/// [builder] builds the [ChangeNotifier].
-/// [name] is a unique name key and only needed when more than one [ChangeNotifier] is registered of the same type.
-/// [child] is the child widget.
-class ChangeNotifierRegistrarDelegate<T extends ChangeNotifier> extends RegistrarDelegate {
-  ChangeNotifierRegistrarDelegate({
-    required super.builder,
-    super.name,
-  }) : assert(
-  T != ChangeNotifier, _missingGenericError('RegistrarDelegate constructor', 'ChangeNotifier'));
-
-  @override
-  void _unregister() {
-    final changeNotifier = Registrar.unregister<T>(name: name) as ChangeNotifier;
-    changeNotifier.dispose();
-  }
-}
-
-/// Register a [ChangeNotifier] so it can be retrieved with [Registrar.get]
-///
-/// [builder] builds the [ChangeNotifier].
-/// [name] is a unique name key and only needed when more than one [ChangeNotifier] is registered of the same type.
-/// [child] is the child widget.
-class ChangeNotifierRegistrar<T extends ChangeNotifier> extends Registrar<T> {
-  ChangeNotifierRegistrar({
-    required super.builder,
-    super.name,
-    required super.child,
-    super.key,
-  }) : assert(T != ChangeNotifier, _missingGenericError('ChangeNotifierRegistrar constructor', 'ChangeNotifier'));
-
-  @override
-  State<ChangeNotifierRegistrar> createState() => _ChangeNotifierRegistrarState<T>();
-}
-
-class _ChangeNotifierRegistrarState<T extends ChangeNotifier> extends State<ChangeNotifierRegistrar> {
-  // Rich, can this state be subclassed and these functions removed?
-  @override
-  void initState() {
-    super.initState();
-    Registrar.register<T>(widget.builder(), name: widget.name);
-  }
-
-  @override
-  void dispose() {
-    final changeNotifier = Registrar.unregister<T>(name: widget.name) as ChangeNotifier;
-    changeNotifier!.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
+  Object? _unregister() {
+    return Registrar.unregister<T>(name: name);
   }
 }
 
@@ -230,13 +181,3 @@ String _missingGenericError(String function, String type) =>
 // }
 // final _registry = <Type, Map<String?, RegistryEntry>>{};
 final _registry = <Type, Map<String?, Object>>{};
-
-/// [ChangeNotifier] subscription
-class Subscription {
-  Subscription({required this.changeNotifier, required this.listener});
-  final void Function() listener;
-  final ChangeNotifier changeNotifier;
-  void unsubscribe() {
-    changeNotifier.removeListener(listener);
-  }
-}
