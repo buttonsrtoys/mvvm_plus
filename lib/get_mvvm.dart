@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:view/registrar.dart';
+import 'package:registrar/registrar.dart';
 
 /// A widget that builds a View and a View Model
 ///
@@ -33,7 +33,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
     super.key,
   })  : assert(
             registerViewModel || name == null,
-            'Error: View was called with "name" set but not "registerViewModel". You must '
+            'Constructor was called with "name" set but not "registerViewModel". You must '
             'also set "registerViewModel" when "name" is set.'),
         assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
@@ -46,14 +46,16 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   T get viewModel {
     assert(
         _viewModelInstance.value != null,
-        'Error in View. It appears that `View.createState` was overridden, which '
-        'which is forbidden. See the comments in `View.createState` for more detail.');
+        'It appears that "createState" was overridden, which which is forbidden. '
+        'See the comments in "createState" for more detail.');
     return _viewModelInstance.value!;
   }
 
-  /// Same functionality as [StatelessWidget.build]. E.g., override this function to define your interface.
+  // Rich, need to add other stateless functions here
+
+  /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
   ///
-  /// [View] is extended like a [StatefulWidget]. E.g., you override this [build] function. However, [View] as a
+  /// [View] is extended like a [StatefulWidget]. E.g., override this [build] function. However, [View] as a
   /// [StatefulWidget]. Therefore, [createState] builds this widget and [build] is instead called from
   /// [_ViewState.build].
   Widget build(BuildContext context);
@@ -144,13 +146,14 @@ abstract class ViewModel extends ChangeNotifier {
   ///
   /// If [listener] is null then [View] is queued to build when [T] calls [notifyListeners]. When [listener] is
   /// non-null, the listener is called instead. Note that when [listener] is non-null, [View] is not implicitly queued
-  /// to build when [notifyListeners] is called. If you want to queue a build after [listener] finishes, you
-  /// must add a call [notifyListeners] to your [listener].
+  /// to build when [notifyListeners] is called. To queue a build after [listener] finishes, add [notifyListeners] to
+  /// the [listener].
   @protected
   T get<T extends Object>({String? name, bool listen = true, void Function()? listener}) {
     assert(T != Object, _missingGenericError('listenTo', 'Object'));
-    assert(listen || listener == null, 'Error from "get". `listen` must be true if `listener` is non-null.');
+    assert(listen || listener == null, '"listen" must be true if "listener" is non-null.');
     final object = Registrar.get<T>(name: name);
+    assert(object is ChangeNotifier || listener == null, 'You can only add listeners to a "ChangeNotifier"');
     if (listen && object is ChangeNotifier) {
       final listenerToAdd = listener ?? _buildView;
       final subscription = _Subscription(changeNotifier: object, listener: listenerToAdd);

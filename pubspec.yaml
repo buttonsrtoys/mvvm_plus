@@ -1,5 +1,5 @@
-name: view
-description: Simple MVVM state management package loosely based on GetIt
+name: get_mvvm
+description: MVVM state management package with support to share logic across widgets
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1
 
@@ -9,8 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.2
+  registrar:
+    path: ../registrar
   equatable: ^2.0.3
 
 dev_dependencies:

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:view/registrar.dart';
-import 'package:view/view.dart';
+import 'package:registrar/registrar.dart';
+import 'package:get_mvvm/get_mvvm.dart';
 
 class MyViewModel extends ViewModel {
   final answer = 42;

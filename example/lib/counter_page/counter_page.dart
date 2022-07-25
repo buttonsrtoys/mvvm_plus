@@ -2,8 +2,8 @@ import 'package:example/counter_page/counter_page_view_model.dart';
 import 'package:example/increment_button/increment_button.dart';
 import 'package:example/services/color_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:view/registrar.dart';
-import 'package:view/view.dart';
+import 'package:registrar/registrar.dart';
+import 'package:view/get_mvvm.dart';
 
 class CounterPage extends View<CounterPageViewModel> {
   CounterPage({

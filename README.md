@@ -1,16 +1,18 @@
-# mvvm_get
+e get_mvvm
 
-`mvvm_get` is a state management package for Flutter that implements MVVM. 
+`get_mvvm` is a state management package for Flutter that implements MVVM. 
 
-`mvvm_get` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
+`get_mvvm` is effectively syntactic sugar for a `StatefulWidget` with support to share business logic across widgets. It employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
 
-As with every implementation of MVVM, `mvvm_get` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
+## Model-View-View Model (MVVM)
+
+As with every implementation of MVVM, `get_mvvm` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
       [View] <--> [View Model] <--> [Model]
 
-With `mvvm_get`, the View is a Flutter widget and the View Model is a Dart model. 
+With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model. 
 
-`mvvm_get` goals:
+`get_mvvm` goals:
 - Provide a state management framework that clearly separates business logic from the presentation.
 - Optionally provide access to View Models from anywhere in the widget tree.
 - Work well alone or with other state management packages (RxDart, Provider, GetIt, ...).
@@ -20,7 +22,7 @@ With `mvvm_get`, the View is a Flutter widget and the View Model is a Dart model
 
 ## Views and View Models
 
-The heart of `mvvm_get` is its `View` class, which is a stateful widget that maintains its state in a separate `ViewModel` instance. The `View` class follows the same pattern as a `StatelessWidget` widget. E.g., you override the `build` function:
+`get_mvvm` is built around two classes: `View` and `ViewModel`. You extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -81,7 +83,7 @@ Widgets and models can then "get" the registered View Model with the `Mvvm` stat
 
     final otherViewModel = Mvvm.get<MyOtherWidgetViewModel>();
 
-Like `get_it`, `mvvm_get` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like `get_it`, `get_mvvm` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
 Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `View` instances that instantiated them. So, when a `View` instance is removed from the widget tree, its `ViewModel` is disposed.
 
@@ -103,33 +105,31 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_get` supports this with its `ChangeNotifierRegistrar`:
+The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `get_mvvm` with the `Registrar` widget from the `Registrar` package:
 
-    ChangeNotifierRegistrar<MyChangeNotifier>(
-      changeNotifierBuilder: () => MyChangeNotifier(),
+    Registrar<MyModel>(
+      builder: () => MyModel(),
       child: MyWidget(),
     );
 
-The `ChangeNotifierRegistar` registers the `ChangeNotifier` when added to the widget tree and unregisters it when removed. To register multiple `ChangeNotifier`s with a single widget, check out `MultiChangeNotifierRegistrar`.
+The `Registar` widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out `MultiRegistrar`.
 
-## Listening to ViewModels and ChangeNotifiers
+## Listening to other widget's View Models
 
-`Mvvm.get` retrieves a View Model but does not queue a View build or call a listener. For that use `ViewModel.listenTo`:
+`ViewModel` has a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
 
     class MyWidgetViewModel extends ViewModel {
-      @override
-      void initState() {
-        super.initState();
-        listenTo<MyOtherWidgetViewModel>();
+      String getSomeText() {
+        return get<MyOtherWidgetViewModel>().someText;
       }
     }
 
-The above queues `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
+`get` retrieves a registered `MyOtherWidgetViewModel` and also adds a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `get` a listener function that is called when `notifyListeners` is called:
 
     @override
     void initState() {
       super.initState();
-      listenTo<MyWidgetViewModel>(listener: myListener);
+      get<MyWidgetViewModel>(listener: myListener);
     }
 
 If you want to rebuild your View after your custom listener finishes, just call `notifyListeners` within your listener:
@@ -140,10 +140,10 @@ If you want to rebuild your View after your custom listener finishes, just call 
       notifiyListeners(); 
     }
 
-Either way, listeners passed to `listenTo` are automatically removed when your ViewModel instance is disposed.
+Either way, listeners passed to `get` are automatically removed when your ViewModel instance is disposed.
 
 ## That's it! 
 
-The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `mvvm_get` classes typically are.
+The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `get_mvvm` classes typically are.
 
-If you have questions or suggestions on anything `mvvm_get`, please do not hesitate to contact me.
+If you have questions or suggestions on anything `get_mvvm`, please do not hesitate to contact me.

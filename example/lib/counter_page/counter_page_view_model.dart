@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:example/services/color_service.dart';
 import 'package:example/services/color_notifier.dart';
-import 'package:view/view.dart';
+import 'package:view/get_mvvm.dart';
 
 class CounterPageViewModel extends ViewModel {
   @override

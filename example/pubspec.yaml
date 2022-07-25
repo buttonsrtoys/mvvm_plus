@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   view:
     path: ../
+  registrar:
+    path: ../../registrar
 
   cupertino_icons: ^1.0.2
 
