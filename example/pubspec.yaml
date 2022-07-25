@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  view:
+  get_mvvm:
     path: ../
   registrar:
     path: ../../registrar

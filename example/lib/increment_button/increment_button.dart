@@ -1,6 +1,6 @@
 import 'package:example/increment_button/increment_button_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:view/get_mvvm.dart';
+import 'package:get_mvvm/get_mvvm.dart';
 
 class IncrementButton extends View<IncrementButtonViewModel> {
   IncrementButton({
