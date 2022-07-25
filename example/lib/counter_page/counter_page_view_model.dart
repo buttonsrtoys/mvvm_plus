@@ -9,7 +9,7 @@ class CounterPageViewModel extends ViewModel {
   @override
   void initState() {
     // give the services the color listeners
-    get<ColorNotifier>(listen: false).addListener(letterColorChanged);
+    get<ColorNotifier>(listener: letterColorChanged);
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
   }
 

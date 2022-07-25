@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:view/registrar.dart';
@@ -39,15 +40,10 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   final bool registerViewModel;
   final String? name;
 
-  final _viewModelHolder = _ViewModelHolder<T>();
-
-  /// getter for a registered [ViewModel]
-  ///
-  // Rich, elaborate about how registraction works
-  U get<U extends Object>() => viewModel.get<U>();
+  final _viewModelHolder = _ViewModelInstance<T>();
 
   /// Returns the custom [ViewModel] associated with this [View].
-  T get viewModel => _viewModelHolder.viewModel!;
+  T get viewModel => _viewModelHolder.value!;
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define your interface.
   ///
@@ -89,7 +85,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
   void _initViewModel() {
     _viewModel = widget.viewModelBuilder();
     if (widget.registerViewModel) {
-      Registrar.register<T>(_viewModel, name: widget.name);
+      Registrar.register<T>(instance: _viewModel, name: widget.name);
     }
     _viewModel._buildView = () => setState(() {});
     _viewModel.addListener(_viewModel._buildView);
@@ -97,24 +93,27 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
 
   @override
   Widget build(BuildContext context) {
-    widget._viewModelHolder.viewModel = _viewModel;
+    widget._viewModelHolder.value = _viewModel;
     return widget.build(context);
   }
 }
 
 /// Wrapper for ViewModel to transfer from [_ViewState] to [View]
-class _ViewModelHolder<T> {
-  T? viewModel;
+class _ViewModelInstance<T> {
+  T? value;
 }
 
 /// [ChangeNotifier] subscription
-class Subscription {
-  Subscription({required this.changeNotifier, required this.listener});
+class _Subscription extends Equatable {
+  const _Subscription({required this.changeNotifier, required this.listener});
   final void Function() listener;
   final ChangeNotifier changeNotifier;
   void unsubscribe() {
     changeNotifier.removeListener(listener);
   }
+
+  @override
+  List<Object?> get props => [changeNotifier, listener];
 }
 
 /// Base class for View Models
@@ -122,7 +121,7 @@ abstract class ViewModel extends ChangeNotifier {
   @protected
   late void Function() _buildView;
 
-  final _subscriptions = <Subscription>[];
+  final _subscriptions = <_Subscription>[];
 
   /// Called when instance is created.
   @protected
@@ -132,7 +131,7 @@ abstract class ViewModel extends ChangeNotifier {
   @override
   @mustCallSuper
   void dispose() {
-    for (Subscription subscription in _subscriptions) {
+    for (_Subscription subscription in _subscriptions) {
       subscription.unsubscribe();
     }
     super.dispose();
@@ -144,13 +143,16 @@ abstract class ViewModel extends ChangeNotifier {
   /// non-null, the listener is called instead. Note that when [listener] is non-null, [View] is not implicitly queued
   /// to build when [notifyListeners] is called. If you want to queue a build after [listener] finishes, you
   /// must add a call [notifyListeners] to your [listener].
-  T get<T extends Object>({String? name, bool listen = false}) {
+  @protected
+  T get<T extends Object>({String? name, bool listen = true, void Function()? listener}) {
     assert(T != Object, _missingGenericError('listenTo', 'Object'));
+    assert(listen || listener == null, 'Error from "get". `listen` must be true if `listener` is non-null.');
     final object = Registrar.get<T>(name: name);
     if (listen && object is ChangeNotifier) {
-      final subscription = Subscription(changeNotifier: object, listener: _buildView);
+      final listenerToAdd = listener ?? _buildView;
+      final subscription = _Subscription(changeNotifier: object, listener: listenerToAdd);
       if (!_subscriptions.contains(subscription)) {
-        object.addListener(_buildView);
+        object.addListener(listenerToAdd);
         _subscriptions.add(subscription);
       }
     }
@@ -161,5 +163,3 @@ abstract class ViewModel extends ChangeNotifier {
 String _missingGenericError(String function, String type) =>
     'Missing generic error: "$function" called without a custom subclass generic. Did you call '
     '"$function(..)" instead of "$function<$type>(..)"?';
-
-final _registeredChangeNotifiers = <Type, Map<String?, ChangeNotifier>>{};
