@@ -6,8 +6,11 @@ import 'package:example/services/color_notifier.dart';
 import 'package:get_mvvm/get_mvvm.dart';
 
 class CounterPageViewModel extends ViewModel {
+  CounterPageViewModel({super.register, super.name});
+
   @override
   void initState() {
+    super.initState();
     // give the services the color listeners
     get<ColorNotifier>(listener: letterColorChanged);
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);

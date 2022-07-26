@@ -2,7 +2,7 @@
 
 `get_mvvm` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`get_mvvm` employs `ChangeNotifiers` and gettable singletons, so is a management solution that will feel familiar to most Flutter developers.
+`get_mvvm` employs `ChangeNotifiers` and gettable singletons, so is a state management solution that will feel familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
@@ -13,7 +13,7 @@ As with all MVVM implementations, `get_mvvm` divides responsibilities into an im
 With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model. 
 
 `get_mvvm` goals:
-- Provide a state management framework that clearly separates business logic from the presentation.
+- Provide a state management framework that clearly separates business logic from UI.
 - Optionally provide access to View Models from anywhere in the widget tree.
 - Work well alone or with other state management packages (RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
@@ -27,7 +27,7 @@ With `get_mvvm` you extend the `View` the way your extend a `StatelessWidget` wi
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
       Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- state maintained in your custom "viewModel" instance
+        return Text(viewModel.someText); // <- state is stored in your custom "viewModel" instance
       }
     }
 

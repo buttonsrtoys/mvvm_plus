@@ -10,8 +10,9 @@ class CounterPage extends View<CounterPageViewModel> {
     required this.title,
     super.key,
   }) : super(
-          viewModelBuilder: () => CounterPageViewModel(),
-          registerViewModel: true, // <- makes retrievable with View.get
+          viewModelBuilder: () => CounterPageViewModel(
+            register: true, // <- makes gettable by other widgets
+          )
         );
 
   final String title;

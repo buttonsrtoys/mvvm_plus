@@ -18,28 +18,13 @@ import 'package:registrar/registrar.dart';
 /// As shown, you must also specify a generic and a builder for your ViewModel subclass.
 ///
 /// [viewModelBuilder] is a builder for a [ViewModel] subclass.
-/// [registerViewModel] is whether the built [ViewModel] is "registered", meaning that it can be located with
-/// [Registrar.get]. View Models are typically only registered when they need to be located by a descendant of this
-/// widget or by a widget on another branch of the widget tree. Note that the [View] has member [viewModel], so doesn't
-/// need [Registrar.get].
-/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
-/// On rare occasions when multiple View Models of the same type are registered, unique names are required to register
-/// and retrieve them.
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required this.viewModelBuilder,
-    this.registerViewModel = false,
-    this.name,
     super.key,
-  })  : assert(
-            registerViewModel || name == null,
-            'Constructor was called with "name" set but not "registerViewModel". You must '
-            'also set "registerViewModel" when "name" is set.'),
+  }) :
         assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
-  final bool registerViewModel;
-  final String? name;
-
   final _viewModelInstance = _ViewModelInstance<T>();
 
   /// Returns the custom [ViewModel] associated with this [View].
@@ -79,19 +64,12 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
 
   @override
   void dispose() {
-    if (widget.registerViewModel) {
-      Registrar.unregister<T>(name: widget.name);
-    } else {
-      _viewModel.dispose();
-    }
+    _viewModel.dispose();
     super.dispose();
   }
 
   void _initViewModel() {
     _viewModel = widget.viewModelBuilder();
-    if (widget.registerViewModel) {
-      Registrar.register<T>(instance: _viewModel, name: widget.name);
-    }
     _viewModel._buildView = () => setState(() {});
     _viewModel.addListener(_viewModel._buildView);
   }
@@ -122,15 +100,38 @@ class _Subscription extends Equatable {
 }
 
 /// Base class for View Models
+///
+/// [register] is whether the built [ViewModel] is "registered", meaning that it can be located with
+/// [Registrar.get]. View Models are typically only registered when they need to be located by a descendant of this
+/// widget or by a widget on another branch of the widget tree. Note that the [View] has member [viewModel], so doesn't
+/// need [Registrar.get].
+/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
+/// On rare occasions when multiple View Models of the same type are registered, unique names are required to register
+/// and retrieve them.
 abstract class ViewModel extends ChangeNotifier {
+  ViewModel({
+    this.register = false,
+    this.name,
+  } ) : assert(
+  register || name == null,
+  'Constructor was called with "name" set but not "registerViewModel". You must '
+  'also set "registerViewModel" when "name" is set.');
+
+  final bool register;
+  final String? name;
+  final _subscriptions = <_Subscription>[];
+
   @protected
   late void Function() _buildView;
 
-  final _subscriptions = <_Subscription>[];
-
   /// Called when instance is created.
   @protected
-  void initState() {}
+  @mustCallSuper
+  void initState() {
+    if (register) {
+      Registrar.registerByRuntimeType(instance: this, name: name);
+    }
+  }
 
   /// Called when instance is disposed.
   @override
@@ -138,6 +139,9 @@ abstract class ViewModel extends ChangeNotifier {
   void dispose() {
     for (_Subscription subscription in _subscriptions) {
       subscription.unsubscribe();
+    }
+    if (register) {
+      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name);
     }
     super.dispose();
   }
