@@ -2,11 +2,11 @@
 
 `get_mvvm` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`get_mvvm` employs `ChangeNotifiers` and optionally stores models in gettable singletons, so will feel familiar to most Flutter developers.
+`get_mvvm` employs `ChangeNotifiers` and gettable singletons, so is a management solution that will feel familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
-As with every implementation of MVVM, `get_mvvm` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
+As with all MVVM implementations, `get_mvvm` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
       [View] <--> [View Model] <--> [Model]
 
@@ -22,7 +22,7 @@ With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model
 
 ## Views and View Models
 
-`get_mvvm` is built around two classes: `View` and `ViewModel`. You extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
+With `get_mvvm` you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -31,7 +31,7 @@ With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model
       }
     }
 
-Your custom `ViewModel` is a Dart class that inherits from `ViewModel`:
+Your `ViewModel` subclass is a Dart class that inherits from `ViewModel`:
 
     class MyWidgetViewModel extends ViewModel {
       String someText;
