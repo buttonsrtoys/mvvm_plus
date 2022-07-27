@@ -22,8 +22,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required this.viewModelBuilder,
     super.key,
-  }) :
-        assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
+  }) : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
   final _viewModelInstance = _ViewModelInstance<T>();
 
@@ -112,10 +111,10 @@ abstract class ViewModel extends ChangeNotifier {
   ViewModel({
     this.register = false,
     this.name,
-  } ) : assert(
-  register || name == null,
-  'Constructor was called with "name" set but not "registerViewModel". You must '
-  'also set "registerViewModel" when "name" is set.');
+  }) : assert(
+            register || name == null,
+            'Constructor was called with "name" set but not "registerViewModel". You must '
+            'also set "registerViewModel" when "name" is set.');
 
   final bool register;
   final String? name;
@@ -146,27 +145,60 @@ abstract class ViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  /// getter for registered models.
+  /// Gets a registered object.
   ///
-  /// If [listener] is null then [View] is queued to build when [T] calls [notifyListeners]. When [listener] is
-  /// non-null, the listener is called instead. Note that when [listener] is non-null, [View] is not implicitly queued
-  /// to build when [notifyListeners] is called. To queue a build after [listener] finishes, add [notifyListeners] to
-  /// the [listener].
+  /// This method performs a one-time retrieval and does not listen to future changes. To listen for future changes,
+  /// see [listenTo].
+  ///
+  /// [name] is the optional name assigned to the object when it was registered.
   @protected
-  T get<T extends Object>({String? name, bool listen = true, void Function()? listener}) {
-    assert(T != Object, _missingGenericError('listenTo', 'Object'));
-    assert(listen || listener == null, '"listen" must be true if "listener" is non-null.');
-    final object = Registrar.get<T>(name: name);
-    assert(object is ChangeNotifier || listener == null, 'You can only add listeners to a "ChangeNotifier"');
-    if (listen && object is ChangeNotifier) {
-      final listenerToAdd = listener ?? _buildView;
-      final subscription = _Subscription(changeNotifier: object, listener: listenerToAdd);
-      if (!_subscriptions.contains(subscription)) {
-        object.addListener(listenerToAdd);
-        _subscriptions.add(subscription);
-      }
+  T get<T extends Object>({String? name}) {
+    assert(T != Object, _missingGenericError('get', 'Object'));
+    return Registrar.get<T>(name: name);
+  }
+
+  /// Gets a registered ChangeNotifier and listens to future calls to [T.notifyListeners].
+  ///
+  /// [name] is the optional name assigned to the object when it was registered.
+  /// [listener] is the optional listener that is called every time [T.notifyListeners] is called. Do not specify
+  /// [listener] when you only want to rebuild [View] when [T.notifyListeners] is called.
+  ///
+  /// Usages like below rebuild [View] every time [SomeChangeNotifier.notifyListeners] is called:
+  ///
+  ///     int get someInt => listenTo<SomeChangeNotifier>().someInt;
+  ///
+  ///     int doubleSomeInt() {
+  ///       return 2 * listenTo<SomeChangeNotifier>().someInt;
+  ///     }
+  ///
+  /// Note that a custom listener will need to call [notifyListeners] to rebuild [View]:
+  ///
+  ///     void myListener() {
+  ///       // do something
+  ///       notifyListeners();
+  ///     }
+  ///
+  /// Specifying a [listener] would typically be done in a constructor or initState and the returned ChangeNotifier
+  /// would typically be ignored:
+  ///
+  ///    @override
+  ///    void initState() {
+  ///      super.initState();
+  ///      listenTo<SomeChangeNotifier>(listener: myListener);
+  ///    }
+  ///
+  /// Listener are only added to [T] once regardless of the number of times [listenTo] is called.
+  @protected
+  ChangeNotifier listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
+    assert(T != ChangeNotifier, _missingGenericError('listenTo', 'ChangeNotifier'));
+    final changeNotifier = Registrar.get<T>(name: name);
+    final listenerToAdd = listener ?? _buildView;
+    final subscription = _Subscription(changeNotifier: changeNotifier, listener: listenerToAdd);
+    if (!_subscriptions.contains(subscription)) {
+      changeNotifier.addListener(listenerToAdd);
+      _subscriptions.add(subscription);
     }
-    return object;
+    return changeNotifier;
   }
 }
 
