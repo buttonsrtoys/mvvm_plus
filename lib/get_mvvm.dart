@@ -69,8 +69,8 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
 
   void _initViewModel() {
     _viewModel = widget.viewModelBuilder();
-    _viewModel._buildView = () => setState(() {});
-    _viewModel.addListener(_viewModel._buildView);
+    _viewModel.buildView = () => setState(() {});
+    _viewModel.addListener(_viewModel.buildView);
   }
 
   @override
@@ -120,8 +120,22 @@ abstract class ViewModel extends ChangeNotifier {
   final String? name;
   final _subscriptions = <_Subscription>[];
 
+  /// Queues [View] to rebuild.
+  ///
+  /// Typically called when data shown in [View] changed:
+  ///
+  ///     void incrementCounter() {
+  ///       _counter++;
+  ///       buildView();
+  ///     }
+  ///
+  /// Note that [buildView] is automatically added as a listener to [ViewModel], so [buildView] is called every time
+  /// [notifyListeners] is called. However, there is an important distinction between calling [notifyListeners] and
+  /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [View] to build AND
+  /// will also notify the other listeners of a change. [buildView] will not notify other listeners of a change.
+  /// Therefore, to avoid accidentally notifying listeners, defer to [buildView] unless listeners need to be notified.
   @protected
-  late void Function() _buildView;
+  late void Function() buildView;
 
   /// Called when instance is created.
   @protected
@@ -160,10 +174,9 @@ abstract class ViewModel extends ChangeNotifier {
   /// Gets a registered ChangeNotifier and listens to future calls to [T.notifyListeners].
   ///
   /// [name] is the optional name assigned to the object when it was registered.
-  /// [listener] is the optional listener that is called every time [T.notifyListeners] is called. Do not specify
-  /// [listener] when you only want to rebuild [View] when [T.notifyListeners] is called.
-  ///
-  /// Usages like below rebuild [View] every time [SomeChangeNotifier.notifyListeners] is called:
+  /// [listener] is the optional listener that is called every time [T.notifyListeners] is called. If [listener] is
+  /// null then [buildView] is added as a listener. There, usages like below rebuild [View] every time
+  /// [SomeChangeNotifier.notifyListeners] is called:
   ///
   ///     int get someInt => listenTo<SomeChangeNotifier>().someInt;
   ///
@@ -171,11 +184,11 @@ abstract class ViewModel extends ChangeNotifier {
   ///       return 2 * listenTo<SomeChangeNotifier>().someInt;
   ///     }
   ///
-  /// Note that a custom listener will need to call [notifyListeners] to rebuild [View]:
+  /// To rebuild the view from a custom listener call [buildView]:
   ///
   ///     void myListener() {
   ///       // do something
-  ///       notifyListeners();
+  ///       buildView();
   ///     }
   ///
   /// Specifying a [listener] would typically be done in a constructor or initState and the returned ChangeNotifier
@@ -192,7 +205,7 @@ abstract class ViewModel extends ChangeNotifier {
   ChangeNotifier listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
     assert(T != ChangeNotifier, _missingGenericError('listenTo', 'ChangeNotifier'));
     final changeNotifier = Registrar.get<T>(name: name);
-    final listenerToAdd = listener ?? _buildView;
+    final listenerToAdd = listener ?? buildView;
     final subscription = _Subscription(changeNotifier: changeNotifier, listener: listenerToAdd);
     if (!_subscriptions.contains(subscription)) {
       changeNotifier.addListener(listenerToAdd);
