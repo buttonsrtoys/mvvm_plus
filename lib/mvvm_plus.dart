@@ -97,13 +97,12 @@ class _Subscription extends Equatable {
 /// Base class for View Models
 ///
 /// [register] is whether the built [ViewModel] is "registered", meaning that it can be located with from other widgets
-/// by using [ViewModel.get] (which uses [Registrar.get] under the hood, so you can use [Registrar.get] as well. View
+/// by using [ViewModel.get] (which uses [Registrar.get] under the hood, so you can use [Registrar.get] as well). View
 /// Models are typically only registered when they need to be located by a descendant of this
 /// widget or by a widget on another branch of the widget tree. Note that the [View] uses member [viewModel] to access
 /// its [ViewModel], so doesn't need the registry or to use [get].
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
-/// On rare occasions when multiple View Models of the same type are registered, unique names are uniquely identify
-/// them.
+/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
 abstract class ViewModel extends ChangeNotifier {
   ViewModel({
     this.register = false,
@@ -119,7 +118,7 @@ abstract class ViewModel extends ChangeNotifier {
 
   /// Queues [View] to rebuild.
   ///
-  /// Typically called when data shown in [View] changed:
+  /// Typically called when data rendered in [View] changed:
   ///
   ///     void incrementCounter() {
   ///       _counter++;
@@ -129,10 +128,10 @@ abstract class ViewModel extends ChangeNotifier {
   /// Note that [buildView] is automatically added as a listener to [ViewModel], so [buildView] is called every time
   /// [notifyListeners] is called. However, there is an important distinction between calling [notifyListeners] and
   /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [View] to build AND
-  /// will also notify the other listeners of a change. [buildView] will not notify other listeners of a change.
+  /// will also notify the listeners of [ViewModel] of a change, while [buildView] will not notify other listeners.
   /// Therefore, to avoid accidentally notifying listeners, defer to [buildView] unless listeners need to be notified.
   ///
-  /// Typically this method is not overriden.
+  /// Typically this method is not overridden.
   @protected
   late void Function() buildView;
 
