@@ -1,18 +1,18 @@
-# get_mvvm
+# mvvm_plus
 
-`get_mvvm` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
+`mvvm_plus` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`get_mvvm` employs `ChangeNotifiers` and gettable singletons, so is a state management solution that will feel familiar to most Flutter developers.
+`mvvm_plus` employs `ChangeNotifiers` and gettable singletons, so is a state management solution that will feel familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, `get_mvvm` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
+As with all MVVM implementations, `mvvm_plus` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
       [View] <--> [View Model] <--> [Model]
 
-With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model. 
+With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
 
-`get_mvvm` goals:
+`mvvm_plus` goals:
 - Provide a state management framework that clearly separates business logic from UI.
 - Optionally provide access to View Models from anywhere in the widget tree.
 - Work well alone or with other state management packages (RxDart, Provider, GetIt, ...).
@@ -22,7 +22,7 @@ With `get_mvvm`, the View is a Flutter widget and the View Model is a Dart model
 
 ## Views and View Models
 
-With `get_mvvm` you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
+With `mvvm_plus` you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -83,7 +83,7 @@ Widgets and models can then "get" the registered View Model with the `Mvvm` stat
 
     final otherViewModel = Mvvm.get<MyOtherWidgetViewModel>();
 
-Like `get_it`, `get_mvvm` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like `get_it`, `mvvm_plus` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
 Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `View` instances that instantiated them. So, when a `View` instance is removed from the widget tree, its `ViewModel` is disposed.
 
@@ -105,7 +105,7 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `get_mvvm` with the `Registrar` widget from the `Registrar` package:
+The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_plus` with the `Registrar` widget from the `Registrar` package:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -142,8 +142,18 @@ If you want to rebuild your View after your custom listener finishes, just call 
 
 Either way, listeners passed to `get` are automatically removed when your ViewModel instance is disposed.
 
+## But what about ValueNotifiers?
+
+Rather than listening to a whole model, sometimes you want finer granularity and only want to listen to a value of the model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier`:
+
+    Registrar.register<MyValueNotifier>(instance: myValueNotifier);
+
+And you `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewModel` (because they are both subclasses of `ChangeNotifier`):
+
+    final value = listenTo<MyValueNotifier>();
+
 ## That's it! 
 
-The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `get_mvvm` classes typically are.
+The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `mvvm_plus` classes typically are.
 
-If you have questions or suggestions on anything `get_mvvm`, please do not hesitate to contact me.
+If you have questions or suggestions on anything `mvvm_plus`, please do not hesitate to contact me.

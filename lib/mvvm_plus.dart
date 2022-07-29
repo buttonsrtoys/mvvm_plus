@@ -19,7 +19,7 @@ import 'package:registrar/registrar.dart';
 ///
 /// [viewModelBuilder] is a builder for a [ViewModel] subclass.
 ///
-/// See the [README](https://github.com/buttonsrtoys/get_mvvm/blob/main/README.md) for more information.
+/// See the [README](https://github.com/buttonsrtoys/mvvm_plus/blob/main/README.md) for more information.
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required this.viewModelBuilder,
