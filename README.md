@@ -2,7 +2,7 @@
 
 `mvvm_plus` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`mvvm_plus` employs `ChangeNotifiers` and gettable singletons, so is a state management solution that will feel familiar to most Flutter developers.
+`mvvm_plus` employs `ChangeNotifiers` and borrows ideas from [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
