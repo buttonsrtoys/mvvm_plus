@@ -2,7 +2,7 @@
 
 `mvvm_plus` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while fixing the not-so-good bits), so will be familiar to most Flutter developers.
+`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while fixing the not-so-best bits), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
@@ -116,7 +116,7 @@ The `Registar` widget registers the model when added to the widget tree and unre
 
 ## Listening to other widget's View Models
 
-`ViewModel` has a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
+`ViewModel` adds a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
 
     final text = get<MyOtherWidgetViewModel>().someText;
 
@@ -126,11 +126,7 @@ The `Registar` widget registers the model when added to the widget tree and unre
 
 `listenTo` adds the `buildView` method as a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
 
-    @override
-    void initState() {
-      super.initState();
-      listenTo<MyWidgetViewModel>(listener: myListener);
-    }
+    listenTo<MyWidgetViewModel>(listener: myListener);
 
 If you want to rebuild your View after your custom listener finishes, just call `buildView` within your listener:
 
@@ -140,15 +136,15 @@ If you want to rebuild your View after your custom listener finishes, just call 
       buildView(); 
     }
 
-Either way, listeners passed to `get` are automatically removed when your ViewModel instance is disposed.
+Either way, listeners passed to `listenTo` are automatically removed when your ViewModel instance is disposed.
 
 ## notifyListeners vs buildView
 
-When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered. Any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. Therefore, to prevent accidentally notifying listeners, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
+When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered--any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. Therefore, to prevent accidentally notifying listeners, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## But what about ValueNotifiers?
 
-Rather than listening to a whole model, sometimes you want more granularity and only want to listen to a value in a model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier`:
+Rather than listening to a whole model, sometimes you want more granularity and only want to listen to a value in a model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier` using the `Registrar` package that `mvvm_plus` uses under the hood:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
