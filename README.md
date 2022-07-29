@@ -144,13 +144,13 @@ Either way, listeners passed to `get` are automatically removed when your ViewMo
 
 ## But what about ValueNotifiers?
 
-Rather than listening to a whole model, sometimes you want finer granularity and only want to listen to a value of the model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier`:
+Rather than listening to a whole model, sometimes you want more granularity and only want to listen to a value in a model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier`:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
 And you `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewModel` (because they are both subclasses of `ChangeNotifier`):
 
-    final value = listenTo<MyValueNotifier>();
+    final myValue = listenTo<MyValueNotifier>().value;
 
 ## That's it! 
 
