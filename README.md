@@ -2,7 +2,7 @@
 
 `mvvm_plus` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
 
-`mvvm_plus` employs `ChangeNotifiers` and borrows ideas from [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm), so will be familiar to most Flutter developers.
+`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while fixing the not-so-good bits), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
@@ -57,13 +57,13 @@ Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel`
 
 ## Rebuilding the View
 
-`ViewModel` inherits from `ChangeNotifier`, so you call `notifyListeners()` from your `ViewModel` when you want to rebuild `View`:
+`ViewModel` includes a `buildView` method for when you want to rebuild `View`:
 
     class MyWidgetViewModel extends ViewModel {
       int counter;
       void incrementCounter() {
         counter++;
-        notifyListeners(); // <- queues View to rebuild
+        buildView(); // <- queues View to rebuild
       }
     }
 
@@ -118,29 +118,33 @@ The `Registar` widget registers the model when added to the widget tree and unre
 
 `ViewModel` has a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
 
-    class MyWidgetViewModel extends ViewModel {
-      String getSomeText() {
-        return get<MyOtherWidgetViewModel>().someText;
-      }
-    }
+    final text = get<MyOtherWidgetViewModel>().someText;
 
-`get` retrieves a registered `MyOtherWidgetViewModel` and also adds a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `get` a listener function that is called when `notifyListeners` is called:
+`get` retrieves a registered `MyOtherWidgetViewModel` but does not listen for future changes. For that, use `listenTo` from within your `ViewModel`:
+
+    final text = listenTo<MyOtherWidgetViewModel>().someText;
+
+`listenTo` adds the `buildView` method as a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
 
     @override
     void initState() {
       super.initState();
-      get<MyWidgetViewModel>(listener: myListener);
+      listenTo<MyWidgetViewModel>(listener: myListener);
     }
 
-If you want to rebuild your View after your custom listener finishes, just call `notifyListeners` within your listener:
+If you want to rebuild your View after your custom listener finishes, just call `buildView` within your listener:
 
     @override
     void myListener() {
       // do some stuff
-      notifiyListeners(); 
+      buildView(); 
     }
 
 Either way, listeners passed to `get` are automatically removed when your ViewModel instance is disposed.
+
+## notifyListeners vs buildView
+
+When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered. Any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. Therefore, to prevent accidentally notifying listeners, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## But what about ValueNotifiers?
 
