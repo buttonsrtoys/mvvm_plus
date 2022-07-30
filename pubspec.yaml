@@ -1,7 +1,8 @@
 name: mvvm_plus
-description: Model-view-view model (MVVM) plus support to share logic across widgets.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+description: A Flutter implementation of MVVM plus support for sharing business logic across widgets.
 version: 0.1.0
+repository: https://github.com/buttonsrtoys/mvvm_plus
+issue_tracker: https://github.com/buttonsrtoys/mvvm_plus/issues
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
@@ -10,9 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  registrar:
-    path: ../registrar
   equatable: ^2.0.3
+  registrar: ^0.1.1
 
 dev_dependencies:
   flutter_test:

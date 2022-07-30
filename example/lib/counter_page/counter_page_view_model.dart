@@ -8,25 +8,29 @@ import 'package:mvvm_plus/mvvm_plus.dart';
 class CounterPageViewModel extends ViewModel {
   CounterPageViewModel({super.register, super.name});
 
+  String message = '';
+  Timer? _timer;
+  late final StreamSubscription<Color> _streamSubscription;
+
   @override
   void initState() {
     super.initState();
-    // give the services the color listeners
+    // listen to the letter color ChangeNotifier
     listenTo<ColorNotifier>(listener: letterColorChanged);
+    // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
   }
 
   @override
   void dispose() {
+    // cancel listener to the number color stream
+    _streamSubscription = ColorService.currentColor.listen(setNumberColor);
     _streamSubscription.cancel();
     super.dispose();
   }
 
-  late final StreamSubscription<Color> _streamSubscription;
   Color _numberColor = const Color.fromRGBO(0, 0, 0, 1.0);
   Color get numberColor => _numberColor;
-  Timer? _timer;
-
   void setNumberColor(Color color) {
     _setMessage('Number color changed!');
     _numberColor = color;
@@ -50,11 +54,8 @@ class CounterPageViewModel extends ViewModel {
     notifyListeners();
   }
 
-  String message = '';
-
   int _numberCounter = 0;
   int get numberCounter => _numberCounter;
-
   void incrementNumberCounter() {
     _numberCounter = _numberCounter == 9 ? 0 : _numberCounter + 1;
     notifyListeners();
@@ -62,7 +63,6 @@ class CounterPageViewModel extends ViewModel {
 
   String _letterCounter = 'a';
   String get lowercaseCounter => _letterCounter;
-
   void incrementLetterCounter() {
     _letterCounter = _letterCounter == 'z' ? 'a' : String.fromCharCode(_letterCounter.codeUnits[0] + 1);
     notifyListeners();

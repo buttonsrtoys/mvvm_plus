@@ -144,11 +144,22 @@ When your `View` and `ViewModel` classes are instantiated, `buildView` is added 
 
 ## But what about ValueNotifiers?
 
-Rather than listening to a whole model, sometimes you want more granularity and only want to listen to a value in a model. That's where the Flutter `ValueNotifier` comes in. You can register a `ValueNotifier` using the `Registrar` package that `mvvm_plus` uses under the hood:
+Rather than calling `buildView` and `notifyListeners` explicitly, you can bind your `View` to your `ViewModel` by adding fields of type `ValueNotifier` that call `buildView` or `notifyListeners` when updated:
+
+    class MyWidgetViewModel extends ViewModel {
+      final counter = ValueNotifier<int>(0);
+      @override
+      void initState() {
+        super.initState();
+        counter.addListener(buildView);
+      }
+    }
+
+Also, sometimes you want more granularity than listening to an entire `ViewModel` or service. That's where the Flutter `ValueNotifier` can help. You can register a `ValueNotifier` using the `Registrar` package that `mvvm_plus` uses under the hood:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
-And you `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewModel` (because they are both subclasses of `ChangeNotifier`):
+And `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewModel` (because they are both subclasses of `ChangeNotifier`):
 
     final myValue = listenTo<MyValueNotifier>().value;
 
