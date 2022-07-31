@@ -89,9 +89,9 @@ Occasionally you need to access another widget's `ViewModel` instance (e.g., if 
       );
     }
 
-Widgets and models can then "get" the registered View Model with the `Mvvm` static function `get`:
+Widgets and models can then "get" the registered View Model with the `ViewModel` function `get`:
 
-    final otherViewModel = Mvvm.get<MyOtherWidgetViewModel>();
+    final otherViewModel = get<MyOtherWidgetViewModel>();
 
 Like `get_it`, `mvvm_plus` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
@@ -110,8 +110,8 @@ On rare occasions when you need to register multiple View Models of the same typ
 
 and then get the `ViewModel` by type and name:
 
-    final headerText = Mvvm.get<MyOtherWidgetViewModel>(name: 'Header').someText;
-    final footerText = Mvvm.get<MyOtherWidgetViewModel>(name: 'Footer').someText;
+    final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
+    final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 
 ## Adding additional ChangeNotifiers 
 
