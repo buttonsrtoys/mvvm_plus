@@ -1,14 +1,14 @@
 # mvvm_plus
 
-`mvvm_plus` is a Flutter implementation of MVVM that supports sharing business logic across widgets.
+Flutter implementation of MVVM plus support for sharing business logic across widgets.
 
-`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while fixing the not-so-best bits), so will be familiar to most Flutter developers.
+`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while omitting the not-so-best bits), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
 As with all MVVM implementations, `mvvm_plus` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
-      [View] <--> [View Model] <--> [Model]
+[mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/tree/main/assets/mvvm_flow.png)
 
 With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
 
