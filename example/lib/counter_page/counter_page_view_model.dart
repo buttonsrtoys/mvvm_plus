@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:example/services/color_service.dart';
 import 'package:example/services/color_notifier.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
 class CounterPageViewModel extends ViewModel {
@@ -11,6 +11,8 @@ class CounterPageViewModel extends ViewModel {
   String message = '';
   Timer? _timer;
   late final StreamSubscription<Color> _streamSubscription;
+  int _numberCounter = 0;                                   // <- Demoing without ValueNotifier
+  final letterCount = ValueNotifier<String>('a');           // <- Demoing with ValueNotifier
 
   @override
   void initState() {
@@ -19,6 +21,7 @@ class CounterPageViewModel extends ViewModel {
     listenTo<ColorNotifier>(listener: letterColorChanged);
     // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
+    letterCount.addListener(buildView);
   }
 
   @override
@@ -34,12 +37,12 @@ class CounterPageViewModel extends ViewModel {
   void setNumberColor(Color color) {
     _setMessage('Number color changed!');
     _numberColor = color;
-    notifyListeners();
+    buildView();
   }
 
   void letterColorChanged() {
     _setMessage('Letter color changed!');
-    notifyListeners();
+    buildView();
   }
 
   void _setMessage(String newMessage) {
@@ -49,22 +52,18 @@ class CounterPageViewModel extends ViewModel {
     message = message == '' ? newMessage : '$message $newMessage';
     _timer = Timer(const Duration(seconds: 2), () {
       message = '';
-      notifyListeners();
+      buildView();
     });
-    notifyListeners();
+    buildView();
   }
 
-  int _numberCounter = 0;
   int get numberCounter => _numberCounter;
   void incrementNumberCounter() {
     _numberCounter = _numberCounter == 9 ? 0 : _numberCounter + 1;
-    notifyListeners();
+    buildView();
   }
 
-  String _letterCounter = 'a';
-  String get lowercaseCounter => _letterCounter;
   void incrementLetterCounter() {
-    _letterCounter = _letterCounter == 'z' ? 'a' : String.fromCharCode(_letterCounter.codeUnits[0] + 1);
-    notifyListeners();
+    letterCount.value = letterCount.value == 'z' ? 'a' : String.fromCharCode(letterCount.value.codeUnits[0] + 1);
   }
 }

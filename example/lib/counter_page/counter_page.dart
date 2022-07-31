@@ -10,10 +10,9 @@ class CounterPage extends View<CounterPageViewModel> {
     required this.title,
     super.key,
   }) : super(
-          viewModelBuilder: () => CounterPageViewModel(
-            register: true, // <- makes gettable by other widgets
-          )
-        );
+            viewModelBuilder: () => CounterPageViewModel(
+                  register: true, // <- makes gettable by other widgets (overkill for this simple example)
+                ));
 
   final String title;
 
@@ -34,11 +33,11 @@ class CounterPage extends View<CounterPageViewModel> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  viewModel.lowercaseCounter,
+                  viewModel.letterCount.value,
                   style: TextStyle(fontSize: 64, color: upperCaseColorNotifier.color),
                 ),
                 Text(
-                  '${viewModel.numberCounter}',
+                  viewModel.numberCounter.toString(),
                   style: TextStyle(fontSize: 64, color: viewModel.numberColor),
                 ),
               ],
