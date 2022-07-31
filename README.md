@@ -8,7 +8,7 @@ Flutter implementation of MVVM plus support for sharing business logic across wi
 
 As with all MVVM implementations, `mvvm_plus` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
-![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MVVM_flow.png)
+![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MvvmFlow.png)
 
 With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
 
