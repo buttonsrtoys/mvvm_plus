@@ -10,7 +10,7 @@ As with all MVVM implementations, `mvvm_plus` divides responsibilities into an i
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MvvmFlow.png)
 
-With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
+States are mutated in the View Model and the Model, but not the View. With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
 
 `mvvm_plus` goals:
 - Provide a state management framework that clearly separates business logic from UI.
@@ -57,13 +57,23 @@ Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel`
 
 ## Rebuilding the View
 
-`ViewModel` includes a `buildView` method for when you want to rebuild `View`:
+`ViewModel` includes a `buildView` method for rebuilding the `View`. You can call it explicitly:
 
     class MyWidgetViewModel extends ViewModel {
       int counter;
       void incrementCounter() {
         counter++;
-        buildView(); // <- queues View to rebuild
+        buildView();                     // <- queues View to rebuild
+      }
+    }
+
+Or bind the `ViewModel` to the `View` with a `ValueNotifier`:
+
+    class MyWidgetViewModel extends ViewModel {
+      final counter = ValueNotifier<int>(0);
+      void initState() {
+        super.initState();
+        counter.addListener(buildView);   // <- calls buildView on new value for counter
       }
     }
 
@@ -142,20 +152,9 @@ Either way, listeners passed to `listenTo` are automatically removed when your V
 
 When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered--any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. Therefore, to prevent accidentally notifying listeners, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
-## But what about ValueNotifiers?
+## ValueNotifiers
 
-Rather than calling `buildView` and `notifyListeners` explicitly, you can bind your `View` to your `ViewModel` by adding fields of type `ValueNotifier` that call `buildView` or `notifyListeners` when updated:
-
-    class MyWidgetViewModel extends ViewModel {
-      final counter = ValueNotifier<int>(0);
-      @override
-      void initState() {
-        super.initState();
-        counter.addListener(buildView);
-      }
-    }
-
-Also, sometimes you want more granularity than listening to an entire `ViewModel` or service. That's where the Flutter `ValueNotifier` can help. You can register a `ValueNotifier` using the `Registrar` package that `mvvm_plus` uses under the hood:
+If you want more granularity than sharing an entire `ViewModel` or service you can register a `ValueNotifier` instead using the `Registrar` package that `mvvm_plus` uses under the hood:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
