@@ -115,7 +115,7 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_plus` with the `Registrar` widget from the `Registrar` package:
+The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_plus` uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
