@@ -103,7 +103,7 @@ On rare occasions when you need to register multiple View Models of the same typ
       MyOtherWidget(super.key) : super(
         viewModelBuilder: () => MyOtherWidgetViewModel(
           register: true,
-          name: 'Header', // <- distinguishes View Model from other registered View Models of the same type
+          name: 'Header', // <- distinguishes from other registered View Models of the same type
         ),
       );
     }
