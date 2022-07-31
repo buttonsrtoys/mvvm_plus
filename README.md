@@ -134,7 +134,7 @@ The `Registar` widget registers the model when added to the widget tree and unre
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
-`listenTo` adds the `buildView` method as a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function that is called when `notifyListeners` is called:
+`listenTo` adds the `buildView` method as a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
 
     listenTo<MyWidgetViewModel>(listener: myListener);
 
@@ -150,11 +150,11 @@ Either way, listeners passed to `listenTo` are automatically removed when your V
 
 ## notifyListeners vs buildView
 
-When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered--any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. Therefore, to prevent accidentally notifying listeners, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
+When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered--any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers
 
-If you want more granularity than sharing an entire `ViewModel` or service you can register a `ValueNotifier` instead using the `Registrar` package that `mvvm_plus` uses under the hood:
+If you want more granularity than sharing an entire `ViewModel` or service you can register a `ValueNotifier` instead using `Registrar`:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
