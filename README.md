@@ -28,6 +28,7 @@ With MVVM+ you extend the `View` the way your extend a `StatelessWidget` widget.
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
+      @override
       Widget build(BuildContext context) {
         return Text(viewModel.someText); // <- state is stored in your custom "viewModel" instance
       }
