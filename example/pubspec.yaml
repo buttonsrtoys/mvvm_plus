@@ -11,8 +11,6 @@ dependencies:
     sdk: flutter
   mvvm_plus:
     path: ../
-  registrar:
-    path: ../../registrar
 
   cupertino_icons: ^1.0.2
 
