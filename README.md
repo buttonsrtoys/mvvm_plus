@@ -1,18 +1,20 @@
-# mvvm_plus
+# mvvm_plus (mvvm+)
 
-Flutter implementation of MVVM plus support for sharing business logic across widgets.
+![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MVVM+logo.png)
 
-`mvvm_plus` employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while omitting the not-so-best bits), so will be familiar to most Flutter developers.
+MVVM+ is a Flutter implementation of MVVM plus support for sharing business logic across widgets.
+
+MVVM+ employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while omitting the not-so-best bits), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, `mvvm_plus` divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
+As with all MVVM implementations, MVVM+ divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MvvmFlow.png)
 
-States are mutated in the View Model and the Model, but not the View. With `mvvm_plus`, the View is a Flutter widget and the View Model is a Dart model. 
+States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model is a Dart model. 
 
-`mvvm_plus` goals:
+MVVM+ goals:
 - Provide a state management framework that clearly separates business logic from UI.
 - Optionally provide access to View Models from anywhere in the widget tree.
 - Work well alone or with other state management packages (RxDart, Provider, GetIt, ...).
@@ -22,7 +24,7 @@ States are mutated in the View Model and the Model, but not the View. With `mvvm
 
 ## Views and View Models
 
-With `mvvm_plus` you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
+With MVVM+ you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -93,7 +95,7 @@ Widgets and models can then "get" the registered View Model with the `ViewModel`
 
     final otherViewModel = get<MyOtherWidgetViewModel>();
 
-Like `get_it`, `mvvm_plus` uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like `get_it`, MVVM+ uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
 Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `View` instances that instantiated them. So, when a `View` instance is removed from the widget tree, its `ViewModel` is disposed.
 
@@ -115,7 +117,7 @@ and then get the `ViewModel` by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. `mvvm_plus` uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
+The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -164,6 +166,6 @@ And `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewMod
 
 ## That's it! 
 
-The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized `mvvm_plus` classes typically are.
+The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized MVVM+ classes typically are.
 
-If you have questions or suggestions on anything `mvvm_plus`, please do not hesitate to contact me.
+If you have questions or suggestions on anything MVVM+, please do not hesitate to contact me.
