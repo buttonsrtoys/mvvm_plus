@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  view:
+  mvvm_plus:
     path: ../
 
   cupertino_icons: ^1.0.2
