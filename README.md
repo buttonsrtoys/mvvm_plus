@@ -4,7 +4,7 @@
 
 MVVM+ is a Flutter implementation of MVVM plus support for sharing business logic across widgets.
 
-MVVM+ employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (while omitting the not-so-best bits), so will be familiar to most Flutter developers.
+MVVM+ employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
