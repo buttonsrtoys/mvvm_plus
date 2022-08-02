@@ -24,17 +24,17 @@ MVVM+ goals:
 
 ## Views and View Models
 
-With MVVM+ you extend the `View` the way your extend a `StatelessWidget` widget. E.g., you override the `build` function:
+With MVVM+ you extend the View class the same way you extend StatelessWidget widget. E.g., you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
       @override
       Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- state is stored in your custom "viewModel" instance
+        return Text(viewModel.someText); // <- your "viewModel" instance
       }
     }
 
-Your `ViewModel` subclass is a Dart class that inherits from `ViewModel`:
+Your ViewModel subclass is a Dart class that inherits from ViewModel:
 
     class MyWidgetViewModel extends ViewModel {
       String someText;
@@ -42,7 +42,7 @@ Your `ViewModel` subclass is a Dart class that inherits from `ViewModel`:
 
 Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
 
-Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel` class provides `initState()` and `dispose()` which is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
+Like the Flutter `State` class associated with `StatefulWidget`, the ViewModel class provides `initState()` and `dispose()` which is handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
 
     class MyWidgetViewModel extends ViewModel {
       @override
@@ -60,45 +60,45 @@ Like the Flutter `State` class associated with `StatefulWidget`, the `ViewModel`
 
 ## Rebuilding the View
 
-`ViewModel` includes a `buildView` method for rebuilding the `View`. You can call it explicitly:
+ViewModel includes a `buildView` method for rebuilding the View. You can call it explicitly:
 
     class MyWidgetViewModel extends ViewModel {
       int counter;
       void incrementCounter() {
         counter++;
-        buildView();                     // <- queues View to rebuild
+        buildView(); // <- queues View to build
       }
     }
 
-Or bind the `ViewModel` to the `View` with a `ValueNotifier`:
+Or bind the ViewModel to the View with a `ValueNotifier`:
 
     class MyWidgetViewModel extends ViewModel {
       final counter = ValueNotifier<int>(0);
       void initState() {
         super.initState();
-        counter.addListener(buildView);   // <- calls buildView on new value for counter
+        counter.addListener(buildView); // <- binds ViewModel to View
       }
     }
 
 ## Retrieving View Models from anywhere
 
-Occasionally you need to access another widget's `ViewModel` instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the View Model with the "register" parameter of the `ViewModel` constructor (similar to how `get_it` works):
+Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the View Model with the "register" parameter of the ViewModel constructor (similar to how `get_it` works):
 
     class MyOtherWidget extends View<MyOtherWidgetViewModel> {
       MyOtherWidget(super.key) : super(
         viewModelBuilder: () => MyOtherWidgetViewModel(
-          register: true, // <- registers the View Model so other widgets and models can access
+          register: true, // <- registers ViewModel instance
         ),
       );
     }
 
-Widgets and models can then "get" the registered View Model with the `ViewModel` function `get`:
+Widgets and models can then "get" the registered View Model with the ViewModel function `get`:
 
     final otherViewModel = get<MyOtherWidgetViewModel>();
 
-Like `get_it`, MVVM+ uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a `View` widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like `get_it`, MVVM+ uses singletons that are not managed by `InheritedWidget`. So, widgets don't need to be children of a View widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
 
-Unlike `get_it` the lifecycle of all `ViewModel` instances (including registered) are bound to the lifecycle of the `View` instances that instantiated them. So, when a `View` instance is removed from the widget tree, its `ViewModel` is disposed.
+Unlike `get_it` the lifecycle of all ViewModel instances (including registered) are bound to the lifecycle of the View instances that instantiated them. So, when a View instance is removed from the widget tree, its ViewModel is disposed.
 
 On rare occasions when you need to register multiple View Models of the same type, just give each View Model instance a unique name:
 
@@ -106,19 +106,19 @@ On rare occasions when you need to register multiple View Models of the same typ
       MyOtherWidget(super.key) : super(
         viewModelBuilder: () => MyOtherWidgetViewModel(
           register: true,
-          name: 'Header', // <- distinguishes from other registered View Models of the same type
+          name: 'Header', // <- unique name
         ),
       );
     }
 
-and then get the `ViewModel` by type and name:
+and then get the ViewModel by type and name:
 
     final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
     final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 
 ## Adding additional ChangeNotifiers 
 
-The `ViewModel` constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
+The ViewModel constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -129,15 +129,15 @@ The `Registar` widget registers the model when added to the widget tree and unre
 
 ## Listening to other widget's View Models
 
-`ViewModel` adds a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
+ViewModel adds a `get` method that retrieves models registered by another `ViewModels`. (Or registered with a `Registrar` widget)
 
     final text = get<MyOtherWidgetViewModel>().someText;
 
-`get` retrieves a registered `MyOtherWidgetViewModel` but does not listen for future changes. For that, use `listenTo` from within your `ViewModel`:
+`get` retrieves a registered `MyOtherWidgetViewModel` but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
-`listenTo` adds the `buildView` method as a listener to queue `View` to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
+`listenTo` adds the `buildView` method as a listener to queue View to build every time `MyOtherWidgetViewModel.notifyListeners()` is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
 
     listenTo<MyWidgetViewModel>(listener: myListener);
 
@@ -153,15 +153,15 @@ Either way, listeners passed to `listenTo` are automatically removed when your V
 
 ## notifyListeners vs buildView
 
-When your `View` and `ViewModel` classes are instantiated, `buildView` is added as a listener to your `ViewModel`. So, calling `buildView` or `notifyListeners` from within your `ViewModel` will both rebuild your `View`. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your `ViewModel` is registered--any listeners to your registered `ViewModel` will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
+When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers
 
-If you want more granularity than sharing an entire `ViewModel` or service you can register a `ValueNotifier` instead using `Registrar`:
+If you want more granularity than sharing an entire ViewModel or service you can register a `ValueNotifier` instead using `Registrar`:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
-And `get` or `listenTo` to the `ValueNotifier` the same as a registered `ViewModel` (because they are both subclasses of `ChangeNotifier`):
+And `get` or `listenTo` to the `ValueNotifier` the same as a registered ViewModel (because they are both subclasses of `ChangeNotifier`):
 
     final myValue = listenTo<MyValueNotifier>().value;
 
