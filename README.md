@@ -1,16 +1,16 @@
 # mvvm_plus (mvvm+)
 
-![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MVVM+logo.png)
+![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
 MVVM+ is a Flutter implementation of MVVM plus support for sharing business logic across widgets.
 
-MVVM+ employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm), so will be familiar to most Flutter developers.
+MVVM+ employs `ChangeNotifiers` and cherry picks the best bits of [provider](https://pub.dev/packages/provider), [get_it](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (plus adds a few bits of its own), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
 As with all MVVM implementations, MVVM+ divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
 
-![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/mvvm_plus/assets/MvvmFlow.png)
+![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
 States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model is a Dart model. 
 

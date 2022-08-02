@@ -1,6 +1,6 @@
 name: mvvm_plus
 description: A Flutter implementation of MVVM plus support for sharing business logic across widgets.
-version: 0.1.0
+version: 0.1.2
 repository: https://github.com/buttonsrtoys/mvvm_plus
 issue_tracker: https://github.com/buttonsrtoys/mvvm_plus/issues
 
