@@ -82,7 +82,7 @@ Or bind the ViewModel to the View with a ValueNotifier:
 
 ## Retrieving View Models from anywhere
 
-Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the View Model with the "register" parameter of the ViewModel constructor (similar to how GetIt works):
+Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the ViewModel with the "register" parameter of the ViewModel constructor (similar to how GetIt works):
 
     class MyOtherWidget extends View<MyOtherWidgetViewModel> {
       MyOtherWidget(super.key) : super(
@@ -92,15 +92,15 @@ Occasionally you need to access another widget's ViewModel instance (e.g., if it
       );
     }
 
-Widgets and models can then "get" the registered View Model with the ViewModel function `get`:
+ViewModels can then "get" the other registered ViewModel:
 
     final otherViewModel = get<MyOtherWidgetViewModel>();
 
-Like GetIt, MVVM+ uses singletons that are not managed by InheritedWidget. So, widgets don't need to be children of a View widget to get its registered View Model. This is a big plus for use cases where the accessed View Model is not an ancestor.
+Like GetIt, registered ViewModels are not managed by InheritedWidget. So, widgets don't need to be children of a View widget to get its registered ViewModel. This is a big plus for use cases where the accessed ViewModel is not an ancestor.
 
 Unlike GetIt the lifecycle of all ViewModel instances (including registered) are bound to the lifecycle of the View instances that instantiated them. So, when a View instance is removed from the widget tree, its ViewModel is disposed.
 
-On rare occasions when you need to register multiple View Models of the same type, just give each View Model instance a unique name:
+On rare occasions when you need to register multiple ViewModels of the same type, just give each ViewModel instance a unique name:
 
     class MyOtherWidget extends View<MyOtherWidgetViewModel> {
       MyOtherWidget(super.key) : super(
@@ -118,7 +118,7 @@ and then get the ViewModel by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The ViewModel constructor optionally registers a View Model, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
+The ViewModel constructor optionally registers itself, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -127,13 +127,9 @@ The ViewModel constructor optionally registers a View Model, but sometimes you w
 
 The Registar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out MultiRegistrar.
 
-## Listening to other widget's View Models
+## Listening to other widget's ViewModels
 
-ViewModel adds a `get` method that retrieves models registered by another ViewModels. (Or registered with a Registrar widget)
-
-    final text = get<MyOtherWidgetViewModel>().someText;
-
-`get` retrieves a registered MyOtherWidgetViewModel but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
+ViewModel adds a `get` method that retrieves models registered by another ViewModels or by a Registrar widget, but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
