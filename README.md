@@ -34,7 +34,7 @@ With MVVM+ you extend the View class the same way you extend StatelessWidget wid
       }
     }
 
-Your ViewModel subclass is a Dart class that inherits from ViewModel:
+Your ViewModel class is a Dart class that inherits from ViewModel:
 
     class MyWidgetViewModel extends ViewModel {
       String someText;
@@ -118,7 +118,7 @@ and then get the ViewModel by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The ViewModel constructor optionally registers itself, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has widget that you can add to the widget tree:
+The ViewModel constructor optionally registers itself, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has a widget named "Registrar" that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -129,11 +129,11 @@ The Registar widget registers the model when added to the widget tree and unregi
 
 ## Listening to other widget's ViewModels
 
-ViewModel adds a `get` method that retrieves models registered by another ViewModels or by a Registrar widget, but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
+ViewModel has a `get` method that retrieves models registered by other ViewModels or by Registrar widget, but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
-`listenTo` adds the `buildView` method as a listener to queue View to build every time MyOtherWidgetViewModel.notifyListeners() is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
+`listenTo` adds the `buildView` method as a listener to queue View to build every time the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
 
     listenTo<MyWidgetViewModel>(listener: myListener);
 
@@ -149,7 +149,7 @@ Either way, listeners passed to `listenTo` are automatically removed when your V
 
 ## notifyListeners vs buildView
 
-When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, except if your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
+When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, unless your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers
 
@@ -157,7 +157,7 @@ If you want more granularity than sharing an entire ViewModel or service you can
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
-And `get` or `listenTo` to the ValueNotifier the same as a registered ViewModel (because they are both subclasses of ChangeNotifier):
+And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewModel (because they are both subclasses of ChangeNotifier):
 
     final myValue = listenTo<MyValueNotifier>().value;
 
