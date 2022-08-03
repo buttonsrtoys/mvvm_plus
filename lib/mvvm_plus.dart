@@ -1,9 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:registrar/registrar.dart';
 
-/// A widget that builds a View and has a View Model
+/// A View widget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
 ///
@@ -26,24 +25,49 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
     super.key,
   }) : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
-  final _viewModelInstance = _ViewModelInstance<T>();
+  final _stateInstance = _StateInstance<T>();
 
   /// Returns the [ViewModel] subclass associated with this [View].
-  T get viewModel {
-    assert(
-        _viewModelInstance.value != null,
-        'It appears that "createState" was overridden, which which is forbidden. '
-        'See the comments in "createState" for more detail.');
-    return _viewModelInstance.value!;
-  }
+  T get viewModel => _stateInstance.value._viewModel;
+
+  /// See [State.context] for details.
+  BuildContext get context => _stateInstance.value.context;
+
+  /// See [State.mounted] for details.
+  bool get mounted => _stateInstance.value.mounted;
+
+  /// See [State.didUpdateWidget] for details.
+  @protected
+  @mustCallSuper
+  void didUpdateWidget(covariant View<T> oldWidget) {}
+
+  /// See [State.reassemble] for details.
+  @protected
+  @mustCallSuper
+  void reassemble() {}
+
+  /// See [State.deactivate] for details.
+  @protected
+  @mustCallSuper
+  void deactivate() {}
+
+  /// See [State.activate] for details.
+  @protected
+  @mustCallSuper
+  void activate() {}
+
+  /// See [State.didChangeDependencies] for details.
+  @protected
+  @mustCallSuper
+  void didChangeDependencies() {}
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
   Widget build(BuildContext context);
 
-  /// [createState] provides the logic for this [View] class so should not be overridden. To specify the interface, o
-  /// override [build] instead.
-  @nonVirtual
+  /// [createState] provides the logic for this [View] class and typically would not be overridden. To specify the
+  /// interface, override [build].
   @override
+  @mustCallSuper
   State<View<T>> createState() => _ViewState<T>();
 }
 
@@ -70,15 +94,45 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
   }
 
   @override
+  void didUpdateWidget(covariant View<T> oldWidget) {
+    widget.didUpdateWidget(oldWidget);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void reassemble() {
+    widget.reassemble();
+    super.reassemble();
+  }
+
+  @override
+  void deactivate() {
+    widget.deactivate();
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    widget.activate();
+    super.activate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    widget.didChangeDependencies();
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    widget._viewModelInstance.value = _viewModel;
+    widget._stateInstance.value = this;
     return widget.build(context);
   }
 }
 
 /// Wrapper for ViewModel to transfer from [_ViewState] to [View]
-class _ViewModelInstance<T> {
-  T? value;
+class _StateInstance<T extends ViewModel> {
+  late _ViewState<T> value;
 }
 
 /// [ChangeNotifier] subscription
@@ -211,9 +265,6 @@ abstract class ViewModel extends ChangeNotifier {
     }
     super.dispose();
   }
-
-// Rich, need to add other stateless functions here
-
 }
 
 String _missingGenericError(String function, String type) =>

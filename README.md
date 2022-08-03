@@ -8,7 +8,7 @@ MVVM+ employs ChangeNotifiers and cherry picks the best bits of [Provider](https
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, MVVM+ divides responsibilities into an immutable rendering (called the *View*) and a presentation model (called the *View Model*):
+As with all MVVM implementations, MVVM+ divides responsibilities into a UI object (called the *View*), business logic associated with the View (called the *View Model*), and business logic that spans two or more View Models (called the *Model*):
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
@@ -70,7 +70,7 @@ ViewModel includes a `buildView` method for rebuilding the View. You can call it
       }
     }
 
-Or bind the ViewModel to the View with a ValueNotifier:
+Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
     class MyWidgetViewModel extends ViewModel {
       final counter = ValueNotifier<int>(0);

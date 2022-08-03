@@ -1,3 +1,7 @@
+## 0.2.0
+Added View member functions context, mounted, didUpdateWidget, reassemble, deactivate, activate, 
+and didChangeDependencies.
+
 ## 0.1.6
 Updated description and readme.
 
