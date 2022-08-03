@@ -1,3 +1,6 @@
+## 0.1.5
+Updated description to improve pub.dev search results.
+
 ## 0.1.4
 Updated readme.
 

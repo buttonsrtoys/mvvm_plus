@@ -2,9 +2,9 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM plus support for sharing business logic across widgets.
+MVVM+ is a lightweight Flutter implementation of MVVM, plus support for sharing business logic across widgets.
 
-MVVM+ employs ChangeNotifiers and cherry picks the best bits of [Provider](https://pub.dev/packages/provider), [GetIt](https://pub.dev/packages/get_it), and [mvvm](https://pub.dev/packages/mvvm) (plus adds a few bits of its own), so will be familiar to most Flutter developers.
+MVVM+ employs ChangeNotifiers and cherry picks the best bits of [Provider](https://pub.dev/packages/provider), [GetIt](https://pub.dev/packages/get_it), and [MVVM](https://pub.dev/packages/mvvm) (plus adds a few bits of its own), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
@@ -15,16 +15,22 @@ As with all MVVM implementations, MVVM+ divides responsibilities into an immutab
 States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model is a Dart model. 
 
 MVVM+ goals:
-- Provide a state management framework that clearly separates business logic from UI.
-- Optionally provide access to View Models from anywhere in the widget tree.
-- Work well alone or with other state management packages (RxDart, Provider, GetIt, ...).
+- Clearly separate business logic from UI.
+- Optionally support access to View Models from anywhere in the widget tree.
+- Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
 - Be simple.
 - Be small.
 
 ## Views and View Models
 
-With MVVM+ you extend the View class the same way you extend StatelessWidget widget. E.g., you override the `build` function:
+Your ViewModel class is a Dart class that inherits from ViewModel:
+
+    class MyWidgetViewModel extends ViewModel {
+      String someText;
+    }
+
+For your View class, you give the super constructor a builder for your ViewModel (via the "viewModelBuilder" parameter) and extend the View class the same way you extend StatelessWidget widget--you override the `build` function:
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -34,15 +40,9 @@ With MVVM+ you extend the View class the same way you extend StatelessWidget wid
       }
     }
 
-Your ViewModel class is a Dart class that inherits from ViewModel:
-
-    class MyWidgetViewModel extends ViewModel {
-      String someText;
-    }
-
 Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
 
-Like the Flutter State class associated with StatefulWidget, the ViewModel class provides `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
+Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
 
     class MyWidgetViewModel extends ViewModel {
       @override
@@ -58,7 +58,7 @@ Like the Flutter State class associated with StatefulWidget, the ViewModel class
       late final StreamSubscription<bool> _streamSubscription;
     }
 
-## Rebuilding the View
+## Rebuilding a View
 
 ViewModel includes a `buildView` method for rebuilding the View. You can call it explicitly:
 
@@ -80,7 +80,7 @@ Or bind the ViewModel to the View with a ValueNotifier:
       }
     }
 
-## Retrieving View Models from anywhere
+## Retrieving ViewModels from anywhere
 
 Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on another branch of the widget tree). This is accomplished by "registering" the ViewModel with the "register" parameter of the ViewModel constructor (similar to how GetIt works):
 
@@ -118,42 +118,41 @@ and then get the ViewModel by type and name:
 
 ## Adding additional ChangeNotifiers 
 
-The ViewModel constructor optionally registers itself, but sometimes you want registered models that are not associated with Views. MVVM+ uses [Registrar](https://pub.dev/packages/registrar) under the hood which has a widget named "Registrar" that you can add to the widget tree:
+Sometimes you want registered models that are not associated with Views. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that you can add to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
       child: MyWidget(),
     );
 
-The Registar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out MultiRegistrar.
+The Registrar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out MultiRegistrar.
 
 ## Listening to other widget's ViewModels
 
-ViewModel has a `get` method that retrieves models registered by other ViewModels or by Registrar widget, but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
+The ViewModel `get` method retrieves registered ViewModels but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
-`listenTo` adds the `buildView` method as a listener to queue View to build every time the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
+`listenTo` performs a one-time add of the `buildView` method as a listener that is called every time the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just queue a build, you can give `listenTo` a listener function:
 
     listenTo<MyWidgetViewModel>(listener: myListener);
 
 If you want to rebuild your View after your custom listener finishes, just call `buildView` within your listener:
 
-    @override
     void myListener() {
       // do some stuff
       buildView(); 
     }
 
-Either way, listeners passed to `listenTo` are automatically removed when your ViewModel instance is disposed.
+Either way, listeners added by `listenTo` are automatically removed when your ViewModel instance is disposed.
 
 ## notifyListeners vs buildView
 
-When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, unless your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
+When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, unless your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary View builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers
 
-If you want more granularity than sharing an entire ViewModel or service you can register a ValueNotifier instead using Registrar:
+If you want more granularity than registering an entire ViewModel or service, you can register a ValueNotifier instead:
 
     Registrar.register<MyValueNotifier>(instance: myValueNotifier);
 
@@ -163,6 +162,6 @@ And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewMo
 
 ## That's it! 
 
-The [example app](https://github.com/buttonsrtoys/view/tree/main/example) demos much of the above functionality and shows how small and organized MVVM+ classes typically are.
+The [example app](https://github.com/buttonsrtoys/view/tree/main/example/lib) demos much of the above functionality and shows how small and organized MVVM+ classes typically are.
 
 If you have questions or suggestions on anything MVVM+, please do not hesitate to contact me.
