@@ -161,7 +161,7 @@ And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewMo
     final myValue = listenTo<MyValueNotifier>().value;
 
 # Example
-(The source code for the package example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)
+(The source code for the repo example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)
 
 This example increments a number (0, 1, 2, ...) and a letter character (a, b, c, ...) using a single
 increment floating action button (FAB) that toggles between incrementing the number and the
