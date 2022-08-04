@@ -1,3 +1,6 @@
+## 0.2.2
+Fixed example gif.
+
 ## 0.2.1
 Updated readme with example.
 

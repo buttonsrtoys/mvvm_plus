@@ -14,4 +14,4 @@ letter color. The number color service has a stream that emits a new color every
 letter color service is a ChangeNotifier with a timer that changes the current letter color and 
 then calls `notifyListeners`.
 
-<img src="https://github.com/buttonsrtoys/view/blob/main/example/example.gif" width="400"/>
+![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/example/example.gif)
