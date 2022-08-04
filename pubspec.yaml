@@ -1,6 +1,6 @@
 name: mvvm_plus
 description: MVVM+ is a lightweight Flutter state management library that implements MVVM, plus adds support for sharing business logic across widgets.
-version: 0.2.2
+version: 0.2.3
 repository: https://github.com/buttonsrtoys/mvvm_plus
 issue_tracker: https://github.com/buttonsrtoys/mvvm_plus/issues
 
@@ -10,9 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
   equatable: ^2.0.3
-  registrar: ^0.1.1
+  registrar: ^0.2.0
 
 dev_dependencies:
   flutter_test:

@@ -261,7 +261,7 @@ abstract class ViewModel extends ChangeNotifier {
       subscription.unsubscribe();
     }
     if (register) {
-      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name);
+      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name, dispose: false);
     }
     super.dispose();
   }

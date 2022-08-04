@@ -1,4 +1,3 @@
-import 'package:example/increment_button/increment_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:example/main.dart';

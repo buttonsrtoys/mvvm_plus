@@ -1,3 +1,6 @@
+## 0.2.3
+Registrar bug fix.
+
 ## 0.2.2
 Fixed example gif.
 
