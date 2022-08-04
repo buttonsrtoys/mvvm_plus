@@ -163,8 +163,6 @@ And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewMo
 # Example
 (The source code for the package example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)
 
-A variation on the common Flutter counter project.
-
 This example increments a number (0, 1, 2, ...) and a letter character (a, b, c, ...) using a single
 increment floating action button (FAB) that toggles between incrementing the number and the
 letter. When the FAB displays "+1" a press increments the number and when it displays "+a" the
