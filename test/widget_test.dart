@@ -12,6 +12,7 @@ const _listening = 'Listening';
 const _notListening = 'Not Listening';
 const _registered = 'Registered';
 const _notRegistered = 'Not Registered';
+const _viewModelName = 'ViewModel Name';
 const _named = 'Named';
 const _notNamed = 'Not Named';
 
@@ -30,33 +31,6 @@ Widget testApp({
 
 class MyNotifier extends ChangeNotifier {
   final number = _number;
-}
-
-class MyWidgetViewModel extends ViewModel {
-  MyWidgetViewModel({
-    this.listen = false,
-    super.register,
-    super.name,
-  });
-
-  final bool listen;
-  late MyNotifier myNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    if (listen) {
-      myNotifier = listenTo<MyNotifier>();
-    }
-  }
-
-  int get number => get<MyNotifier>().number;
-
-  String get listeningStatus => listen ? _listening : _notListening;
-
-  String get registerStatus => register ? _registered : _notRegistered;
-
-  String get namedStatus => name == null ? _notNamed : _named;
 }
 
 class MyWidget extends View<MyWidgetViewModel> {
@@ -85,6 +59,38 @@ class MyWidget extends View<MyWidgetViewModel> {
   }
 }
 
+class MyWidgetViewModel extends ViewModel {
+  MyWidgetViewModel({
+    this.listen = false,
+    super.register,
+    super.name,
+  });
+
+  final bool listen;
+  late final MyNotifier myNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    if (listen) {
+      // listen twice so can later test that only one listener added
+      listenTo<MyNotifier>();
+      myNotifier = listenTo<MyNotifier>();
+      // quick tests:
+      assert(myNotifier.number == Registrar.get<MyNotifier>().number);
+      assert(get<MyNotifier>().number == Registrar.get<MyNotifier>().number);
+    }
+  }
+
+  int get number => myNotifier.number;
+
+  String get listeningStatus => listen ? _listening : _notListening;
+
+  String get registerStatus => register ? _registered : _notRegistered;
+
+  String get namedStatus => name == null ? _notNamed : _named;
+}
+
 void main() {
   group('MyWidget', () {
     testWidgets('listening to builder', (WidgetTester tester) async {
@@ -108,7 +114,7 @@ void main() {
       expect(isRegistered, false);
     });
 
-    testWidgets('register', (WidgetTester tester) async {
+    testWidgets('register, not named', (WidgetTester tester) async {
       expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
       expect(Registrar.isRegistered<MyNotifier>(), false);
       Registrar.register<MyNotifier>(builder: () => MyNotifier());
@@ -127,6 +133,29 @@ void main() {
       expect(() => Registrar.unregister<MyNotifier>(), throwsA(isA<Exception>()));
 
       expect(Registrar.isRegistered<MyWidgetViewModel>(), true);
+    });
+
+    testWidgets('register, named', (WidgetTester tester) async {
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), false);
+      expect(Registrar.isRegistered<MyNotifier>(), false);
+      Registrar.register<MyNotifier>(builder: () => MyNotifier());
+      expect(Registrar.isRegistered<MyNotifier>(), true);
+
+      await tester.pumpWidget(testApp(listen: true, register: true, name: _viewModelName));
+
+      expect(find.text('$_number'), findsOneWidget);
+      expect(find.text(_listening), findsOneWidget);
+      expect(find.text(_registered), findsOneWidget);
+      expect(find.text(_named), findsOneWidget);
+
+      Registrar.unregister<MyNotifier>();
+      expect(Registrar.isRegistered<MyNotifier>(), false);
+      expect(() => Registrar.get<MyNotifier>(), throwsA(isA<Exception>()));
+      expect(() => Registrar.unregister<MyNotifier>(), throwsA(isA<Exception>()));
+
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
     });
   });
 }
