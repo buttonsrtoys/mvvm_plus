@@ -122,10 +122,12 @@ class CounterPage extends View<CounterPageViewModel> {
         ),
       ),
       floatingActionButton: IncrementButton(
-        // Typically view models are referenced with the "viewModel" member, like this:
+        // Typically ViewModels are referenced with the "viewModel" member, like this:
         onIncrementNumber: () => viewModel.incrementNumberCounter(),
-        // Alternatively, view models can be registered and retrieved with "View.get" (see below). That is overkill for
-        // this simple example as "viewModel" is available but, hey, we're demoing! :)
+        // Alternatively, ViewModels can be registered and retrieved with "Registrar.get"
+        // (see below) or ViewModels "get" member function. Registering is typically only used
+        // when the ViewModel is "far" up the widget tree (on on another branch), but, hey,
+        // we're demoing! :)
         onIncrementLetter: () => Registrar.get<CounterPageViewModel>().incrementLetterCounter(),
       ),
     );
