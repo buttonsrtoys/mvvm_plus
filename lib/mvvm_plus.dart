@@ -138,8 +138,10 @@ class _StateInstance<T extends ViewModel> {
 /// [ChangeNotifier] subscription
 class _Subscription extends Equatable {
   const _Subscription({required this.changeNotifier, required this.listener});
+
   final void Function() listener;
   final ChangeNotifier changeNotifier;
+
   void unsubscribe() {
     changeNotifier.removeListener(listener);
   }
@@ -232,16 +234,16 @@ abstract class ViewModel extends ChangeNotifier {
   ///
   /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
   @protected
-  ChangeNotifier listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
     assert(T != ChangeNotifier, _missingGenericError('listenTo', 'ChangeNotifier'));
-    final changeNotifier = Registrar.get<T>(name: name);
+    final notifier = Registrar.get<T>(name: name);
     final listenerToAdd = listener ?? buildView;
-    final subscription = _Subscription(changeNotifier: changeNotifier, listener: listenerToAdd);
+    final subscription = _Subscription(changeNotifier: notifier, listener: listenerToAdd);
     if (!_subscriptions.contains(subscription)) {
-      changeNotifier.addListener(listenerToAdd);
+      notifier.addListener(listenerToAdd);
       _subscriptions.add(subscription);
     }
-    return changeNotifier;
+    return notifier;
   }
 
   /// Called when instance is created.

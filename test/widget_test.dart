@@ -5,40 +5,83 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:registrar/registrar.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
-Widget testApp({required bool listening}) => MaterialApp(
-      home: MyWidget(listening: listening),
+import 'unit_test.dart';
+
+const _number = 42;
+const _listening = 'Listening';
+const _notListening = 'Not Listening';
+const _registered = 'Registered';
+const _notRegistered = 'Not Registered';
+const _named = 'Named';
+const _notNamed = 'Not Named';
+
+Widget testApp({
+  required bool listen,
+  required bool register,
+  required String? name,
+}) =>
+    MaterialApp(
+      home: MyWidget(
+        listen: listen,
+        register: register,
+        name: name,
+      ),
     );
 
 class MyNotifier extends ChangeNotifier {
-  final number = 42;
+  final number = _number;
 }
 
 class MyWidgetViewModel extends ViewModel {
-  MyWidgetViewModel({this.listening = false});
+  MyWidgetViewModel({
+    this.listen = false,
+    super.register,
+    super.name,
+  });
 
-  final bool listening;
+  final bool listen;
+  late MyNotifier myNotifier;
 
   @override
   void initState() {
     super.initState();
-    if (listening) {
-      listenTo<MyNotifier>();
+    if (listen) {
+      myNotifier = listenTo<MyNotifier>();
     }
   }
 
   int get number => get<MyNotifier>().number;
+
+  String get listeningStatus => listen ? _listening : _notListening;
+
+  String get registerStatus => register ? _registered : _notRegistered;
+
+  String get namedStatus => name == null ? _notNamed : _named;
 }
 
 class MyWidget extends View<MyWidgetViewModel> {
-  MyWidget({super.key, required bool listening})
-      : super(
+  MyWidget({
+    super.key,
+    required bool listen,
+    required bool register,
+    required String? name,
+  }) : super(
             viewModelBuilder: () => MyWidgetViewModel(
-                  listening: listening,
+                  listen: listen,
+                  register: register,
+                  name: name,
                 ));
 
   @override
   Widget build(BuildContext _) {
-    return Text('${viewModel.number}');
+    return Column(
+      children: [
+        Text('${viewModel.number}'),
+        Text(viewModel.listeningStatus),
+        Text(viewModel.registerStatus),
+        Text(viewModel.namedStatus),
+      ],
+    );
   }
 }
 
@@ -49,14 +92,41 @@ void main() {
       Registrar.register<MyNotifier>(builder: () => MyNotifier());
       expect(Registrar.isRegistered<MyNotifier>(), true);
 
-      await tester.pumpWidget(testApp(listening: true));
+      await tester.pumpWidget(testApp(listen: true, register: false, name: null));
 
-      expect(find.text('42'), findsOneWidget);
+      expect(find.text('$_number'), findsOneWidget);
+      expect(find.text(_listening), findsOneWidget);
+      expect(find.text(_notRegistered), findsOneWidget);
+      expect(find.text(_notNamed), findsOneWidget);
 
       Registrar.unregister<MyNotifier>();
       expect(Registrar.isRegistered<MyNotifier>(), false);
       expect(() => Registrar.get<MyNotifier>(), throwsA(isA<Exception>()));
       expect(() => Registrar.unregister<MyNotifier>(), throwsA(isA<Exception>()));
+
+      final isRegistered = Registrar.isRegistered<MyWidgetViewModel>();
+      expect(isRegistered, false);
+    });
+
+    testWidgets('register', (WidgetTester tester) async {
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyNotifier>(), false);
+      Registrar.register<MyNotifier>(builder: () => MyNotifier());
+      expect(Registrar.isRegistered<MyNotifier>(), true);
+
+      await tester.pumpWidget(testApp(listen: true, register: true, name: null));
+
+      expect(find.text('$_number'), findsOneWidget);
+      expect(find.text(_listening), findsOneWidget);
+      expect(find.text(_registered), findsOneWidget);
+      expect(find.text(_notNamed), findsOneWidget);
+
+      Registrar.unregister<MyNotifier>();
+      expect(Registrar.isRegistered<MyNotifier>(), false);
+      expect(() => Registrar.get<MyNotifier>(), throwsA(isA<Exception>()));
+      expect(() => Registrar.unregister<MyNotifier>(), throwsA(isA<Exception>()));
+
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), true);
     });
   });
 }
