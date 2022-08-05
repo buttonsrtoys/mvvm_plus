@@ -1,6 +1,6 @@
 ## 0.2.4
 
-Added widget tests.
+Added widget tests. Made listenTo return type generic.
 
 ## 0.2.2
 
