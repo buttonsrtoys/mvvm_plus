@@ -30,6 +30,18 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   /// Returns the [ViewModel] subclass associated with this [View].
   T get viewModel => _stateInstance.value._viewModel;
 
+  /// Gets a registered object.
+  ///
+  /// See [ViewModel.get] for details.
+  @protected
+  U get<U extends Object>({String? name}) => viewModel.get<U>(name: name);
+
+  /// Gets a registered ChangeNotifier and listens to future calls to [U.notifyListeners].
+  ///
+  /// See [ViewModel.listenTo] for details.
+  @protected
+  U listenTo<U extends ChangeNotifier>({String? name}) => viewModel.listenTo<U>(name: name);
+
   /// See [State.context] for details.
   BuildContext get context => _stateInstance.value.context;
 
@@ -62,6 +74,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   void didChangeDependencies() {}
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
+  @protected
   Widget build(BuildContext context);
 
   /// [createState] provides the logic for this [View] class and typically would not be overridden. To specify the
@@ -193,7 +206,7 @@ abstract class ViewModel extends ChangeNotifier {
 
   /// Gets a registered object.
   ///
-  /// This method performs a one-time retrieval and does not listen to future changes. To listen for future changes,
+  /// This method gets a registered object and does not listen to future changes. To listen for future changes,
   /// see [listenTo].
   ///
   /// [name] is the optional name assigned to the object when it was registered.
@@ -267,6 +280,44 @@ abstract class ViewModel extends ChangeNotifier {
     }
     super.dispose();
   }
+}
+
+/// Empty ViewModel consumed by [ViewWithStatelessViewModel]
+class _StatelessViewModel extends ViewModel {}
+
+/// [View] with [_StatelessViewModel]
+///
+/// This is a convenience class for creating Views that don't have any states but update on changes to registered
+/// ViewModels, ChangeNotifiers, or Services.
+///
+/// So, instead of creating an empty ViewModel and a View that uses it
+///
+///     class MyStatelessViewModel extends ViewModel {}
+///
+///     class MyView extends View<MyStatelessViewModel> {
+///       MyView({super.key}) : super(viewModelBuilder: () => MyStatelessViewModel());
+///       @override
+///       Widget build(BuildContext context) {
+///         return Text(get<SomeNotifier>().text);
+///       }
+///     }
+///
+/// you can instead write
+///
+///     class MyView extends ViewWithStatelessViewModel {
+///       MyView({super.key});
+///       @override
+///       Widget build(BuildContext context) {
+///         return Text(get<SomeNotifier>().text);
+///       }
+///     }
+///
+abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
+  ViewWithStatelessViewModel({super.key}) : super(viewModelBuilder: () => _StatelessViewModel());
+
+  @override
+  @protected
+  Widget build(BuildContext context);
 }
 
 String _missingGenericError(String function, String type) =>
