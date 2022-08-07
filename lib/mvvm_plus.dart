@@ -169,11 +169,10 @@ class _Subscription extends Equatable {
 
 /// Base class for View Models
 ///
-/// [register] is whether the built [ViewModel] is "registered", meaning that it can be located with from other widgets
-/// by using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo],
-/// Models are typically only registered when they need to be located by a descendant of this
-/// widget or by a widget on another branch of the widget tree. Note that the [View] uses member [viewModel] to access
-/// its [ViewModel], so doesn't need the registry or to use [get].
+/// [register] is whether the built [ViewModel] should "register", meaning that it can be located using
+/// [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Models are typically only registered when
+/// they need to be located by a descendant of this widget or by a widget on another branch of the widget tree. Note
+/// that the [View] uses member [viewModel] to access its [ViewModel], so doesn't need the registry or to use [get].
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
 /// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
 abstract class ViewModel extends ChangeNotifier {
@@ -292,7 +291,7 @@ abstract class ViewModel extends ChangeNotifier {
 /// Empty ViewModel used by [ViewWithStatelessViewModel]
 class _StatelessViewModel extends ViewModel {}
 
-/// A View with a predefined ViewModel that has no states.
+/// A [View] with a predefined [ViewModel] that has no states.
 ///
 /// This is a convenience class for creating Views that don't have any states but update on changes to registered
 /// ChangeNotifiers. E.g., a widget that listens to a service but doesn't have its own states.
