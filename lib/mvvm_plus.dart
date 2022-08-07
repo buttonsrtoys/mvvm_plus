@@ -28,11 +28,11 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 
   /// Get a registered object.
   ///
-  /// Uses the custom [ViewModel] to get a registered object. See [ViewModel.get] for details.
+  /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
   @protected
   U get<U extends Object>({String? name}) => viewModel.get<U>(name: name);
 
-  /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener [U].
+  /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener to [U].
   ///
   /// On calls to [U.notifyListeners], queues [build]. Note that unlike [ViewModel.listenTo], [View.listenTo] has
   /// no "listener" parameter that receives a custom listener. If you need a custom listener, please define it in your
@@ -181,9 +181,9 @@ abstract class ViewModel extends ChangeNotifier {
     this.register = false,
     this.name,
   }) : assert(
-  register || name == null,
-  'Constructor was called with "name" set but not "registerViewModel". You must '
-      'also set "registerViewModel" when "name" is set.');
+            register || name == null,
+            'Constructor was called with "name" set but not "registerViewModel". You must '
+            'also set "registerViewModel" when "name" is set.');
 
   final bool register;
   final String? name;
@@ -289,13 +289,13 @@ abstract class ViewModel extends ChangeNotifier {
   }
 }
 
-/// Empty ViewModel consumed by [ViewWithStatelessViewModel]
+/// Empty ViewModel used by [ViewWithStatelessViewModel]
 class _StatelessViewModel extends ViewModel {}
 
-/// [View] with [_StatelessViewModel]
+/// A View with a predefined ViewModel that has no states.
 ///
 /// This is a convenience class for creating Views that don't have any states but update on changes to registered
-/// ChangeNotifiers.
+/// ChangeNotifiers. E.g., a widget that listens to a service but doesn't have its own states.
 ///
 /// So, if a View has no states but you want to listen to a registered ChangeNotifier, instead of creating an empty
 /// ViewModel and a View that consumes it:
@@ -331,4 +331,4 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 
 String _missingGenericError(String function, String type) =>
     'Missing generic error: "$function" called without a custom subclass generic. Did you call '
-        '"$function(..)" instead of "$function<$type>(..)"?';
+    '"$function(..)" instead of "$function<$type>(..)"?';

@@ -1,3 +1,7 @@
+## 0.3.0
+
+Added ViewWithStatelessViewModel, View.get, View.listenTo, and more tests.
+
 ## 0.2.4
 
 Added widget tests. Made listenTo return type generic.
