@@ -182,7 +182,7 @@ abstract class ViewModel extends ChangeNotifier {
   }) : assert(
             register || name == null,
             'Constructor was called with "name" set but not "registerViewModel". You must '
-            'also set "registerViewModel" when "name" is set.');
+            'also set "register" to true when "name" is set.');
 
   final bool register;
   final String? name;
