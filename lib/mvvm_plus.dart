@@ -167,25 +167,38 @@ class _Subscription extends Equatable {
   List<Object?> get props => [changeNotifier, listener];
 }
 
+/// Base class for State Notifiers
+///
+/// See [_Registerable] for descriptions of [register] and [name].
+/// Use [ValueNotifier.addListener] to add listeners. E.g.,
+///
+///    class MyViewModel extends ViewModel {
+///      late final counter = StateNotifier<int>(0).addListener(buildView);
+///    }
+///
+class StateNotifier<T> extends ValueNotifier<T> with _Registerable {
+  StateNotifier(
+    T value, {
+    bool register = false,
+    String? name,
+  }) : super(value) {
+    this.register = register || name != null;
+    this.name = name;
+  }
+}
+
 /// Base class for View Models
 ///
-/// [register] is whether the built [ViewModel] should "register", meaning that it can be located using
-/// [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Models are typically only registered when
-/// they need to be located by a descendant of this widget or by a widget on another branch of the widget tree. Note
-/// that the [View] uses member [listener] to access its [ViewModel], so doesn't need the registry or to use [get].
-/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
-/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
-abstract class ViewModel extends ChangeNotifier {
+/// See [_Registerable] for descriptions of [register] and [name].
+abstract class ViewModel extends ChangeNotifier with _Registerable {
   ViewModel({
-    this.register = false,
-    this.name,
-  }) : assert(
-            register || name == null,
-            'Constructor was called with "name" set but not "registerViewModel". You must '
-            'also set "register" to true when "name" is set.');
+    bool register = false,
+    String? name,
+  }) {
+    this.register = register || name != null;
+    this.name = name;
+  }
 
-  final bool register;
-  final String? name;
   final _subscriptions = <_Subscription>[];
 
   /// Queues [View] to rebuild.
@@ -269,9 +282,7 @@ abstract class ViewModel extends ChangeNotifier {
   @protected
   @mustCallSuper
   void initState() {
-    if (register) {
-      Registrar.registerByRuntimeType(instance: this, name: name);
-    }
+    registerIfNecessary();
   }
 
   /// Called when instance is disposed.
@@ -281,10 +292,42 @@ abstract class ViewModel extends ChangeNotifier {
     for (_Subscription subscription in _subscriptions) {
       subscription.unsubscribe();
     }
+    unregisterIfNecessary();
+    super.dispose();
+  }
+}
+
+class _NotifierAndListener {
+  _NotifierAndListener(
+    this.notifier,
+    this.listener,
+  );
+
+  final ChangeNotifier notifier;
+  final VoidCallback listener;
+}
+
+/// Mixed in with [ViewModel] and [StateNotifier] to make them registerable
+///
+/// [register] is whether the subclass ([ViewModel], [StateNotifier]) should "register", meaning that it can be located
+/// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
+/// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
+/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
+/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
+mixin _Registerable {
+  bool register = false;
+  String? name;
+
+  void registerIfNecessary() {
+    if (register) {
+      Registrar.registerByRuntimeType(instance: this, name: name);
+    }
+  }
+
+  void unregisterIfNecessary() {
     if (register) {
       Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name, dispose: false);
     }
-    super.dispose();
   }
 }
 

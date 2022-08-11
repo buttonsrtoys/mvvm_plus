@@ -1,7 +1,9 @@
 ## StateNotifier
 
-Consider extending ValueNotifier to StateNotifier to facilitate adding listeners and registering.
-E.g.,
+**Status: Done v0.4.0**
+
+Consider extending ValueNotifier to "StateNotifier" (or "Value"?) to facilitate adding listeners and
+registering. E.g.,
 
     class MyViewModel extends ViewModel {
       final counter = StateNotifier<int>(0, register: true, name: 'MyViewModel.counter');
@@ -26,3 +28,5 @@ E.g.,
     }
 
 ## For brevity, consider removing requirement to set 'register' true when 'name' != null;
+
+**Status: Done v0.4.0**
