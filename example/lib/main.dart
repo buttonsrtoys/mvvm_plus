@@ -15,6 +15,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Register the ColorNotifier service
+    // at the top of your widget tree.
     return Registrar<ColorNotifier>(
       builder: () => ColorNotifier(),
       child: MaterialApp(
@@ -87,14 +89,15 @@ class CounterPage extends View<CounterPageViewModel> {
     super.key,
   }) : super(
             viewModelBuilder: () => CounterPageViewModel(
-                  register: true, // <- makes gettable by other widgets (overkill for this simple example)
+                  // Register ViewModel (overkill for this simple example)
+                  register: true,
                 ));
 
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = Registrar.get<ColorNotifier>();
+    final upperCaseColorNotifier = get<ColorNotifier>();
 
     return Scaffold(
       appBar: AppBar(
@@ -124,11 +127,10 @@ class CounterPage extends View<CounterPageViewModel> {
       floatingActionButton: IncrementButton(
         // Typically ViewModels are referenced with the "viewModel" member, like this:
         onIncrementNumber: () => viewModel.incrementNumberCounter(),
-        // Alternatively, ViewModels can be registered and retrieved with "Registrar.get"
-        // (see below) or ViewModels "get" member function. Registering is typically only used
-        // when the ViewModel is "far" up the widget tree (on on another branch), but, hey,
-        // we're demoing! :)
-        onIncrementLetter: () => Registrar.get<CounterPageViewModel>().incrementLetterCounter(),
+        // Alternatively, ViewModels can be registered and retrieved with "get". Registering
+        // is typically only used when the ViewModel is "far" up the widget tree (on on
+        // another branch), but, hey, we're demoing! :)
+        onIncrementLetter: () => get<CounterPageViewModel>().incrementLetterCounter(),
       ),
     );
   }
@@ -146,7 +148,7 @@ class CounterPageViewModel extends ViewModel {
   @override
   void initState() {
     super.initState();
-    // listen to the letter color ChangeNotifier
+    // listen to the letter color notifier service
     listenTo<ColorNotifier>(listener: letterColorChanged);
     // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
