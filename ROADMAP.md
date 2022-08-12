@@ -1,15 +1,14 @@
-## StateNotifier
+## Add Property
 
 **Status: Done v0.4.0**
 
-Consider extending ValueNotifier to "StateNotifier" (or "Value"?) to facilitate adding listeners and
-registering. E.g.,
+Consider extending ValueNotifier to "Property" to facilitate adding listeners and registering. E.g.,
 
     class MyViewModel extends ViewModel {
-      final counter = StateNotifier<int>(0, register: true, name: 'MyViewModel.counter');
+      final counter = Property<int>(0, register: true, name: 'MyViewModel.counter');
       // or if remove register:true requirement when naming
-      final counter = StateNotifier<int>(0, name: 'MyViewModel.counter');
-      final someNotifier = StateNotifier<SomeNotifier>(SomeNotifier());
+      final counter = Property<int>(0, name: 'MyViewModel.counter');
+      final someNotifier = Property<SomeNotifier>(SomeNotifier());
       @override
       void initState() {
         super.initState();

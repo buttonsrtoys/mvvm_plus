@@ -60,7 +60,7 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
     return Column(
       children: [
         Text('${viewModel.number}'),
-        Text(viewModel.myStringValueNotifier.value),
+        Text(viewModel.myStringProperty.value),
       ],
     );
   }
@@ -76,7 +76,7 @@ class MyTestWidgetViewModel extends ViewModel {
 
   final bool listenToRegistrar;
   late final MyRegistrarNotifier myRegistrarNotifier;
-  late final myStringValueNotifier = ValueNotifier<String>(_defaultString)..addListener(buildView);
+  late final myStringProperty = Property<String>(_defaultString)..addListener(buildView);
 
   @override
   void initState() {
@@ -170,7 +170,7 @@ void main() {
 
       expect(find.text('${_number + 1}'), findsOneWidget);
 
-      Registrar.get<MyTestWidgetViewModel>().myStringValueNotifier.value = _updatedString;
+      Registrar.get<MyTestWidgetViewModel>().myStringProperty.value = _updatedString;
       await tester.pump();
 
       expect(find.text(_updatedString), findsOneWidget);
@@ -219,9 +219,3 @@ void main() {
     });
   });
 }
-
-//TODO: Rich, need to test
-// StateNotifier
-//    registered, not registered
-//    named, not named,
-//    listener, no listener

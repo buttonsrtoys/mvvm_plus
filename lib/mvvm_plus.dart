@@ -173,7 +173,7 @@ class _Subscription extends Equatable {
 /// Use [ValueNotifier.addListener] to add listeners. E.g.,
 ///
 ///    class MyViewModel extends ViewModel {
-///      late final counter = StateNotifier<int>(0).addListener(buildView);
+///      late final counter = Property<int>(0)..addListener(buildView);
 ///    }
 ///
 class Property<T> extends ValueNotifier<T> with _Registerable {
