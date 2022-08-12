@@ -55,7 +55,9 @@ enum FabLabel {
   letter('+a');
 
   const FabLabel(this.value);
+
   final String value;
+
   FabLabel get nextLabel => value == number.value ? letter : number;
 }
 
@@ -67,13 +69,7 @@ class IncrementButtonViewModel extends ViewModel {
 
   final void Function() incrementNumber;
   final void Function() incrementLetter;
-  final _currentFabLabel = ValueNotifier<FabLabel>(FabLabel.number);
-
-  @override
-  void initState() {
-    super.initState();
-    _currentFabLabel.addListener(buildView);
-  }
+  late final _currentFabLabel = Property<FabLabel>(FabLabel.number)..addListener(buildView);
 
   void incrementCounter() {
     _currentFabLabel.value == FabLabel.number ? incrementNumber() : incrementLetter();
@@ -142,8 +138,8 @@ class CounterPageViewModel extends ViewModel {
   String message = '';
   Timer? _timer;
   late final StreamSubscription<Color> _streamSubscription;
-  int _numberCounter = 0; // <- Demoing without ValueNotifier
-  final letterCount = ValueNotifier<String>('a'); // <- Demoing with ValueNotifier
+  int _numberCounter = 0; // <- Demo without Property
+  late final letterCount = Property<String>('a')..addListener(buildView); // <- Demo Property
 
   @override
   void initState() {
@@ -152,7 +148,6 @@ class CounterPageViewModel extends ViewModel {
     listenTo<ColorNotifier>(listener: letterColorChanged);
     // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
-    letterCount.addListener(buildView);
   }
 
   @override
@@ -166,7 +161,9 @@ class CounterPageViewModel extends ViewModel {
   }
 
   Color _numberColor = const Color.fromRGBO(0, 0, 0, 1.0);
+
   Color get numberColor => _numberColor;
+
   void setNumberColor(Color color) {
     _setMessage('Number color changed!');
     _numberColor = color;
@@ -191,6 +188,7 @@ class CounterPageViewModel extends ViewModel {
   }
 
   int get numberCounter => _numberCounter;
+
   void incrementNumberCounter() {
     _numberCounter = _numberCounter == 9 ? 0 : _numberCounter + 1;
     buildView();

@@ -6,31 +6,33 @@ import 'package:mvvm_plus/mvvm_plus.dart';
 import 'unit_test.dart';
 
 const _number = 42;
+const _defaultString = 'Default';
+const _updatedString = 'Hello';
 const _viewModelName = 'ViewModel Name';
 
 /// Test app for all widget tests
 ///
-/// [listen] true to listen to [MyNotifier]
-/// [register] true to register [MyWidgetViewModel]
-/// [name] is option name of registered [MyWidgetViewModel]
+/// [listenToRegistrar] true to listen to [MyRegistrarNotifier]
+/// [registerViewModel] true to register [MyTestWidgetViewModel]
+/// [viewModelName] is option name of registered [MyTestWidgetViewModel]
 Widget testApp({
-  required bool listen,
-  required bool register,
-  required String? name,
+  required bool listenToRegistrar,
+  required bool registerViewModel,
+  required String? viewModelName,
 }) =>
     MaterialApp(
       home: Registrar(
-        builder: () => MyNotifier(),
-        child: MyWidget(
-          listen: listen,
-          register: register,
-          name: name,
+        builder: () => MyRegistrarNotifier(),
+        child: MyTestWidget(
+          listenToRegistrar: listenToRegistrar,
+          registerViewModel: registerViewModel,
+          viewModelName: viewModelName,
         ),
       ),
     );
 
 /// The [Registrar] service
-class MyNotifier extends ChangeNotifier {
+class MyRegistrarNotifier extends ChangeNotifier {
   int number = _number;
 
   void incrementNumber() {
@@ -40,17 +42,17 @@ class MyNotifier extends ChangeNotifier {
 }
 
 /// The [View]
-class MyWidget extends View<MyWidgetViewModel> {
-  MyWidget({
+class MyTestWidget extends View<MyTestWidgetViewModel> {
+  MyTestWidget({
     super.key,
-    required bool listen,
-    required bool register,
-    required String? name,
+    required bool listenToRegistrar,
+    required bool registerViewModel,
+    required String? viewModelName,
   }) : super(
-            viewModelBuilder: () => MyWidgetViewModel(
-                  listen: listen,
-                  register: register,
-                  name: name,
+            viewModelBuilder: () => MyTestWidgetViewModel(
+                  listenToRegistrar: listenToRegistrar,
+                  register: registerViewModel,
+                  name: viewModelName,
                 ));
 
   @override
@@ -58,41 +60,43 @@ class MyWidget extends View<MyWidgetViewModel> {
     return Column(
       children: [
         Text('${viewModel.number}'),
+        Text(viewModel.myStringValueNotifier.value),
       ],
     );
   }
 }
 
 /// The [ViewModel]
-class MyWidgetViewModel extends ViewModel {
-  MyWidgetViewModel({
-    this.listen = false,
+class MyTestWidgetViewModel extends ViewModel {
+  MyTestWidgetViewModel({
+    this.listenToRegistrar = false,
     super.register,
     super.name,
   });
 
-  final bool listen;
-  late final MyNotifier myNotifier;
+  final bool listenToRegistrar;
+  late final MyRegistrarNotifier myRegistrarNotifier;
+  late final myStringValueNotifier = ValueNotifier<String>(_defaultString)..addListener(buildView);
 
   @override
   void initState() {
     super.initState();
-    if (listen) {
+    if (listenToRegistrar) {
       // listen twice so can later test that only one listener added
-      listenTo<MyNotifier>(); // 1st listen
-      myNotifier = listenTo<MyNotifier>(); // 2nd listen
+      listenTo<MyRegistrarNotifier>(); // 1st listen
+      myRegistrarNotifier = listenTo<MyRegistrarNotifier>(); // 2nd listen
     } else {
-      myNotifier = get<MyNotifier>();
+      myRegistrarNotifier = get<MyRegistrarNotifier>();
     }
   }
 
-  int get number => myNotifier.number;
+  int get number => myRegistrarNotifier.number;
 }
 
 /// Test app for widget subclassed from [ViewWithStatelessViewModel]
 Widget statelessTestApp({required bool listen}) => MaterialApp(
       home: Registrar(
-        builder: () => MyNotifier(),
+        builder: () => MyRegistrarNotifier(),
         child: MyStatelessView(listen: listen),
       ),
     );
@@ -108,72 +112,80 @@ class MyStatelessView extends ViewWithStatelessViewModel {
 
   @override
   Widget build(BuildContext context) {
-    return listen ? Text('${listenTo<MyNotifier>().number}') : Text('${get<MyNotifier>().number}');
+    return listen ? Text('${listenTo<MyRegistrarNotifier>().number}') : Text('${get<MyRegistrarNotifier>().number}');
   }
 }
 
 void main() {
   setUp(() {
     /// Ensure no residuals
-    expect(Registrar.isRegistered<MyNotifier>(), false);
-    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+    expect(Registrar.isRegistered<MyRegistrarNotifier>(), false);
+    expect(Registrar.isRegistered<MyTestWidgetViewModel>(), false);
   });
 
   tearDown(() {
     /// Ensure no residuals
-    expect(Registrar.isRegistered<MyNotifier>(), false);
-    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+    expect(Registrar.isRegistered<MyRegistrarNotifier>(), false);
+    expect(Registrar.isRegistered<MyTestWidgetViewModel>(), false);
   });
 
-  group('MyWidget', () {
-    testWidgets('not listening, not registered, and not named ViewModel does not update value',
+  group('MyTestWidget', () {
+    testWidgets('not listening to Registrar, not registered, and not named ViewModel does not update value',
         (WidgetTester tester) async {
-      await tester.pumpWidget(testApp(listen: false, register: false, name: null));
+      await tester.pumpWidget(testApp(listenToRegistrar: false, registerViewModel: false, viewModelName: null));
 
-      expect(Registrar.isRegistered<MyNotifier>(), true);
+      expect(Registrar.isRegistered<MyRegistrarNotifier>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       // expect does not increment b/c not listening
       expect(find.text('$_number'), findsOneWidget);
     });
 
-    testWidgets('listening but not registered ViewModel shows correct values', (WidgetTester tester) async {
-      await tester.pumpWidget(testApp(listen: true, register: false, name: null));
+    testWidgets('listening to Registrar but not registered ViewModel shows correct values',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(testApp(listenToRegistrar: true, registerViewModel: false, viewModelName: null));
 
-      expect(Registrar.isRegistered<MyNotifier>(), true);
+      expect(Registrar.isRegistered<MyRegistrarNotifier>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
     });
 
-    testWidgets('listening and registered but not named ViewModel shows correct values', (WidgetTester tester) async {
-      await tester.pumpWidget(testApp(listen: true, register: true, name: null));
+    testWidgets('listening to Registrar and registered ViewModel  but not named ViewModel shows correct values',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(testApp(listenToRegistrar: true, registerViewModel: true, viewModelName: null));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(), true);
-      expect(Registrar.get<MyWidgetViewModel>().number, _number);
+      expect(Registrar.isRegistered<MyTestWidgetViewModel>(), true);
+      expect(Registrar.get<MyTestWidgetViewModel>().number, _number);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
+
+      Registrar.get<MyTestWidgetViewModel>().myStringValueNotifier.value = _updatedString;
+      await tester.pump();
+
+      expect(find.text(_updatedString), findsOneWidget);
     });
 
-    testWidgets('listening, registered, and named ViewModel shows correct values', (WidgetTester tester) async {
-      await tester.pumpWidget(testApp(listen: true, register: true, name: _viewModelName));
+    testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(testApp(listenToRegistrar: true, registerViewModel: true, viewModelName: _viewModelName));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
-      expect(Registrar.get<MyWidgetViewModel>(name: _viewModelName).number, _number);
+      expect(Registrar.isRegistered<MyTestWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyTestWidgetViewModel>(name: _viewModelName), true);
+      expect(Registrar.get<MyTestWidgetViewModel>(name: _viewModelName).number, _number);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
@@ -184,10 +196,10 @@ void main() {
     testWidgets('non-listening stateless View does not update', (WidgetTester tester) async {
       await tester.pumpWidget(statelessTestApp(listen: false));
 
-      expect(Registrar.isRegistered<MyNotifier>(), true);
+      expect(Registrar.isRegistered<MyRegistrarNotifier>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       // expect number did not increment (because not listening)
@@ -197,10 +209,10 @@ void main() {
     testWidgets('listening stateless View updates', (WidgetTester tester) async {
       await tester.pumpWidget(statelessTestApp(listen: true));
 
-      expect(Registrar.isRegistered<MyNotifier>(), true);
+      expect(Registrar.isRegistered<MyRegistrarNotifier>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyNotifier>().incrementNumber();
+      Registrar.get<MyRegistrarNotifier>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);

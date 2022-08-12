@@ -176,8 +176,8 @@ class _Subscription extends Equatable {
 ///      late final counter = StateNotifier<int>(0).addListener(buildView);
 ///    }
 ///
-class StateNotifier<T> extends ValueNotifier<T> with _Registerable {
-  StateNotifier(
+class Property<T> extends ValueNotifier<T> with _Registerable {
+  Property(
     T value, {
     bool register = false,
     String? name,
@@ -307,9 +307,9 @@ class _NotifierAndListener {
   final VoidCallback listener;
 }
 
-/// Mixed in with [ViewModel] and [StateNotifier] to make them registerable
+/// Mixed in with [ViewModel] and [Property] to make them registerable
 ///
-/// [register] is whether the subclass ([ViewModel], [StateNotifier]) should "register", meaning that it can be located
+/// [register] is whether the subclass ([ViewModel], [Property]) should "register", meaning that it can be located
 /// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
 /// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
