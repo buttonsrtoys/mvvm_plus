@@ -1,3 +1,9 @@
+## 0.4.0
+
+Added Model
+Adeed instance parameter to listenTo
+buildRegisteredChangeNotifier
+
 ## 0.3.1
 
 Corrected changelog.

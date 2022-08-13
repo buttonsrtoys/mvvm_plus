@@ -41,7 +41,8 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// [name] is the optional name assigned to the ChangeNotifier when it was registered.
   @protected
-  U listenTo<U extends ChangeNotifier>({String? name}) => viewModel.listenTo<U>(name: name);
+  U listenTo<U extends ChangeNotifier>({U? instance, String? name}) =>
+      viewModel.listenTo<U>(instance: instance, name: name);
 
   /// Same functionality as [State.context].
   BuildContext get context => _stateInstance.value.context;
@@ -167,58 +168,15 @@ class _Subscription extends Equatable {
   List<Object?> get props => [changeNotifier, listener];
 }
 
-/// Base class for State Notifiers
-///
-/// See [_Registerable] for descriptions of [register] and [name].
-/// Use [ValueNotifier.addListener] to add listeners. E.g.,
-///
-///    class MyViewModel extends ViewModel {
-///      late final counter = Property<int>(0)..addListener(buildView);
-///    }
-///
-class Property<T> extends ValueNotifier<T> with _Registerable {
-  Property(
-    T value, {
-    bool register = false,
-    String? name,
-  }) : super(value) {
-    this.register = register || name != null;
-    this.name = name;
-  }
+class _Registration {
+  _Registration({required this.type, required this.name});
+  final Type type;
+  final String? name;
 }
 
-/// Base class for View Models
-///
-/// See [_Registerable] for descriptions of [register] and [name].
-abstract class ViewModel extends ChangeNotifier with _Registerable {
-  ViewModel({
-    bool register = false,
-    String? name,
-  }) {
-    this.register = register || name != null;
-    this.name = name;
-  }
-
+abstract class Model extends ChangeNotifier {
   final _subscriptions = <_Subscription>[];
-
-  /// Queues [View] to rebuild.
-  ///
-  /// Typically called when data rendered in [View] changed:
-  ///
-  ///     void incrementCounter() {
-  ///       _counter++;
-  ///       buildView();
-  ///     }
-  ///
-  /// Note that [buildView] is automatically added as a listener to [ViewModel], so [buildView] is called every time
-  /// [notifyListeners] is called. However, there is an important distinction between calling [notifyListeners] and
-  /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [View] to build AND
-  /// will also notify the listeners of [ViewModel] of a change, while [buildView] will not notify other listeners.
-  /// Therefore, to avoid accidentally notifying listeners, defer to [buildView] unless listeners need to be notified.
-  ///
-  /// Typically this method is not overridden.
-  @protected
-  late void Function() buildView;
+  final _registeredValueNotifiers = <_Registration>[];
 
   /// Get a registered object.
   ///
@@ -266,19 +224,102 @@ abstract class ViewModel extends ChangeNotifier with _Registerable {
   ///
   /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
   @protected
-  T listenTo<T extends ChangeNotifier>({String? name, void Function()? listener}) {
-    assert(T != ChangeNotifier, _missingGenericError('listenTo', 'ChangeNotifier'));
-    final notifier = Registrar.get<T>(name: name);
-    final listenerToAdd = listener ?? buildView;
-    final subscription = _Subscription(changeNotifier: notifier, listener: listenerToAdd);
+  // Rich, need to test final counterValue = listenTo(get<MyService>().counter).value;
+  // doesn't need to be final counterValue = (listenTo(get<MyService>().counter) as ValueNotifier).value;
+  // if so, do final counterValue = listenTo<ValueNotifier>(get<MyService>().counter).value;
+  T listenTo<T extends ChangeNotifier>({T? instance, String? name, required void Function() listener}) {
+    assert(
+        instance != null || T != ChangeNotifier,
+        'listenTo must be given '
+        'a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
+    assert(
+        instance == null || T == ChangeNotifier,
+        'listenTo cannot be given both a generic and a ChangeNotifier. It '
+        'must be given a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
+    final notifierToAdd = instance ?? Registrar.get<T>(name: name);
+    final subscription = _Subscription(changeNotifier: notifierToAdd, listener: listener);
     if (!_subscriptions.contains(subscription)) {
-      notifier.addListener(listenerToAdd);
+      notifierToAdd.addListener(listener);
       _subscriptions.add(subscription);
     }
-    return notifier;
+    return notifierToAdd;
+  }
+
+  ValueNotifier<T> buildRegisteredValueNotifier<T>(T defaultValue, {String? name}) {
+    assert(
+        !Registrar.isRegistered<ValueNotifier<T>>(name: name),
+        'buildRegisteredValueNotifier called with type $T and '
+        'name $name that has already been registered. This could be fixed by using a unique name.');
+    final valueNotifier = ValueNotifier<T>(defaultValue);
+    Registrar.register(instance: valueNotifier, name: name);
+    _addRegisteredValueNotifier(type: ValueNotifier<T>, name: name);
+    return valueNotifier;
+  }
+
+  /// Called when instance is disposed.
+  @override
+  @mustCallSuper
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.unsubscribe();
+    }
+    _subscriptions.clear();
+    for (final registeredValueNotifier in _registeredValueNotifiers) {
+      Registrar.unregisterByRuntimeType(runtimeType: registeredValueNotifier.type, name: registeredValueNotifier.name);
+    }
+    _registeredValueNotifiers.clear();
+    super.dispose();
+  }
+
+  void _addRegisteredValueNotifier({required Type type, required String? name}) {
+    _registeredValueNotifiers.add(_Registration(type: type, name: name));
+  }
+}
+
+/// Base class for View Models
+///
+/// See [_Registerable] for descriptions of [register] and [name].
+abstract class ViewModel extends Model with _Registerable {
+  ViewModel({
+    bool register = false,
+    String? name,
+  }) {
+    this.register = register || name != null;
+    this.name = name;
+  }
+
+  /// Queues [View] to rebuild.
+  ///
+  /// Typically called when data rendered in [View] changed:
+  ///
+  ///     void incrementCounter() {
+  ///       _counter++;
+  ///       buildView();
+  ///     }
+  ///
+  /// Note that [buildView] is automatically added as a listener to [ViewModel], so [buildView] is called every time
+  /// [notifyListeners] is called. However, there is an important distinction between calling [notifyListeners] and
+  /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [View] to build AND
+  /// will also notify the listeners of [ViewModel] of a change, while [buildView] will not notify other listeners.
+  /// Therefore, to avoid accidentally notifying listeners, defer to [buildView] unless listeners need to be notified.
+  ///
+  /// Typically this method is not overridden.
+  @protected
+  late void Function() buildView;
+
+  /// Get a registered ChangeNotifier and listens to future calls to [T.notifyListeners].
+  ///
+  /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
+  @protected
+  @override
+  T listenTo<T extends ChangeNotifier>({T? instance, String? name, void Function()? listener}) {
+    final listenerToAdd = listener ?? buildView;
+    return super.listenTo(instance: instance, listener: listenerToAdd);
   }
 
   /// Called when instance is created.
+  ///
+  /// See [State.initState] for more details.
   @protected
   @mustCallSuper
   void initState() {
@@ -286,30 +327,19 @@ abstract class ViewModel extends ChangeNotifier with _Registerable {
   }
 
   /// Called when instance is disposed.
+  ///
+  /// See [State.dispose] for more details.
   @override
   @mustCallSuper
   void dispose() {
-    for (_Subscription subscription in _subscriptions) {
-      subscription.unsubscribe();
-    }
     unregisterIfNecessary();
     super.dispose();
   }
 }
 
-class _NotifierAndListener {
-  _NotifierAndListener(
-    this.notifier,
-    this.listener,
-  );
-
-  final ChangeNotifier notifier;
-  final VoidCallback listener;
-}
-
-/// Mixed in with [ViewModel] and [Property] to make them registerable
+/// Mixed in with [ViewModel] and [ValueNotifier] to make them registerable
 ///
-/// [register] is whether the subclass ([ViewModel], [Property]) should "register", meaning that it can be located
+/// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
 /// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
 /// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.

@@ -69,7 +69,7 @@ class IncrementButtonViewModel extends ViewModel {
 
   final void Function() incrementNumber;
   final void Function() incrementLetter;
-  late final _currentFabLabel = Property<FabLabel>(FabLabel.number)..addListener(buildView);
+  late final _currentFabLabel = ValueNotifier<FabLabel>(FabLabel.number)..addListener(buildView);
 
   void incrementCounter() {
     _currentFabLabel.value == FabLabel.number ? incrementNumber() : incrementLetter();
@@ -139,7 +139,7 @@ class CounterPageViewModel extends ViewModel {
   Timer? _timer;
   late final StreamSubscription<Color> _streamSubscription;
   int _numberCounter = 0; // <- Demo without Property
-  late final letterCount = Property<String>('a')..addListener(buildView); // <- Demo Property
+  late final letterCount = ValueNotifier<String>('a')..addListener(buildView); // <- Demo Property
 
   @override
   void initState() {

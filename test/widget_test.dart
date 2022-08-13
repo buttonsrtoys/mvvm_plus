@@ -3,11 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:registrar/registrar.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
-import 'unit_test.dart';
-
 const _number = 42;
 const _defaultString = 'Default';
-const _updatedString = 'Hello';
+const _defaultRegisteredString = 'Registered Default';
+const _defaultNamedString = 'Named Default';
+const _propertyName = 'Property Name';
+const _updatedString = 'Updated';
+const _updatedRegisteredString = 'Registered Updated';
+const _updatedNamedString = 'Named Updated';
 const _viewModelName = 'ViewModel Name';
 
 /// Test app for all widget tests
@@ -60,7 +63,9 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
     return Column(
       children: [
         Text('${viewModel.number}'),
-        Text(viewModel.myStringProperty.value),
+        Text(viewModel.myStringNotifier.value),
+        Text(viewModel.myRegisteredStringNotifier.value),
+        Text(viewModel.myNamedStringNotifier.value),
       ],
     );
   }
@@ -76,7 +81,15 @@ class MyTestWidgetViewModel extends ViewModel {
 
   final bool listenToRegistrar;
   late final MyRegistrarNotifier myRegistrarNotifier;
-  late final myStringProperty = Property<String>(_defaultString)..addListener(buildView);
+  late final myStringNotifier = ValueNotifier<String>(_defaultString)..addListener(buildView);
+  late final myRegisteredStringNotifier = buildRegisteredValueNotifier<String>(_defaultRegisteredString)
+    ..addListener(buildView);
+  // Rich, confirm registering unused properties work. E.g., "value" not used. The constructor was not being called
+  // when we registered a Property and then tried to get? Doesn't seem right?
+  // late final myRegisteredStringProperty = Property<String>(_defaultRegisteredString, viewModel: this, register: true);
+  // To test, don't output to widget?
+  late final myNamedStringNotifier = buildRegisteredValueNotifier<String>(_defaultNamedString, name: _propertyName)
+    ..addListener(buildView);
 
   @override
   void initState() {
@@ -170,10 +183,15 @@ void main() {
 
       expect(find.text('${_number + 1}'), findsOneWidget);
 
-      Registrar.get<MyTestWidgetViewModel>().myStringProperty.value = _updatedString;
+      Registrar.get<MyTestWidgetViewModel>().myStringNotifier.value = _updatedString;
+      Registrar.get<ValueNotifier<String>>().value = _updatedRegisteredString;
+      Registrar.get<ValueNotifier<String>>(name: _propertyName).value = _updatedNamedString;
+
       await tester.pump();
 
       expect(find.text(_updatedString), findsOneWidget);
+      // expect(find.text(_updatedRegisteredString), findsOneWidget);
+      // expect(find.text(_updatedNamedString), findsOneWidget);
     });
 
     testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
