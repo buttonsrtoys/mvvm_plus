@@ -85,6 +85,21 @@ And to listen to a non-registered Model:
     When a registry lookup fails, it would be handy to dump the closest matches. E.g.,
     With same type or with different type but same name.
 
+ALTERNATIVE
+
+    class Cloud extends Model {
+      final currentUser = ValueNotifier<User>(null);
+    }
+
+    final cloud = get<Cloud>();
+    final user = listenTo<Property<User>>(instance: get<Cloud>().currentUser).value;
+
+or
+
+    final user = listenTo<ValueNotifier<User>>(instance: get<Cloud>().currentUser).value;
+
+Hey! and do a typedef for ValueNotifier = Property!!!
+
 ## Add Property
 
 **Status: Done v0.4.0**

@@ -40,7 +40,7 @@ Widget testApp({
 class MyModel extends Model {
   int number = _number;
 
-  late final myFloatNotifier = buildRegisteredValueNotifier<double>(_floatDefault);
+  final myFloatNotifier = ValueNotifier<double>(_floatDefault);
 
   void incrementNumber() {
     number++;
@@ -64,7 +64,7 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
 
   @override
   Widget build(BuildContext _) {
-    final float = listenToProperty(get<MyModel>().myFloatNotifier).value;
+    final float = listenTo<ValueNotifier<double>>(notifier: get<MyModel>().myFloatNotifier).value;
     return Column(
       children: [
         Text('${viewModel.number}'),
@@ -87,15 +87,16 @@ class MyTestWidgetViewModel extends ViewModel {
 
   final bool listenToRegistrar;
   late final MyModel myModel;
-  late final myStringNotifier = ValueNotifier<String>(_stringDefault)..addListener(buildView);
-  late final myRegisteredStringNotifier = buildRegisteredValueNotifier<String>(_registeredStringDefault)
-    ..addListener(buildView);
-  late final myNamedStringNotifier = buildRegisteredValueNotifier<String>(_namedStringDefault, name: _propertyName)
-    ..addListener(buildView);
+  final myStringNotifier = ValueNotifier<String>(_stringDefault);
+  final myRegisteredStringNotifier = ValueNotifier<String>(_registeredStringDefault);
+  final myNamedStringNotifier = ValueNotifier<String>(_namedStringDefault);
 
   @override
   void initState() {
     super.initState();
+    myStringNotifier.addListener(buildView);
+    myRegisteredStringNotifier.addListener(buildView);
+    myNamedStringNotifier.addListener(buildView);
     if (listenToRegistrar) {
       // listen twice so can later test that only one listener added
       listenTo<MyModel>(); // 1st listen
@@ -189,8 +190,8 @@ void main() {
       // change values
       Registrar.get<MyModel>().incrementNumber();
       Registrar.get<MyTestWidgetViewModel>().myStringNotifier.value = _stringUpdated;
-      Registrar.get<ValueNotifier<String>>().value = _registeredStringUpdated;
-      Registrar.get<ValueNotifier<String>>(name: _propertyName).value = _namedStringUpdated;
+      Registrar.get<MyTestWidgetViewModel>().myRegisteredStringNotifier.value = _registeredStringUpdated;
+      Registrar.get<MyTestWidgetViewModel>().myNamedStringNotifier.value = _namedStringUpdated;
       Registrar.get<MyModel>().myFloatNotifier.value = _floatUpdated;
 
       await tester.pump();
