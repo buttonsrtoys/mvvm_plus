@@ -116,9 +116,9 @@ and then get the ViewModel by type and name:
     final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
     final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 
-## Adding additional ChangeNotifiers 
+## Models
 
-Sometimes you want registered models that are not associated with Views. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that you can add to the widget tree:
+MVVM+'s Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that adds Models to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
@@ -150,15 +150,29 @@ Either way, listeners added by `listenTo` are automatically removed when your Vi
 
 When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, unless your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary View builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
-## ValueNotifiers
+## ValueNotifiers are your MVVM Properties!
 
-If you want more granularity than registering an entire ViewModel or service, you can register a ValueNotifier instead:
+The MVVM pattern uses the term "Properties" to describe public values of View Models that are bound to Views and other objecs. I.e., when the Property is changed, listeners are notified:
 
-    Registrar.register<MyValueNotifier>(instance: myValueNotifier);
+    class MyViewModel {
+      final counter = Property<int>(0);
+    }
 
-And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewModel (because they are both subclasses of ChangeNotifier):
+In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. Aas you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. In the MVVM+ documentation, I use "ValueNotifier" but to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
 
-    final myValue = listenTo<MyValueNotifier>().value;
+For more granularity than listening to an entire ViewModel, you can declare ValueNotifiers in your View Model and listen to them:
+
+    final counter = ValueNotifier<int>(0);
+    @override
+    void initState() {
+      super.initState();
+      counter.addListener(buildView);
+    }
+
+Of course, you can also listen to ValueNotifiers of registered Models:
+
+    final cloud = get<CloudService>();
+    final currentUser = listenTo<ValueNotifier<int>>(notifier: cloud.currentUser).value;
 
 # Example
 (The source code for the repo example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)
