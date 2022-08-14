@@ -183,7 +183,12 @@ abstract class Model extends ChangeNotifier {
 
   /// Adds a listener to a ChangeNotifier.
   ///
-  /// [notifier] is an instance to listen to. If null, a registered ChangeNotifier is retrieved with type [T] and [name].
+  /// [notifier] is an optional instance to listen to. A common use case for passing an instance is using [get] to
+  /// retrieve a registered [Model] and [notifier] to listen to one of its ValueNotifiers:
+  ///
+  ///     final user = listenTo<ValueNotifier<User>>(notifier: get<CloudService>().currentUser, listener: buildView);
+  ///
+  /// If [notifier] is non-null, a registered ChangeNotifier is retrieved with type [T] and [name].
   /// [name] is the optional name assigned to the ChangeNotifier when it was registered (i.e., [notifier] is null).
   /// [listener] is the listener that is added. A one-time check is made sa that the same [listener] cannot be added
   /// to the same [notifier].
