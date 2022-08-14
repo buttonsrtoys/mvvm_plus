@@ -40,7 +40,7 @@ Widget testApp({
 class MyModel extends Model {
   int number = _number;
 
-  final myFloatNotifier = ValueNotifier<double>(_floatDefault);
+  final myFloatProperty = Property<double>(_floatDefault);
 
   void incrementNumber() {
     number++;
@@ -64,13 +64,13 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
 
   @override
   Widget build(BuildContext _) {
-    final float = listenTo<ValueNotifier<double>>(notifier: get<MyModel>().myFloatNotifier).value;
+    final float = listenTo<Property<double>>(notifier: get<MyModel>().myFloatProperty).value;
     return Column(
       children: [
         Text('${viewModel.number}'),
-        Text(viewModel.myStringNotifier.value),
-        Text(viewModel.myRegisteredStringNotifier.value),
-        Text(viewModel.myNamedStringNotifier.value),
+        Text(viewModel.myStringProperty.value),
+        Text(viewModel.myRegisteredStringProperty.value),
+        Text(viewModel.myNamedStringProperty.value),
         Text('$float'),
       ],
     );
@@ -87,16 +87,16 @@ class MyTestWidgetViewModel extends ViewModel {
 
   final bool listenToRegistrar;
   late final MyModel myModel;
-  final myStringNotifier = ValueNotifier<String>(_stringDefault);
-  final myRegisteredStringNotifier = ValueNotifier<String>(_registeredStringDefault);
-  final myNamedStringNotifier = ValueNotifier<String>(_namedStringDefault);
+  final myStringProperty = Property<String>(_stringDefault);
+  final myRegisteredStringProperty = Property<String>(_registeredStringDefault);
+  final myNamedStringProperty = Property<String>(_namedStringDefault);
 
   @override
   void initState() {
     super.initState();
-    myStringNotifier.addListener(buildView);
-    myRegisteredStringNotifier.addListener(buildView);
-    myNamedStringNotifier.addListener(buildView);
+    myStringProperty.addListener(buildView);
+    myRegisteredStringProperty.addListener(buildView);
+    myNamedStringProperty.addListener(buildView);
     if (listenToRegistrar) {
       // listen twice so can later test that only one listener added
       listenTo<MyModel>(); // 1st listen
@@ -189,10 +189,10 @@ void main() {
 
       // change values
       Registrar.get<MyModel>().incrementNumber();
-      Registrar.get<MyTestWidgetViewModel>().myStringNotifier.value = _stringUpdated;
-      Registrar.get<MyTestWidgetViewModel>().myRegisteredStringNotifier.value = _registeredStringUpdated;
-      Registrar.get<MyTestWidgetViewModel>().myNamedStringNotifier.value = _namedStringUpdated;
-      Registrar.get<MyModel>().myFloatNotifier.value = _floatUpdated;
+      Registrar.get<MyTestWidgetViewModel>().myStringProperty.value = _stringUpdated;
+      Registrar.get<MyTestWidgetViewModel>().myRegisteredStringProperty.value = _registeredStringUpdated;
+      Registrar.get<MyTestWidgetViewModel>().myNamedStringProperty.value = _namedStringUpdated;
+      Registrar.get<MyModel>().myFloatProperty.value = _floatUpdated;
 
       await tester.pump();
 
@@ -220,9 +220,6 @@ void main() {
     });
   });
 
-  // Rich, need to test final counterValue = listenTo(get<MyService>().counter).value;
-  // doesn't need to be final counterValue = (listenTo(get<MyService>().counter) as ValueNotifier).value;
-  // if so, do final counterValue = listenTo<ValueNotifier>(get<MyService>().counter).value;
   group('MyStatelessViewWidget', () {
     testWidgets('non-listening stateless View does not update', (WidgetTester tester) async {
       await tester.pumpWidget(statelessTestApp(listen: false));

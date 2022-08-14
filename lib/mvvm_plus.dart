@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:registrar/registrar.dart';
 
+typedef Property<T> = ValueNotifier<T>;
+
 /// A View widget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
@@ -171,7 +173,6 @@ class _Registration {
 
 abstract class Model extends ChangeNotifier {
   final _subscriptions = <_Subscription>[];
-  final _registeredValueNotifiers = <_Registration>[];
 
   /// Get a registered object.
   ///
@@ -239,15 +240,7 @@ abstract class Model extends ChangeNotifier {
       subscription.unsubscribe();
     }
     _subscriptions.clear();
-    for (final registeredValueNotifier in _registeredValueNotifiers) {
-      Registrar.unregisterByRuntimeType(runtimeType: registeredValueNotifier.type, name: registeredValueNotifier.name);
-    }
-    _registeredValueNotifiers.clear();
     super.dispose();
-  }
-
-  void _addRegisteredValueNotifier({required Type type, required String? name}) {
-    _registeredValueNotifiers.add(_Registration(type: type, name: name));
   }
 }
 
