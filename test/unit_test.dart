@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:registrar/registrar.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';

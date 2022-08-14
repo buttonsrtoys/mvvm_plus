@@ -41,8 +41,8 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// [name] is the optional name assigned to the ChangeNotifier when it was registered.
   @protected
-  U listenTo<U extends ChangeNotifier>({U? instance, String? name}) =>
-      viewModel.listenTo<U>(instance: instance, name: name);
+  U listenTo<U extends ChangeNotifier>({U? changeNotifier, String? name}) =>
+      viewModel.listenTo<U>(instance: changeNotifier, name: name);
 
   /// Same functionality as [State.context].
   BuildContext get context => _stateInstance.value.context;
@@ -224,10 +224,8 @@ abstract class Model extends ChangeNotifier {
   ///
   /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
   @protected
-  // Rich, need to test final counterValue = listenTo(get<MyService>().counter).value;
-  // doesn't need to be final counterValue = (listenTo(get<MyService>().counter) as ValueNotifier).value;
-  // if so, do final counterValue = listenTo<ValueNotifier>(get<MyService>().counter).value;
   T listenTo<T extends ChangeNotifier>({T? instance, String? name, required void Function() listener}) {
+    /*
     assert(
         instance != null || T != ChangeNotifier,
         'listenTo must be given '
@@ -236,6 +234,7 @@ abstract class Model extends ChangeNotifier {
         instance == null || T == ChangeNotifier,
         'listenTo cannot be given both a generic and a ChangeNotifier. It '
         'must be given a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
+    */
     final notifierToAdd = instance ?? Registrar.get<T>(name: name);
     final subscription = _Subscription(changeNotifier: notifierToAdd, listener: listener);
     if (!_subscriptions.contains(subscription)) {
