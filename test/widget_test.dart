@@ -64,7 +64,7 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
 
   @override
   Widget build(BuildContext _) {
-    final float = listenTo(changeNotifier: get<MyModel>().myFloatNotifier).value;
+    final float = listenToProperty(get<MyModel>().myFloatNotifier).value;
     return Column(
       children: [
         Text('${viewModel.number}'),

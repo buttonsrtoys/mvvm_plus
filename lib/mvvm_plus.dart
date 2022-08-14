@@ -19,7 +19,8 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required this.viewModelBuilder,
     super.key,
-  }) : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
+  }) : assert(T != ViewModel,
+            _missingGenericError('View constructor', 'ViewModel'));
   final T Function() viewModelBuilder;
   final _stateInstance = _StateInstance<T>();
 
@@ -41,8 +42,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// [name] is the optional name assigned to the ChangeNotifier when it was registered.
   @protected
-  U listenTo<U extends ChangeNotifier>({U? changeNotifier, String? name}) =>
-      viewModel.listenTo<U>(instance: changeNotifier, name: name);
+  U listenTo<U extends ChangeNotifier>({U? changeNotifier, String? name}) => viewModel.listenTo<U>(name: name);
 
   /// Same functionality as [State.context].
   BuildContext get context => _stateInstance.value.context;
@@ -224,7 +224,8 @@ abstract class Model extends ChangeNotifier {
   ///
   /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
   @protected
-  T listenTo<T extends ChangeNotifier>({T? instance, String? name, required void Function() listener}) {
+  T listenTo<T extends ChangeNotifier>(
+      {String? name, required void Function() listener}) {
     /*
     assert(
         instance != null || T != ChangeNotifier,
@@ -235,8 +236,9 @@ abstract class Model extends ChangeNotifier {
         'listenTo cannot be given both a generic and a ChangeNotifier. It '
         'must be given a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
     */
-    final notifierToAdd = instance ?? Registrar.get<T>(name: name);
-    final subscription = _Subscription(changeNotifier: notifierToAdd, listener: listener);
+    final notifierToAdd = Registrar.get<T>(name: name);
+    final subscription =
+        _Subscription(changeNotifier: notifierToAdd, listener: listener);
     if (!_subscriptions.contains(subscription)) {
       notifierToAdd.addListener(listener);
       _subscriptions.add(subscription);
@@ -244,7 +246,29 @@ abstract class Model extends ChangeNotifier {
     return notifierToAdd;
   }
 
-  ValueNotifier<T> buildRegisteredValueNotifier<T>(T defaultValue, {String? name}) {
+  ChangeNotifier listenToProperty(ChangeNotifier notifier,
+      {String? name, required void Function() listener}) {
+    /*
+    assert(
+        instance != null || T != ChangeNotifier,
+        'listenTo must be given '
+        'a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
+    assert(
+        instance == null || T == ChangeNotifier,
+        'listenTo cannot be given both a generic and a ChangeNotifier. It '
+        'must be given a generic "listenTo<MyNotifier>()" or a ChangeNotifier "listenTo(myNotifier)"');
+    */
+    final subscription =
+        _Subscription(changeNotifier: notifier, listener: listener);
+    if (!_subscriptions.contains(subscription)) {
+      notifier.addListener(listener);
+      _subscriptions.add(subscription);
+    }
+    return notifier;
+  }
+
+  ValueNotifier<T> buildRegisteredValueNotifier<T>(T defaultValue,
+      {String? name}) {
     assert(
         !Registrar.isRegistered<ValueNotifier<T>>(name: name),
         'buildRegisteredValueNotifier called with type $T and '
@@ -264,13 +288,16 @@ abstract class Model extends ChangeNotifier {
     }
     _subscriptions.clear();
     for (final registeredValueNotifier in _registeredValueNotifiers) {
-      Registrar.unregisterByRuntimeType(runtimeType: registeredValueNotifier.type, name: registeredValueNotifier.name);
+      Registrar.unregisterByRuntimeType(
+          runtimeType: registeredValueNotifier.type,
+          name: registeredValueNotifier.name);
     }
     _registeredValueNotifiers.clear();
     super.dispose();
   }
 
-  void _addRegisteredValueNotifier({required Type type, required String? name}) {
+  void _addRegisteredValueNotifier(
+      {required Type type, required String? name}) {
     _registeredValueNotifiers.add(_Registration(type: type, name: name));
   }
 }
@@ -311,9 +338,18 @@ abstract class ViewModel extends Model with _Registerable {
   /// Listeners are only added to [T] once regardless of the number of times [listenTo] is called.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>({T? instance, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>(
+      {String? name, void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(instance: instance, listener: listenerToAdd);
+    return super.listenTo(listener: listenerToAdd);
+  }
+
+  @protected
+  @override
+  ChangeNotifier listenToProperty(ChangeNotifier notifier,
+      {String? name, void Function()? listener}) {
+    final listenerToAdd = listener ?? buildView;
+    return super.listenTo(listener: listenerToAdd);
   }
 
   /// Called when instance is created.
@@ -355,7 +391,8 @@ mixin _Registerable {
 
   void unregisterIfNecessary() {
     if (register) {
-      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name, dispose: false);
+      Registrar.unregisterByRuntimeType(
+          runtimeType: runtimeType, name: name, dispose: false);
     }
   }
 }
@@ -393,7 +430,8 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// Under the hood, an empty ViewModel is created for [ViewWithStatelessViewModel]
 abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
-  ViewWithStatelessViewModel({super.key}) : super(viewModelBuilder: () => _StatelessViewModel());
+  ViewWithStatelessViewModel({super.key})
+      : super(viewModelBuilder: () => _StatelessViewModel());
 
   @override
   @protected
