@@ -87,16 +87,13 @@ class MyTestWidgetViewModel extends ViewModel {
 
   final bool listenToRegistrar;
   late final MyModel myModel;
-  final myStringProperty = Property<String>(_stringDefault);
-  final myRegisteredStringProperty = Property<String>(_registeredStringDefault);
-  final myNamedStringProperty = Property<String>(_namedStringDefault);
+  late final myStringProperty = Property<String>(_stringDefault)..addListener(buildView);
+  late final myRegisteredStringProperty = Property<String>(_registeredStringDefault)..addListener(buildView);
+  late final myNamedStringProperty = Property<String>(_namedStringDefault)..addListener(buildView);
 
   @override
   void initState() {
     super.initState();
-    myStringProperty.addListener(buildView);
-    myRegisteredStringProperty.addListener(buildView);
-    myNamedStringProperty.addListener(buildView);
     if (listenToRegistrar) {
       // listen twice so can later test that only one listener added
       listenTo<MyModel>(); // 1st listen

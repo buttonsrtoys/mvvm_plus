@@ -156,14 +156,13 @@ The MVVM pattern uses the term "Properties" to describe public values of View Mo
       final counter = Property<int>(0);
     }
 
-In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
+In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because "Property" has fewer characters! :)
 
 So, for more granularity than listening to an entire registered Model, you can listen to one of its ValueNotifiers. So, if you have a Model that notifies in more than one place:
 
     class CloudService extends Model {
       CloudService({super.register, super.name});
-      final currentUser = ValueNotifier<User>(null);
-      void setUser(User user) => currentUser = user;
+      late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
       void doSomething() {
         // do something
         notifyListeners();
