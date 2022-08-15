@@ -152,27 +152,26 @@ When your View and ViewModel classes are instantiated, `buildView` is added as a
 
 ## ValueNotifiers are your MVVM Properties!
 
-The MVVM pattern uses the term "Properties" to describe public values of View Models that are bound to Views and other objecs. I.e., when the Property is changed, listeners are notified:
+The MVVM pattern uses the term "Properties" to describe public values of View Models that are bound to Views and other objects. I.e., when the Property is changed, listeners are notified:
 
     class MyViewModel {
       final counter = Property<int>(0);
     }
 
-In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. Aas you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. In the MVVM+ documentation, I use "ValueNotifier" but to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
+In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
 
-For more granularity than listening to an entire ViewModel, you can declare ValueNotifiers in your View Model and listen to them:
+For more granularity than listening to an entire registered Model, you can listen to one of its ValueNotifiers:
 
-    final counter = ValueNotifier<int>(0);
-    @override
-    void initState() {
-      super.initState();
-      counter.addListener(buildView);
+    class CloudService {
+      CloudService({super.register, super.name});
+      final currentUser = ValueNotifier<User>(null);
+      void setUser(User user) => currentUser = user;
     }
 
-Of course, you can also listen to ValueNotifiers of registered Models:
+and listen to just ValueNotifier of registered Models:
 
     final cloud = get<CloudService>();
-    final currentUser = listenTo<ValueNotifier<int>>(notifier: cloud.currentUser).value;
+    final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
 
 # Example
 (The source code for the repo example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)
