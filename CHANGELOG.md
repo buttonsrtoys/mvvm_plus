@@ -1,3 +1,7 @@
+## 0.4.1
+
+Fixed format.
+
 ## 0.4.0
 
 Added Model.
