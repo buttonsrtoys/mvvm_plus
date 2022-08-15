@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Register the ColorNotifier service
     // at the top of your widget tree.
-    return Registrar<ColorNotifier>(
-      builder: () => ColorNotifier(),
+    return Registrar<ColorModel>(
+      builder: () => ColorModel(),
       child: MaterialApp(
         title: appTitle,
         theme: ThemeData(
@@ -93,7 +93,7 @@ class CounterPage extends View<CounterPageViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = get<ColorNotifier>();
+    final upperCaseColorNotifier = get<ColorModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +109,10 @@ class CounterPage extends View<CounterPageViewModel> {
               children: <Widget>[
                 Text(
                   viewModel.letterCount.value,
-                  style: TextStyle(fontSize: 64, color: upperCaseColorNotifier.color),
+                  style: TextStyle(
+                    fontSize: 64,
+                    color: listenTo<ValueNotifier<Color>>(notifier: get<ColorModel>().color).value,
+                  ),
                 ),
                 Text(
                   viewModel.numberCounter.toString(),
@@ -145,7 +148,7 @@ class CounterPageViewModel extends ViewModel {
   void initState() {
     super.initState();
     // listen to the letter color notifier service
-    listenTo<ColorNotifier>(listener: letterColorChanged);
+    listenTo<ColorModel>(listener: letterColorChanged);
     // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
   }
@@ -199,11 +202,10 @@ class CounterPageViewModel extends ViewModel {
   }
 }
 
-class ColorNotifier extends ChangeNotifier {
-  ColorNotifier() {
+class ColorModel extends Model {
+  ColorModel() {
     _timer = Timer.periodic(const Duration(seconds: 9), (_) {
-      color = <Color>[Colors.orange, Colors.purple, Colors.cyan][++_counter % 3];
-      notifyListeners();
+      color.value = <Color>[Colors.orange, Colors.purple, Colors.cyan][++_counter % 3];
     });
   }
 
@@ -216,7 +218,7 @@ class ColorNotifier extends ChangeNotifier {
   }
 
   int _counter = 0;
-  Color color = Colors.black;
+  final color = ValueNotifier<Color>(Colors.black);
 }
 
 class ColorService {

@@ -1,8 +1,7 @@
 ## 0.4.0
 
-Added Model
-Adeed instance parameter to listenTo
-buildRegisteredChangeNotifier
+Added Model.
+Added "notifier" parameter to listenTo to support listening to ValueNotifiers.
 
 ## 0.3.1
 

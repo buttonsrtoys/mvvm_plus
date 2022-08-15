@@ -209,7 +209,6 @@ abstract class Model extends ChangeNotifier {
     return notifierToAdd;
   }
 
-  /// Called when instance is disposed.
   @override
   @mustCallSuper
   void dispose() {
@@ -272,14 +271,12 @@ abstract class ViewModel extends Model with _Registerable {
     return super.listenTo(notifier: notifier, listener: listenerToAdd);
   }
 
-  /// Called when instance is created. Optionally registers [ViewModel]
   @protected
   @mustCallSuper
   void initState() {
     registerIfNecessary();
   }
 
-  /// Called when instance is disposed. Optionally unregisters [ViewModel]
   @override
   @mustCallSuper
   void dispose() {
