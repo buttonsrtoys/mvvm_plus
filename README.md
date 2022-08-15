@@ -8,11 +8,11 @@ MVVM+ uses ChangeNotifiers and cherry picks the best bits of [Provider](https://
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, MVVM+ divides responsibilities into a UI object (called the *View*), business logic associated with the View (called the *View Model*), and business logic that spans two or more View Models (called the *Model*):
+As with all MVVM implementations, MVVM+ organizes responsibilities into a UI group (called the *View*), a group for business logic associated with the View (called the *View Model*), and a group for business logic that spans two or more View Models (called the *Model*):
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
-States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model is a Dart model. 
+States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model and Model are Dart models. 
 
 MVVM+ goals:
 - Clearly separate business logic from UI.
@@ -118,18 +118,18 @@ and then get the ViewModel by type and name:
 
 ## Models
 
-MVVM+'s Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that adds Models to the widget tree:
+The Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that adds Models to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
       child: MyWidget(),
     );
 
-The Registrar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out MultiRegistrar.
+The Registrar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models).
 
 ## Listening to other widget's ViewModels
 
-The ViewModel `get` method retrieves registered ViewModels but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
+The `get` method of View and ViewModel retrieves registered ViewModels but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
@@ -158,17 +158,21 @@ The MVVM pattern uses the term "Properties" to describe public values of View Mo
       final counter = Property<int>(0);
     }
 
-In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
+In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because it's fewer characters! :)
 
-For more granularity than listening to an entire registered Model, you can listen to one of its ValueNotifiers:
+So, for more granularity than listening to an entire registered Model, you can listen to one of its ValueNotifiers. So, if you have a Model that notifies in more than one place:
 
-    class CloudService {
+    class CloudService extends Model {
       CloudService({super.register, super.name});
       final currentUser = ValueNotifier<User>(null);
       void setUser(User user) => currentUser = user;
+      void doSomething() {
+        // do something
+        notifyListeners();
+      }
     }
 
-and listen to just ValueNotifier of registered Models:
+you can listen to just one of its ValueNotifiers:
 
     final cloud = get<CloudService>();
     final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
