@@ -4,15 +4,15 @@
 
 MVVM+ is a lightweight Flutter implementation of MVVM, plus support for sharing business logic across widgets.
 
-MVVM+ employs ChangeNotifiers and cherry picks the best bits of [Provider](https://pub.dev/packages/provider), [GetIt](https://pub.dev/packages/get_it), and [MVVM](https://pub.dev/packages/mvvm) (plus adds a few bits of its own), so will be familiar to most Flutter developers.
+MVVM+ uses ChangeNotifiers and cherry picks the best bits of [Provider](https://pub.dev/packages/provider), [GetIt](https://pub.dev/packages/get_it), and [MVVM](https://pub.dev/packages/mvvm) (plus adds a few bits of its own), so will be familiar to most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, MVVM+ divides responsibilities into a UI object (called the *View*), business logic associated with the View (called the *View Model*), and business logic that spans two or more View Models (called the *Model*):
+As with all MVVM implementations, MVVM+ organizes responsibilities into a UI group (called the *View*), a group for business logic associated with the View (called the *View Model*), and a group for business logic that spans two or more View Models (called the *Model*):
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
-States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model is a Dart model. 
+States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a Flutter widget and the View Model and Model are Dart models. 
 
 MVVM+ goals:
 - Clearly separate business logic from UI.
@@ -36,27 +36,11 @@ For your View class, you give the super constructor a builder for your ViewModel
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
       @override
       Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- your "viewModel" instance
+        return Text(viewModel.someText); // <- your "viewModel" getter
       }
     }
 
 Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
-
-Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
-
-    class MyWidgetViewModel extends ViewModel {
-      @override
-      initState() {
-        super.initState();
-        _streamSubscription = Services.someStream.listen(myListener);
-      }
-      @override
-      void dispose() {
-        _streamSubscription.cancel();
-        super.dispose();
-      }
-      late final StreamSubscription<bool> _streamSubscription;
-    }
 
 ## Rebuilding a View
 
@@ -72,11 +56,25 @@ ViewModel includes a `buildView` method for rebuilding the View. You can call it
 
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
+    late final counter = ValueNotifier<int>(0)..addListener(buildView);
+
+## initState and dispose
+
+Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners:
+
     class MyWidgetViewModel extends ViewModel {
-      final counter = ValueNotifier<int>(0);
-      void initState() {
+      late final StreamSubscription<bool> _streamSubscription;
+
+      @override
+      initState() {
         super.initState();
-        counter.addListener(buildView); // <- binds ViewModel to View
+        _streamSubscription = Services.someStream.listen(myListener);
+      }
+
+      @override
+      void dispose() {
+        _streamSubscription.cancel();
+        super.dispose();
       }
     }
 
@@ -116,20 +114,20 @@ and then get the ViewModel by type and name:
     final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
     final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 
-## Adding additional ChangeNotifiers 
+## Models
 
-Sometimes you want registered models that are not associated with Views. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that you can add to the widget tree:
+The Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+ uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget named "Registrar" that adds Models to the widget tree:
 
     Registrar<MyModel>(
       builder: () => MyModel(),
       child: MyWidget(),
     );
 
-The Registrar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out MultiRegistrar.
+The Registrar widget registers the model when added to the widget tree and unregisters it when removed. To register multiple models with a single widget, check out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models).
 
 ## Listening to other widget's ViewModels
 
-The ViewModel `get` method retrieves registered ViewModels but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
+The `get` method of View and ViewModel retrieves registered ViewModels but does not listen for future changes. For that, use `listenTo` from within your ViewModel:
 
     final text = listenTo<MyOtherWidgetViewModel>().someText;
 
@@ -150,15 +148,31 @@ Either way, listeners added by `listenTo` are automatically removed when your Vi
 
 When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing, unless your ViewModel is registered--any listeners to your registered ViewModel will be called on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary View builds, it is a best practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
-## ValueNotifiers
+## ValueNotifiers are your MVVM Properties!
 
-If you want more granularity than registering an entire ViewModel or service, you can register a ValueNotifier instead:
+The MVVM pattern uses the term "Properties" to describe public values of View Models that are bound to Views and other objects. I.e., when the Property is changed, listeners are notified:
 
-    Registrar.register<MyValueNotifier>(instance: myValueNotifier);
+    class MyViewModel {
+      final counter = Property<int>(0);
+    }
 
-And `get` or `listenTo` to the ValueNotifier the same way as a registered ViewModel (because they are both subclasses of ChangeNotifier):
+In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties" or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to use "Property" because it clarifies its purpose and because "Property" has fewer characters! :)
 
-    final myValue = listenTo<MyValueNotifier>().value;
+So, for more granularity than listening to an entire registered Model, you can listen to one of its ValueNotifiers. So, if you have a Model that notifies in more than one place:
+
+    class CloudService extends Model {
+      CloudService({super.register, super.name});
+      late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
+      void doSomething() {
+        // do something
+        notifyListeners();
+      }
+    }
+
+you can listen to just one of its ValueNotifiers:
+
+    final cloud = get<CloudService>();
+    final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
 
 # Example
 (The source code for the repo example is under the Pub.dev "Example" tab and in the GitHub `example/lib/main.dart` file.)

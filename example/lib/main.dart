@@ -15,8 +15,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Registrar<ColorNotifier>(
-      builder: () => ColorNotifier(),
+    // Register the ColorNotifier service
+    // at the top of your widget tree.
+    return Registrar<ColorModel>(
+      builder: () => ColorModel(),
       child: MaterialApp(
         title: appTitle,
         theme: ThemeData(
@@ -53,7 +55,9 @@ enum FabLabel {
   letter('+a');
 
   const FabLabel(this.value);
+
   final String value;
+
   FabLabel get nextLabel => value == number.value ? letter : number;
 }
 
@@ -65,13 +69,7 @@ class IncrementButtonViewModel extends ViewModel {
 
   final void Function() incrementNumber;
   final void Function() incrementLetter;
-  final _currentFabLabel = ValueNotifier<FabLabel>(FabLabel.number);
-
-  @override
-  void initState() {
-    super.initState();
-    _currentFabLabel.addListener(buildView);
-  }
+  late final _currentFabLabel = ValueNotifier<FabLabel>(FabLabel.number)..addListener(buildView);
 
   void incrementCounter() {
     _currentFabLabel.value == FabLabel.number ? incrementNumber() : incrementLetter();
@@ -87,14 +85,15 @@ class CounterPage extends View<CounterPageViewModel> {
     super.key,
   }) : super(
             viewModelBuilder: () => CounterPageViewModel(
-                  register: true, // <- makes gettable by other widgets (overkill for this simple example)
+                  // Register ViewModel (overkill for this simple example)
+                  register: true,
                 ));
 
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = Registrar.get<ColorNotifier>();
+    final upperCaseColorNotifier = get<ColorModel>();
 
     return Scaffold(
       appBar: AppBar(
@@ -110,7 +109,10 @@ class CounterPage extends View<CounterPageViewModel> {
               children: <Widget>[
                 Text(
                   viewModel.letterCount.value,
-                  style: TextStyle(fontSize: 64, color: upperCaseColorNotifier.color),
+                  style: TextStyle(
+                    fontSize: 64,
+                    color: listenTo<ValueNotifier<Color>>(notifier: get<ColorModel>().color).value,
+                  ),
                 ),
                 Text(
                   viewModel.numberCounter.toString(),
@@ -124,11 +126,10 @@ class CounterPage extends View<CounterPageViewModel> {
       floatingActionButton: IncrementButton(
         // Typically ViewModels are referenced with the "viewModel" member, like this:
         onIncrementNumber: () => viewModel.incrementNumberCounter(),
-        // Alternatively, ViewModels can be registered and retrieved with "Registrar.get"
-        // (see below) or ViewModels "get" member function. Registering is typically only used
-        // when the ViewModel is "far" up the widget tree (on on another branch), but, hey,
-        // we're demoing! :)
-        onIncrementLetter: () => Registrar.get<CounterPageViewModel>().incrementLetterCounter(),
+        // Alternatively, ViewModels can be registered and retrieved with "get". Registering
+        // is typically only used when the ViewModel is "far" up the widget tree (on on
+        // another branch), but, hey, we're demoing! :)
+        onIncrementLetter: () => get<CounterPageViewModel>().incrementLetterCounter(),
       ),
     );
   }
@@ -140,17 +141,16 @@ class CounterPageViewModel extends ViewModel {
   String message = '';
   Timer? _timer;
   late final StreamSubscription<Color> _streamSubscription;
-  int _numberCounter = 0; // <- Demoing without ValueNotifier
-  final letterCount = ValueNotifier<String>('a'); // <- Demoing with ValueNotifier
+  int _numberCounter = 0; // <- Demo without Property
+  late final letterCount = ValueNotifier<String>('a')..addListener(buildView); // <- Demo Property
 
   @override
   void initState() {
     super.initState();
-    // listen to the letter color ChangeNotifier
-    listenTo<ColorNotifier>(listener: letterColorChanged);
+    // listen to the letter color notifier service
+    listenTo<ColorModel>(listener: letterColorChanged);
     // listen to the number color stream
     _streamSubscription = ColorService.currentColor.listen(setNumberColor);
-    letterCount.addListener(buildView);
   }
 
   @override
@@ -164,7 +164,9 @@ class CounterPageViewModel extends ViewModel {
   }
 
   Color _numberColor = const Color.fromRGBO(0, 0, 0, 1.0);
+
   Color get numberColor => _numberColor;
+
   void setNumberColor(Color color) {
     _setMessage('Number color changed!');
     _numberColor = color;
@@ -189,6 +191,7 @@ class CounterPageViewModel extends ViewModel {
   }
 
   int get numberCounter => _numberCounter;
+
   void incrementNumberCounter() {
     _numberCounter = _numberCounter == 9 ? 0 : _numberCounter + 1;
     buildView();
@@ -199,11 +202,10 @@ class CounterPageViewModel extends ViewModel {
   }
 }
 
-class ColorNotifier extends ChangeNotifier {
-  ColorNotifier() {
+class ColorModel extends Model {
+  ColorModel() {
     _timer = Timer.periodic(const Duration(seconds: 9), (_) {
-      color = <Color>[Colors.orange, Colors.purple, Colors.cyan][++_counter % 3];
-      notifyListeners();
+      color.value = <Color>[Colors.orange, Colors.purple, Colors.cyan][++_counter % 3];
     });
   }
 
@@ -216,7 +218,7 @@ class ColorNotifier extends ChangeNotifier {
   }
 
   int _counter = 0;
-  Color color = Colors.black;
+  final color = ValueNotifier<Color>(Colors.black);
 }
 
 class ColorService {
