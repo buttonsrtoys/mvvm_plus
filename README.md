@@ -56,26 +56,18 @@ ViewModel includes a `buildView` method for rebuilding the View. You can call it
 
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
-    class MyWidgetViewModel extends ViewModel {
-      final counter = ValueNotifier<int>(0);
-      void initState() {
-        super.initState();
-        counter.addListener(buildView); // <- binds ViewModel to View
-      }
-    }
+    late final counter = ValueNotifier<int>(0)..addListener(buildView);
 
 ## initState and dispose
 
 Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners:
 
     class MyWidgetViewModel extends ViewModel {
-      final counter = ValueNotifier<int>(0);
       late final StreamSubscription<bool> _streamSubscription;
 
       @override
       initState() {
         super.initState();
-        counter.addListener(buildView);
         _streamSubscription = Services.someStream.listen(myListener);
       }
 
