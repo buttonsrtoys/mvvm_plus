@@ -12,7 +12,7 @@ typedef Property<T> = ValueNotifier<T>;
 ///     MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel);
 ///     @override
 ///     Widget build() {
-///       return Text(viewModel.text);  // <- viewModel is the instance of your ViewModel subclass
+///       return Text(viewModel.text);  // <- "viewModel" getter
 ///     }
 ///   }
 ///

@@ -36,27 +36,11 @@ For your View class, you give the super constructor a builder for your ViewModel
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
       @override
       Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- your "viewModel" instance
+        return Text(viewModel.someText); // <- your "viewModel" getter
       }
     }
 
 Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or small, like a password field or a button.
-
-Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners to streams, subjects, change notifiers, etc.:
-
-    class MyWidgetViewModel extends ViewModel {
-      @override
-      initState() {
-        super.initState();
-        _streamSubscription = Services.someStream.listen(myListener);
-      }
-      @override
-      void dispose() {
-        _streamSubscription.cancel();
-        super.dispose();
-      }
-      late final StreamSubscription<bool> _streamSubscription;
-    }
 
 ## Rebuilding a View
 
@@ -77,6 +61,28 @@ Or use `buildView` as a listener to bind the ViewModel to the View with a ValueN
       void initState() {
         super.initState();
         counter.addListener(buildView); // <- binds ViewModel to View
+      }
+    }
+
+## initState and dispose
+
+Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState` and `dispose` member functions which are handy for subscribing to and canceling listeners:
+
+    class MyWidgetViewModel extends ViewModel {
+      final counter = ValueNotifier<int>(0);
+      late final StreamSubscription<bool> _streamSubscription;
+
+      @override
+      initState() {
+        super.initState();
+        counter.addListener(buildView);
+        _streamSubscription = Services.someStream.listen(myListener);
+      }
+
+      @override
+      void dispose() {
+        _streamSubscription.cancel();
+        super.dispose();
       }
     }
 
