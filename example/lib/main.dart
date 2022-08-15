@@ -93,8 +93,6 @@ class CounterPage extends View<CounterPageViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    final upperCaseColorNotifier = get<ColorModel>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -218,7 +216,7 @@ class ColorModel extends Model {
   }
 
   int _counter = 0;
-  final color = ValueNotifier<Color>(Colors.black);
+  late final color = ValueNotifier<Color>(Colors.black)..addListener(notifyListeners);
 }
 
 class ColorService {
