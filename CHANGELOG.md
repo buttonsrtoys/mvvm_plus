@@ -1,11 +1,14 @@
+## 0.4.2
+
+Updated readme.
+
 ## 0.4.1
 
 Fixed format.
 
 ## 0.4.0
 
-Added Model.
-Added "notifier" parameter to listenTo to support listening to ValueNotifiers.
+Added Model. Added "notifier" parameter to listenTo to support listening to ValueNotifiers.
 
 ## 0.3.1
 
