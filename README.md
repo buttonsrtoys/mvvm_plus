@@ -5,19 +5,19 @@
 MVVM+ is a lightweight Flutter implementation of MVVM, plus support for sharing business logic
 across widgets.
 
-MVVM+ is an implementation of MVVM that extends ChangeNotifiers for its Model, View Model, and
-Property classes, so will be familiar to most Flutter developers.
+MVVM+ extends ChangeNotifier for its Model, View Model, and Property classes, so will be familiar to
+most Flutter developers.
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, MVVM+ organizes responsibilities into a UI group (called the *
-View*), a group for business logic associated with the View (called the *View Model*), and a group
-for business logic that spans two or more View Models (called the *Model*):
+As with all MVVM implementations, MVVM+ organizes UI into an object called the View. The business
+logic associated with the View is organized into an object called the View Model. And states that
+span two or more View Models are organized into one or more Models.
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
 States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a
-Flutter widget and the View Model and Model are Dart models.
+Flutter widget and the View Model and Model are Dart models that extend ChangeNotifier.
 
 MVVM+ goals:
 

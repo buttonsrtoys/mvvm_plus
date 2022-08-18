@@ -156,6 +156,7 @@ class _Subscription extends Equatable {
   final ChangeNotifier changeNotifier;
 
   void subscribe() => changeNotifier.addListener(listener);
+
   void unsubscribe() => changeNotifier.removeListener(listener);
 
   @override
@@ -183,20 +184,19 @@ abstract class Model extends ChangeNotifier {
 
   /// Adds a listener to a ChangeNotifier.
   ///
-  /// [notifier] is an optional instance to listen to. A common use case for passing an instance is using [get] to
-  /// retrieve a registered [Model] and [notifier] to listen to one of its ValueNotifiers:
+  /// [notifier] is an optional instance to listen to. A common use case for passing [notifier] is using [get] to
+  /// retrieve a registered object and listening to one of its ValueNotifiers:
   ///
-  ///     final user = listenTo<ValueNotifier<User>>(notifier: get<CloudService>().currentUser, listener: buildView);
+  ///     // Get (but don't listen to) an object
+  ///     final cloudService = get<CloudService>();
   ///
-  /// If [notifier] is non-null, a registered ChangeNotifier is retrieved with type [T] and [name].
-  /// [name] is the optional name assigned to the ChangeNotifier when it was registered (i.e., [notifier] is null).
-  /// [listener] is the listener that is added. A one-time check is made sa that the same [listener] cannot be added
-  /// to the same [notifier].
+  ///     // listen to one of its ValueNotifiers
+  ///     final user = listenTo<ValueNotifier<User>>(notifier: cloudService.currentUser).value;
   ///
-  ///     int doubleCounter() {
-  ///       return 2 * listenTo<MyModel>(listener: buildView).counter;
-  ///     }
+  /// [listener] is the listener to be added. A check is made to ensure the [listener] is only added once.
   ///
+  /// If [notifier] is null, a registered ChangeNotifier is retrieved with
+  /// type [T] and [name], where [name] is the optional name assigned to the ChangeNotifier when it was registered.
   @protected
   T listenTo<T extends ChangeNotifier>({T? notifier, String? name, required void Function() listener}) {
     assert(notifier == null || name == null, 'listenTo can only receive parameters "instance" or "name" but not both.');
@@ -346,4 +346,4 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 
 String _missingGenericError(String function, String type) =>
     'Missing generic error: "$function" called without a custom subclass generic. Did you call '
-    '"$function(..)" instead of "$function<$type>(..)"?';
+        '"$function(..)" instead of "$function<$type>(..)"?';
