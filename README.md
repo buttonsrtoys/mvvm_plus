@@ -29,15 +29,15 @@ MVVM+ goals:
 
 ## Views and View Models
 
-Your ViewModel class is a Dart class that inherits from ViewModel:
+To create a View Model, extend ViewModel:
 
     class MyWidgetViewModel extends ViewModel {
       String someText;
     }
 
-For your View class, you give the super constructor a builder for your ViewModel (via the "
-viewModelBuilder" parameter) and extend the View class the same way you extend StatelessWidget
-widget--you override the `build` function:
+To create a View, extend View. You give the super constructor a builder for your ViewModel (via
+the "viewModelBuilder" parameter) and you override View's `build` function (just like
+StatelessWidget):
 
     class MyWidget extends View<MyWidgetViewModel> {
       MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
@@ -47,8 +47,8 @@ widget--you override the `build` function:
       }
     }
 
-Views are frequently nested and can be large, like an app page, feature, or even an entire app. Or
-small, like a password field or a button.
+Views are frequently nested and can be large, like an app page or feature. Or small, like a password
+field or a button.
 
 ## Rebuilding a View
 
