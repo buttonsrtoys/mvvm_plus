@@ -80,13 +80,12 @@ ViewModel includes a `buildView` method for rebuilding the View. You can call it
 ```dart
 class MyWidgetViewModel extends ViewModel {
   int counter;
-```
 
-```dart
   void incrementCounter() {
-  counter++;
-  buildView(); // <- queues View to build
-}}
+    counter++;
+    buildView(); // <- queues View to build
+  }
+}
 ```
 
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
@@ -102,21 +101,23 @@ late final counter = ValueNotifier<int>(0)
 Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState`
 and `dispose` member functions which are handy for subscribing to and canceling listeners:
 
-    class MyWidgetViewModel extends ViewModel {
-      late final StreamSubscription<bool> _streamSubscription;
+```dart
+class MyWidgetViewModel extends ViewModel {
+  late final StreamSubscription<bool> _streamSubscription;
 
-      @override
-      initState() {
-        super.initState();
-        _streamSubscription = Services.someStream.listen(myListener);
-      }
+  @override
+  initState() {
+    super.initState();
+    _streamSubscription = Services.someStream.listen(myListener);
+  }
 
-      @override
-      void dispose() {
-        _streamSubscription.cancel();
-        super.dispose();
-      }
-    }
+  @override
+  void dispose() {
+    _streamSubscription.cancel();
+    super.dispose();
+  }
+}
+```
 
 ## Retrieving ViewModels from anywhere
 
@@ -124,17 +125,23 @@ Occasionally you need to access another widget's ViewModel instance (e.g., if it
 another branch of the widget tree). This is accomplished by "registering" the ViewModel with the "
 register" parameter of the ViewModel constructor (similar to how GetIt works):
 
-    class MyOtherWidget extends View<MyOtherWidgetViewModel> {
-      MyOtherWidget(super.key) : super(
-        viewModelBuilder: () => MyOtherWidgetViewModel(
+```dart
+class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+  MyOtherWidget(super.key) : super(
+    viewModelBuilder: () =>
+        MyOtherWidgetViewModel(
           register: true, // <- registers ViewModel instance
         ),
-      );
-    }
+  );
+}
+```
 
 ViewModels can then "get" the other registered ViewModel:
 
-    final otherViewModel = get<MyOtherWidgetViewModel>();
+```dart
+
+final otherViewModel = get<MyOtherWidgetViewModel>();
+```
 
 Like GetIt, registered ViewModels are not managed by InheritedWidget. So, widgets don't need to be
 children of a View widget to get its registered ViewModel. This is a big plus for use cases where
@@ -147,19 +154,25 @@ widget tree, its ViewModel is disposed.
 On rare occasions when you need to register multiple ViewModels of the same type, just give each
 ViewModel instance a unique name:
 
-    class MyOtherWidget extends View<MyOtherWidgetViewModel> {
-      MyOtherWidget(super.key) : super(
-        viewModelBuilder: () => MyOtherWidgetViewModel(
+```dart
+class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+  MyOtherWidget(super.key) : super(
+    viewModelBuilder: () =>
+        MyOtherWidgetViewModel(
           register: true,
           name: 'Header', // <- unique name
         ),
-      );
-    }
+  );
+}
+```
 
 and then get the ViewModel by type and name:
 
-    final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
-    final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
+```dart
+
+final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
+final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
+```
 
 ## Models
 
@@ -167,10 +180,12 @@ The Model class is a super class of ViewModel with much of the functionality of 
 uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget
 named "Registrar" that adds Models to the widget tree:
 
-    Registrar<MyModel>(
-      builder: () => MyModel(),
-      child: MyWidget(),
-    );
+```
+Registrar<MyModel>(
+  builder: () => MyModel(),
+  child: MyWidget(),
+);
+```
 
 The Registrar widget registers the model when added to the widget tree and unregisters it when
 removed. To register multiple models with a single widget, check
@@ -181,21 +196,29 @@ out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models).
 The `get` method of View and ViewModel retrieves registered ViewModels but does not listen for
 future changes. For that, use `listenTo` from within your ViewModel:
 
-    final text = listenTo<MyOtherWidgetViewModel>().someText;
+```dart
+
+final someText = listenTo<MyOtherWidgetViewModel>().someText;
+```
 
 `listenTo` performs a one-time add of the `buildView` method as a listener that is called every time
 the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just
 queue a build, you can give `listenTo` a listener function:
 
-    listenTo<MyWidgetViewModel>(listener: myListener);
+```dart
+
+final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
+```
 
 If you want to rebuild your View after your custom listener finishes, just call `buildView` within
 your listener:
 
-    void myListener() {
-      // do some stuff
-      buildView(); 
-    }
+```dart
+void myListener() {
+  // do some stuff
+  buildView();
+}
+```
 
 Either way, listeners added by `listenTo` are automatically removed when your ViewModel instance is
 disposed.
@@ -214,9 +237,11 @@ practice to use `buildView` unless your use case requires listeners to be notifi
 The MVVM pattern uses the term "Properties" to describe public values of View Models that are bound
 to Views and other objects. I.e., when the Property is changed, listeners are notified:
 
-    class MyViewModel {
-      final counter = Property<int>(0);
-    }
+```dart
+class MyViewModel {
+  final counter = Property<int>(0);
+}
+```
 
 In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with
 ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties"
@@ -227,19 +252,27 @@ use "Property" because it clarifies its purpose and because "Property" has fewer
 So, for more granularity than listening to an entire registered Model, you can listen to one of its
 ValueNotifiers. So, if you have a Model that notifies in more than one place:
 
-    class CloudService extends Model {
-      CloudService({super.register, super.name});
-      late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
-      void doSomething() {
-        // do something
-        notifyListeners();
-      }
-    }
+```dart
+class CloudService extends Model {
+  CloudService({super.register, super.name});
+
+  late final currentUser = ValueNotifier<User>(null)
+    ..addListener(buildView);
+
+  void doSomething() {
+    // do something
+    notifyListeners();
+  }
+}
+```
 
 you can listen to just one of its ValueNotifiers:
 
-    final cloud = get<CloudService>();
-    final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
+```dart
+
+final cloud = get<CloudService>();
+final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
+```
 
 # Additional documentation
 
