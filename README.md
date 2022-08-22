@@ -32,26 +32,28 @@ MVVM+ goals:
 MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
 and `buildView`:
 
-### Model API:###
+**Model API**
+Extends ChangeNotifier and adds:
 
-- Extends ChangeNotifier and adds:
-    - get
-    - listenTo
+- get
+- listenTo
 
-### View API:###
+**View API**
 
-- Extends StatefulWidget/State and adds:
-    - get
-    - listenTo
+Extends StatefulWidget/State and adds:
 
-### ViewModel API:###
+- get
+- listenTo
 
-- Extends Model and adds:
-    - buildView
+**ViewModel API**
 
-### Property API:###
+Extends Model and adds:
 
-- `typedef` of ValueNotifier, so adds nothing.
+- buildView
+
+**Property API**
+
+`typedef` of ValueNotifier, so adds nothing.
 
 Do not be fooled by MVVM+'s minimal interface. As documented below, it a full implementation of
 MVVM.
