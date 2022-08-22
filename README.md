@@ -31,21 +31,25 @@ MVVM+ goals:
 
 To create a View Model, extend ViewModel:
 
-    class MyWidgetViewModel extends ViewModel {
-      String someText;
-    }
+```dart class MyWidgetViewModel extends ViewModel {
+  String someText;
+}
+```
 
 To create a View, extend View. You give the super constructor a builder for your ViewModel (via
 the "viewModelBuilder" parameter) and you override View's `build` function (just like
 StatelessWidget):
 
-    class MyWidget extends View<MyWidgetViewModel> {
-      MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
-      @override
-      Widget build(BuildContext context) {
-        return Text(viewModel.someText); // <- your "viewModel" getter
-      }
-    }
+```dart
+class MyWidget extends View<MyWidgetViewModel> {
+  MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(viewModel.someText); // <- your "viewModel" getter
+  }
+}
+```
 
 Views are frequently nested and can be large, like an app page or feature. Or small, like a password
 field or a button.
@@ -54,17 +58,24 @@ field or a button.
 
 ViewModel includes a `buildView` method for rebuilding the View. You can call it explicitly:
 
-    class MyWidgetViewModel extends ViewModel {
-      int counter;
-      void incrementCounter() {
-        counter++;
-        buildView(); // <- queues View to build
-      }
-    }
+```dart
+class MyWidgetViewModel extends ViewModel {
+  int counter;
+
+  void incrementCounter() {
+    counter++;
+    buildView(); // <- queues View to build
+  }
+}
+```
 
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
-    late final counter = ValueNotifier<int>(0)..addListener(buildView);
+```dart
+
+late final counter = ValueNotifier<int>(0)
+  ..addListener(buildView);
+```
 
 ## initState and dispose
 
