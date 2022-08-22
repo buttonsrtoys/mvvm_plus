@@ -31,7 +31,8 @@ MVVM+ goals:
 
 To create a View Model, extend ViewModel:
 
-```dart class MyWidgetViewModel extends ViewModel {
+```dart 
+class MyWidgetViewModel extends ViewModel {
   String someText;
 }
 ```
