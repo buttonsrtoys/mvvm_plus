@@ -27,7 +27,7 @@ MVVM+ goals:
 - Be simple.
 - Be small.
 
-## API
+## Tiny API
 
 MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
 and `buildView`:
@@ -42,7 +42,7 @@ and `buildView`:
     - buildView
 - **Property** is a `typedef` of ValueNotifier, so adds nothing.
 
-Do not be fooled by MVVM+'s minimal interface. As documented below, it a full implementation of
+**DO NOT** be fooled by MVVM+'s minimal interface. As documented below, it a full implementation of
 MVVM. It achieves its simplicity by adding syntactic sugar to Flutter's existing API.
 
 ## Views and View Models
