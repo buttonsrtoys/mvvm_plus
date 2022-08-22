@@ -80,12 +80,13 @@ ViewModel includes a `buildView` method for rebuilding the View. You can call it
 ```dart
 class MyWidgetViewModel extends ViewModel {
   int counter;
+```
 
+```dart
   void incrementCounter() {
-    counter++;
-    buildView(); // <- queues View to build
-  }
-}
+  counter++;
+  buildView(); // <- queues View to build
+}}
 ```
 
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
