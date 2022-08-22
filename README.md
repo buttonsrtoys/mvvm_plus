@@ -42,7 +42,7 @@ and `buildView`:
     - buildView
 - **Property** is a `typedef` of ValueNotifier, so adds nothing.
 
-**DO NOT BE FOOLED BY MVVM+'S MINIMAL INTERFACE!** As documented below, it a full implementation of
+Do not be fooled by MVVM+'s minimal interface. As documented below, it a full implementation of
 MVVM. It achieves its simplicity by adding syntactic sugar to Flutter's existing API.
 
 ## Views and View Models
