@@ -238,7 +238,7 @@ abstract class ViewModel extends Model {
   T listenTo<T extends ChangeNotifier>(
       {BuildContext? context, T? notifier, String? name, void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(context: context, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
