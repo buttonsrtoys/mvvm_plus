@@ -4,15 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 import 'package:registrar/registrar.dart';
 
-void main() => runApp(Registrar<ColorService>( // <---- Registers a single service
-    builder: () => ColorService(seconds: 1),
-    child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Registrar<ColorService>(
-          builder: () => ColorService(seconds: 3),
-          inherited: true, // <------------------------ Registers an inherited model
-          child: Page(),
-        ))));
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Registrar<ColorService>(
+        builder: () => ColorService(seconds: 1), // <---- Registers a single service
+        child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Registrar<ColorService>(
+              builder: () => ColorService(seconds: 3),
+              inherited: true, // <---------------------- Registers an inherited model
+              child: Page(),
+            )));
+  }
+}
 
 class IncrementButton extends View<IncrementButtonViewModel> {
   IncrementButton({super.key}) : super(viewModelBuilder: () => IncrementButtonViewModel());
