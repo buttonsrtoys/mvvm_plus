@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Registrar<ColorService>(
-        builder: () => ColorService(seconds: 1), // <---- Registers a single service
+        builder: () => ColorService(milliSeconds: 1500), // <---- Registers a single service
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Registrar<ColorService>(
-              builder: () => ColorService(seconds: 3),
+              builder: () => ColorService(milliSeconds: 2250),
               inherited: true, // <---------------------- Registers an inherited model
               child: Page(),
             )));
@@ -83,14 +83,20 @@ class PageViewModel extends ViewModel {
 }
 
 class ColorService extends Model {
-  ColorService({required int seconds}) : _duration = Duration(seconds: seconds) {
-    colorStream.listen((newColor) {
-      color = newColor;
+  ColorService({required int milliSeconds}) {
+    _timer = Timer.periodic(Duration(milliseconds: milliSeconds), (_) {
+      color = <Color>[Colors.red, Colors.black, Colors.blue, Colors.orange][++_counter % 4];
       notifyListeners();
     });
   }
 
-  final Duration _duration;
-  Color color = Colors.black;
-  late final colorStream = Stream<Color>.periodic(_duration, (int i) => [Colors.red, Colors.green, Colors.blue][i % 3]);
+  int _counter = 0;
+  Color color = Colors.orange;
+  late Timer _timer;
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 }
