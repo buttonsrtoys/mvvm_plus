@@ -12,7 +12,6 @@ const _registeredStringDefault = 'Registered Default';
 const _registeredStringUpdated = 'Registered Updated';
 const _namedStringDefault = 'Named Default';
 const _namedStringUpdated = 'Named Updated';
-const _propertyName = 'Property Name';
 const _viewModelName = 'ViewModel Name';
 
 /// Test app for all widget tests
