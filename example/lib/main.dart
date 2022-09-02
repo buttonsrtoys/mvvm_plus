@@ -51,25 +51,24 @@ class Page extends View<PageViewModel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Text(viewModel.letterCount.value,
-              style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color)),
-          Text(viewModel.numberCounter.toString(),
-              style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color)),
-        ])
-      ])),
-      floatingActionButton: IncrementButton(),
-    );
+        body: Center(
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            Text(viewModel.letterCount.value,
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color)),
+            Text(viewModel.numberCounter.toString(),
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color)),
+          ]),
+        ])),
+        floatingActionButton: IncrementButton());
   }
 }
 
 class PageViewModel extends ViewModel {
   PageViewModel({super.register, super.name});
 
-  late final letterCount = ValueNotifier<String>('a')..addListener(buildView);
   int numberCounter = 0;
+  late final letterCount = ValueNotifier<String>('a')..addListener(buildView);
 
   void incrementNumberCounter() {
     numberCounter = numberCounter == 9 ? 0 : numberCounter + 1;
