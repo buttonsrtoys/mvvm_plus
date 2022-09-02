@@ -12,12 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Registrar<ColorService>(
-        builder: () => ColorService(milliSeconds: 1500), // <---- Registers a single service
+        builder: () => ColorService(milliSeconds: 1500),
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Registrar<ColorService>(
               builder: () => ColorService(milliSeconds: 2250),
-              inherited: true, // <---------------------- Registers an inherited model
+              inherited: true,
               child: Page(),
             )));
   }
@@ -29,7 +29,7 @@ class IncrementButton extends View<IncrementButtonViewModel> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: viewModel.incrementCounter, // <---- "viewModel" gets ViewModel instance
+      onPressed: viewModel.incrementCounter,
       child: Text(viewModel.label, style: const TextStyle(fontSize: 24)),
     );
   }
@@ -55,10 +55,8 @@ class Page extends View<PageViewModel> {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
         Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Text(viewModel.letterCount.value,
-              // Pass context to listen to color changes of the inherited model:
               style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color)),
           Text(viewModel.numberCounter.toString(),
-              // No context to listen to color changes of the registered service:
               style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color)),
         ])
       ])),
@@ -70,8 +68,8 @@ class Page extends View<PageViewModel> {
 class PageViewModel extends ViewModel {
   PageViewModel({super.register, super.name});
 
-  late final letterCount = ValueNotifier<String>('a')..addListener(buildView); // <---- Use Properties
-  int numberCounter = 0; // <---------------------------------------------------------- Fields are fine, too!
+  late final letterCount = ValueNotifier<String>('a')..addListener(buildView);
+  int numberCounter = 0;
 
   void incrementNumberCounter() {
     numberCounter = numberCounter == 9 ? 0 : numberCounter + 1;
