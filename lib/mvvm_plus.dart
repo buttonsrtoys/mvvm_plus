@@ -103,6 +103,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
   void _initViewModel() {
     _viewModel = widget.viewModelBuilder();
     _viewModel.buildView = () => setState(() {});
+    _viewModel.context = context;
     _viewModel.addListener(_viewModel.buildView);
   }
 
@@ -148,21 +149,6 @@ class _StateInstance<T extends ViewModel> {
   late _ViewState<T> value;
 }
 
-/// Manages a listener that subscribes to a ChangeNotifier
-class _Subscription extends Equatable {
-  const _Subscription({required this.changeNotifier, required this.listener});
-
-  final void Function() listener;
-  final ChangeNotifier changeNotifier;
-
-  void subscribe() => changeNotifier.addListener(listener);
-
-  void unsubscribe() => changeNotifier.removeListener(listener);
-
-  @override
-  List<Object?> get props => [changeNotifier, listener];
-}
-
 /// Base class for a [Model]
 abstract class Model extends ChangeNotifier with Observer {
   @override
@@ -188,6 +174,9 @@ abstract class ViewModel extends Model {
 
   final bool _register;
   final String? name;
+
+  /// The BuildContext of the associated [View]
+  late final BuildContext context;
 
   void registerIfNecessary() {
     if (_register) {

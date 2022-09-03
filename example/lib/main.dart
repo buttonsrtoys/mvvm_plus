@@ -30,9 +30,9 @@ class IncrementButton extends View<IncrementButtonViewModel> {
 
 class IncrementButtonViewModel extends ViewModel {
   bool isNumber = false;
-  String get label => isNumber ? '+a' : '+1';
+  String get label => isNumber ? '+1' : '+a';
   void incrementCounter() {
-    isNumber ? get<PageViewModel>().incrementLetterCounter() : get<PageViewModel>().incrementNumberCounter();
+    isNumber ? get<PageViewModel>().incrementNumberCounter() : get<PageViewModel>().incrementLetterCounter();
     isNumber = !isNumber;
     buildView();
   }

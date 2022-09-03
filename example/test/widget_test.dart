@@ -4,7 +4,7 @@ import 'package:example/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const myApp());
+    await tester.pumpWidget(myApp());
 
     expect(find.text('a'), findsOneWidget);
     expect(find.text('0'), findsOneWidget);
