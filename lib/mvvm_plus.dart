@@ -29,16 +29,16 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
     super.key,
   })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
         assert(
-            inherited == null || register == null,
+            inherited == null || inherited == false || register == null || register == false,
             'View constructor does not support initializing as both inherited and registered. You can declare as '
                 'inherited and then use the "register" function to register the inherited model.'),
         assert(register != null || name == null, 'View cannot name a ViewModel that is not registered'),
-        _inherited = inherited == null ? false : inherited!,
-        _registered = register == null ? false : register!;
+        inherited = inherited == null ? false : inherited!,
+        registered = register == null ? false : register!;
   final T Function() builder;
   final _stateInstance = _StateInstance<T>();
-  final bool _inherited;
-  final bool _registered;
+  final bool inherited;
+  final bool registered;
   final String? name;
 
   /// Returns the [ViewModel] subclass bound to this [View].
@@ -48,7 +48,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
   @protected
-  U get<U extends Object>({String? name}) => viewModel.get<U>(name: name);
+  U get<U extends Object>({BuildContext? context, String? name}) => viewModel.get<U>(context: context, name: name);
 
   /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener to [U].
   ///
@@ -109,8 +109,8 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
     _viewModel = _buildViewModel();
     _viewModel.initState();
     initStateImpl(
-      inherited: widget._inherited,
-      registered: widget._registered,
+      inherited: widget.inherited,
+      registered: widget.registered,
       name: widget.name,
       instance: _viewModel,
     );
@@ -118,7 +118,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
 
   @override
   void dispose() {
-    disposeImpl(registered: widget._registered, name: widget.name, dispose: true);
+    disposeImpl(registered: widget.registered, name: widget.name, dispose: true);
     super.dispose();
   }
 
@@ -163,7 +163,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
   @override
   Widget build(BuildContext context) {
     widget._stateInstance.value = this;
-    return widget.build(context);
+    return buildImpl(isInherited: widget.inherited, child: widget.build(context));
   }
 }
 
