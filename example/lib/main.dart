@@ -17,7 +17,7 @@ Widget myApp() => Registrar<ColorService>(
             )));
 
 class IncrementButton extends View<IncrementButtonViewModel> {
-  IncrementButton({super.key}) : super(viewModelBuilder: () => IncrementButtonViewModel());
+  IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class IncrementButtonViewModel extends ViewModel {
 }
 
 class Page extends View<PageViewModel> {
-  Page({super.key}) : super(viewModelBuilder: () => PageViewModel(register: true));
+  Page({super.key}) : super(register: true, builder: () => PageViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +58,6 @@ class Page extends View<PageViewModel> {
 }
 
 class PageViewModel extends ViewModel {
-  PageViewModel({super.register, super.name});
-
   int numberCounter = 0;
   late final letterCount = ValueNotifier<String>('a')..addListener(buildView);
 

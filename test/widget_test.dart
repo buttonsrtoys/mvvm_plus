@@ -22,6 +22,7 @@ const _updateButtonText = 'Update';
 /// [listenToRegistrar] true to listen to [My]
 /// [registerViewModel] true to register [MyTestWidgetViewModel]
 /// [viewModelName] is option name of registered [MyTestWidgetViewModel]
+/// Rich, add [inherited] and [register] as params and add tests for the new register feature.
 Widget testApp({
   required bool listenToRegistrar,
   required bool registerViewModel,
@@ -65,10 +66,10 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
     required bool registerViewModel,
     required String? viewModelName,
   }) : super(
-            viewModelBuilder: () => MyTestWidgetViewModel(
+            register: registerViewModel,
+            name: viewModelName,
+            builder: () => MyTestWidgetViewModel(
                   listenToRegistrar: listenToRegistrar,
-                  register: registerViewModel,
-                  name: viewModelName,
                 ));
 
   @override
@@ -92,8 +93,6 @@ class MyTestWidget extends View<MyTestWidgetViewModel> {
 class MyTestWidgetViewModel extends ViewModel {
   MyTestWidgetViewModel({
     this.listenToRegistrar = false,
-    super.register,
-    super.name,
   });
 
   final bool listenToRegistrar;
@@ -236,7 +235,8 @@ void main() {
 
   group('Inherited model', () {
     testWidgets('listening to inherited model', (WidgetTester tester) async {
-      await tester.pumpWidget(testApp(listenToRegistrar: false, registerViewModel: true, viewModelName: _viewModelName));
+      await tester
+          .pumpWidget(testApp(listenToRegistrar: false, registerViewModel: true, viewModelName: _viewModelName));
 
       expect(Registrar.isRegistered<MyInheritedModel>(), false);
       expect(find.text(_inheritedStringDefault), findsOneWidget);

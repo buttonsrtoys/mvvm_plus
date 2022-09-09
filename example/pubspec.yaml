@@ -11,7 +11,9 @@ dependencies:
     sdk: flutter
   mvvm_plus:
     path: ../
-  registrar: ^0.3.1
+#  registrar: ^0.3.1
+  registrar:
+    path: ../../registrar
 
 dev_dependencies:
   flutter_test:

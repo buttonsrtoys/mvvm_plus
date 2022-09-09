@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:registrar/registrar.dart';
 
@@ -16,24 +16,30 @@ typedef Property<T> = ValueNotifier<T>;
 ///     }
 ///   }
 ///
-/// [viewModelBuilder] is a builder for a [ViewModel] subclass.
+/// [builder] is a builder for a [ViewModel] subclass.
+/// [name] is the optional name for the [ViewModel] if registered.
+/// [inherited] determines whether the model will be findable as part of an InheritedWidget.
+/// [register] determines whether the model should be registered.
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
-    required this.viewModelBuilder,
+    required this.builder,
+    this.name,
     bool? inherited,
-    bool? registered,
+    bool? register,
     super.key,
   })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
         assert(
-            inherited == null || registered == null,
-            'View does not support initializing as both inherited and registered. You can declare as inherited and '
-            'then use the "register" function to register the inherited model.'),
+            inherited == null || register == null,
+            'View constructor does not support initializing as both inherited and registered. You can declare as '
+                'inherited and then use the "register" function to register the inherited model.'),
+        assert(register != null || name == null, 'View cannot name a ViewModel that is not registered'),
         _inherited = inherited == null ? false : inherited!,
-        _registered = registered == null ? false : registered!;
-  final T Function() viewModelBuilder;
+        _registered = register == null ? false : register!;
+  final T Function() builder;
   final _stateInstance = _StateInstance<T>();
   final bool _inherited;
   final bool _registered;
+  final String? name;
 
   /// Returns the [ViewModel] subclass bound to this [View].
   T get viewModel => _stateInstance.value._viewModel;
@@ -102,19 +108,24 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
     super.initState();
     _viewModel = _buildViewModel();
     _viewModel.initState();
-    initStateImpl(inherited: widget._inherited, registered: widget._registered, instance: _viewModel);
+    initStateImpl(
+      inherited: widget._inherited,
+      registered: widget._registered,
+      name: widget.name,
+      instance: _viewModel,
+    );
   }
 
   @override
   void dispose() {
-    disposeImpl(registered: widget._registered, dispose: true);
+    disposeImpl(registered: widget._registered, name: widget.name, dispose: true);
     super.dispose();
   }
 
   T _buildViewModel() {
-    final viewModel = widget.viewModelBuilder();
+    final viewModel = widget.builder();
     viewModel.buildView = () => setState(() {});
-    viewModel.context = context;
+    viewModel._context = context;
     viewModel.addListener(viewModel.buildView);
     return viewModel;
   }
@@ -179,28 +190,11 @@ abstract class Model extends ChangeNotifier with Observer {
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
 /// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
 abstract class ViewModel extends Model {
-  ViewModel({
-    bool register = false,
-    this.name,
-  }) : _register = register || name != null;
-
-  final bool _register;
-  final String? name;
-
   /// The BuildContext of the associated [View]
-  late final BuildContext context;
-
-  void registerIfNecessary() {
-    if (_register) {
-      Registrar.registerByRuntimeType(instance: this, name: name);
-    }
-  }
-
-  void unregisterIfNecessary() {
-    if (_register) {
-      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name, dispose: false);
-    }
-  }
+  @nonVirtual
+  @protected
+  BuildContext get context => _context;
+  late final BuildContext _context;
 
   /// Queues [View] to rebuild.
   ///
@@ -243,16 +237,7 @@ abstract class ViewModel extends Model {
 
   @protected
   @mustCallSuper
-  void initState() {
-    registerIfNecessary();
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    unregisterIfNecessary();
-    super.dispose();
-  }
+  void initState() {}
 }
 
 /// Empty ViewModel used by [ViewWithStatelessViewModel]
@@ -283,7 +268,7 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// Under the hood, an empty ViewModel is created for [ViewWithStatelessViewModel]
 abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
-  ViewWithStatelessViewModel({super.key}) : super(viewModelBuilder: () => _StatelessViewModel());
+  ViewWithStatelessViewModel({super.key}) : super(builder: () => _StatelessViewModel());
 
   @override
   @protected
