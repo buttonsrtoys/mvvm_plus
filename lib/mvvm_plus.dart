@@ -20,10 +20,20 @@ typedef Property<T> = ValueNotifier<T>;
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required this.viewModelBuilder,
+    bool? inherited,
+    bool? registered,
     super.key,
-  }) : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
+  })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
+        assert(
+            inherited == null || registered == null,
+            'View does not support initializing as both inherited and registered. You can declare as inherited and '
+            'then use the "register" function to register the inherited model.'),
+        _inherited = inherited == null ? false : inherited!,
+        _registered = registered == null ? false : registered!;
   final T Function() viewModelBuilder;
   final _stateInstance = _StateInstance<T>();
+  final bool _inherited;
+  final bool _registered;
 
   /// Returns the [ViewModel] subclass bound to this [View].
   T get viewModel => _stateInstance.value._viewModel;
@@ -84,27 +94,29 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 }
 
 /// [_ViewState] does the heavy lifting of extending StatefulWidget into MVVM
-class _ViewState<T extends ViewModel> extends State<View<T>> {
+class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarStateImpl<T> {
   late T _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _initViewModel();
+    _viewModel = _buildViewModel();
     _viewModel.initState();
+    initStateImpl(inherited: widget._inherited, registered: widget._registered, instance: _viewModel);
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    disposeImpl(registered: widget._registered, dispose: true);
     super.dispose();
   }
 
-  void _initViewModel() {
-    _viewModel = widget.viewModelBuilder();
-    _viewModel.buildView = () => setState(() {});
-    _viewModel.context = context;
-    _viewModel.addListener(_viewModel.buildView);
+  T _buildViewModel() {
+    final viewModel = widget.viewModelBuilder();
+    viewModel.buildView = () => setState(() {});
+    viewModel.context = context;
+    viewModel.addListener(viewModel.buildView);
+    return viewModel;
   }
 
   @override
@@ -224,8 +236,7 @@ abstract class ViewModel extends Model {
   /// If [listener] is null then [buildView] is used as the listener. See [Model.listenTo] for more details.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>(
-      {BuildContext? context, T? notifier, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
     return super.listenTo(context: context, notifier: notifier, listener: listenerToAdd);
   }
