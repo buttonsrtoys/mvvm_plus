@@ -83,12 +83,10 @@ class MyViewWidget extends View<MyViewWidgetViewModel> {
     return Column(
       children: [
         OutlinedButton(
-            onPressed: viewModel.updateMyInheritedService, child: const Text(_updateMyInheritedServiceButtonText)),
+            onPressed: () => viewModel.updateMyInheritedService(),
+            child: const Text(_updateMyInheritedServiceButtonText)),
         // Rich, create something here that updates MyViewWidget (instead of a service) and test for inherited=true and register=true
-        // if (inherited)
-        //   OutlinedButton(
-        //       onPressed: get<MyViewWidgetViewModel>(context: context, name: name).updateMyViewWidget,
-        //       child: const Text(_updateMyViewWidgetButtonText)),
+        if (inherited) MyViewWidgetButton(),
         // Rich, do same for "register"
         Text('${viewModel.number}'),
         Text(viewModel.myStringProperty.value),
@@ -98,6 +96,17 @@ class MyViewWidget extends View<MyViewWidgetViewModel> {
         Text('$float'),
       ],
     );
+  }
+}
+
+class MyViewWidgetButton extends ViewWithStatelessViewModel {
+  MyViewWidgetButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+        onPressed: get<MyViewWidgetViewModel>(context: context, name: name).updateMyViewWidget,
+        child: const Text(_updateMyViewWidgetButtonText));
   }
 }
 
@@ -116,6 +125,7 @@ class MyViewWidgetViewModel extends ViewModel {
   String get inheritedText => listenTo<MyInheritedService>(context: context).text.value;
 
   void updateMyViewWidget() {
+    // Rich, add changes to the widget that can be tested
     assert(false);
   }
 
