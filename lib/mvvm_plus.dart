@@ -22,8 +22,8 @@ typedef Property<T> = ValueNotifier<T>;
 /// [register] determines whether the model should be registered.
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
-    required this.builder,
-    this.name,
+    required T Function() builder,
+    String? name,
     bool? inherited,
     bool? register,
     super.key,
@@ -31,15 +31,17 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
         assert(
             inherited == null || inherited == false || register == null || register == false,
             'View constructor does not support initializing as both inherited and registered. You can declare as '
-                'inherited and then use the "register" function to register the inherited model.'),
+            'inherited and then use the "register" function to register the inherited model.'),
         assert(register != null || name == null, 'View cannot name a ViewModel that is not registered'),
-        inherited = inherited == null ? false : inherited!,
-        registered = register == null ? false : register!;
-  final T Function() builder;
+        _name = name,
+        _builder = builder,
+        _inherited = inherited == null ? false : inherited!,
+        _register = register == null ? false : register!;
+  final T Function() _builder;
   final _stateInstance = _StateInstance<T>();
-  final bool inherited;
-  final bool registered;
-  final String? name;
+  final bool _inherited;
+  final bool _register;
+  final String? _name;
 
   /// Returns the [ViewModel] subclass bound to this [View].
   T get viewModel => _stateInstance.value._viewModel;
@@ -109,21 +111,21 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
     _viewModel = _buildViewModel();
     _viewModel.initState();
     initStateImpl(
-      inherited: widget.inherited,
-      registered: widget.registered,
-      name: widget.name,
+      inherited: widget._inherited,
+      registered: widget._register,
+      name: widget._name,
       instance: _viewModel,
     );
   }
 
   @override
   void dispose() {
-    disposeImpl(registered: widget.registered, name: widget.name, dispose: true);
+    disposeImpl(registered: widget._register, name: widget._name, dispose: true);
     super.dispose();
   }
 
   T _buildViewModel() {
-    final viewModel = widget.builder();
+    final viewModel = widget._builder();
     viewModel.buildView = () => setState(() {});
     viewModel._context = context;
     viewModel.addListener(viewModel.buildView);
@@ -163,7 +165,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarState
   @override
   Widget build(BuildContext context) {
     widget._stateInstance.value = this;
-    return buildImpl(isInherited: widget.inherited, child: widget.build(context));
+    return buildImpl(isInherited: widget._inherited, child: widget.build(context));
   }
 }
 

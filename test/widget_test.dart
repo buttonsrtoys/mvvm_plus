@@ -16,16 +16,16 @@ const _viewModelName = 'ViewModel Name';
 const _inheritedStringDefault = 'Inherited Default';
 const _inheritedStringUpdated = 'Inherited Updated';
 const _updateMyInheritedServiceButtonText = 'Update MyInheritedService';
-const _updateMyViewWidgetButtonText = 'Update MyViewWidget';
+const _updateMyWidgetButtonText = 'Update MyWidget';
 
 /// Test app for all widget tests
 ///
-/// [viewModeListenToRegisteredService] true to listen to [My]
-/// [register] true to register [MyViewWidgetViewModel]
-/// [inherited] true to make [MyViewWidgetViewModel] part of inheritedWidget.
-/// [name] is option name of registered [MyViewWidgetViewModel]
+/// [listenToRegisteredService] true to listen to [My]
+/// [register] true to register [MyWidgetViewModel]
+/// [inherited] true to make [MyWidgetViewModel] part of inheritedWidget.
+/// [name] is option name of registered [MyWidgetViewModel]
 Widget testApp({
-  required bool viewModeListenToRegisteredService,
+  required bool listenToRegisteredService,
   required bool inherited,
   required bool register,
   required String? name,
@@ -36,8 +36,8 @@ Widget testApp({
         child: Registrar(
           builder: () => MyInheritedService(),
           inherited: true,
-          child: MyViewWidget(
-            viewModelListenToRegisteredService: viewModeListenToRegisteredService,
+          child: MyWidget(
+            listenToRegisteredService: listenToRegisteredService,
             inherited: inherited,
             register: register,
             name: name,
@@ -62,20 +62,24 @@ class MyInheritedService extends Model {
 }
 
 /// The [View]
-class MyViewWidget extends View<MyViewWidgetViewModel> {
-  MyViewWidget({
+class MyWidget extends View<MyWidgetViewModel> {
+  MyWidget({
     super.key,
-    required bool viewModelListenToRegisteredService,
-    required bool inherited,
-    required bool register,
-    required String? name,
+    required bool listenToRegisteredService,
+    required this.inherited,
+    required this.register,
+    this.name,
   }) : super(
             inherited: inherited,
             register: register,
             name: name,
-            builder: () => MyViewWidgetViewModel(
-                  listenToRegistrar: viewModelListenToRegisteredService,
+            builder: () => MyWidgetViewModel(
+                  listenToRegistrar: listenToRegisteredService,
                 ));
+
+  final bool inherited;
+  final bool register;
+  final String? name;
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +89,8 @@ class MyViewWidget extends View<MyViewWidgetViewModel> {
         OutlinedButton(
             onPressed: () => viewModel.updateMyInheritedService(),
             child: const Text(_updateMyInheritedServiceButtonText)),
-        // Rich, create something here that updates MyViewWidget (instead of a service) and test for inherited=true and register=true
-        if (inherited) MyViewWidgetButton(),
-        // Rich, do same for "register"
+        // Rich, create something here that updates MyWidget (instead of a service) and test for inherited=true and register=true
+        if (inherited || register) UpdateMyWidgetButton(inherited: inherited, tempName: name),
         Text('${viewModel.number}'),
         Text(viewModel.myStringProperty.value),
         Text(viewModel.myRegisteredStringProperty.value),
@@ -99,20 +102,23 @@ class MyViewWidget extends View<MyViewWidgetViewModel> {
   }
 }
 
-class MyViewWidgetButton extends ViewWithStatelessViewModel {
-  MyViewWidgetButton({super.key});
+class UpdateMyWidgetButton extends ViewWithStatelessViewModel {
+  UpdateMyWidgetButton({super.key, required this.inherited, required this.tempName});
+
+  final bool inherited;
+  final String? tempName;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-        onPressed: get<MyViewWidgetViewModel>(context: context, name: name).updateMyViewWidget,
-        child: const Text(_updateMyViewWidgetButtonText));
+        onPressed: get<MyWidgetViewModel>(context: inherited ? context : null, name: tempName).updateMyWidget,
+        child: const Text(_updateMyWidgetButtonText));
   }
 }
 
 /// The [ViewModel]
-class MyViewWidgetViewModel extends ViewModel {
-  MyViewWidgetViewModel({
+class MyWidgetViewModel extends ViewModel {
+  MyWidgetViewModel({
     this.listenToRegistrar = false,
   });
 
@@ -124,7 +130,7 @@ class MyViewWidgetViewModel extends ViewModel {
 
   String get inheritedText => listenTo<MyInheritedService>(context: context).text.value;
 
-  void updateMyViewWidget() {
+  void updateMyWidget() {
     // Rich, add changes to the widget that can be tested
     assert(false);
   }
@@ -175,20 +181,19 @@ void main() {
   setUp(() {
     /// Ensure no residuals
     expect(Registrar.isRegistered<MyRegisteredService>(), false);
-    expect(Registrar.isRegistered<MyViewWidgetViewModel>(), false);
+    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
   });
 
   tearDown(() {
     /// Ensure no residuals
     expect(Registrar.isRegistered<MyRegisteredService>(), false);
-    expect(Registrar.isRegistered<MyViewWidgetViewModel>(), false);
+    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
   });
 
-  group('MyViewWidget', () {
+  group('MyWidget', () {
     testWidgets('not listening to Registrar, not registered, and not named ViewModel does not update value',
         (WidgetTester tester) async {
-      await tester
-          .pumpWidget(testApp(viewModeListenToRegisteredService: false, inherited: true, register: false, name: null));
+      await tester.pumpWidget(testApp(listenToRegisteredService: false, inherited: true, register: false, name: null));
 
       expect(Registrar.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
@@ -202,8 +207,7 @@ void main() {
 
     testWidgets('listening to Registrar but not registered ViewModel shows correct values',
         (WidgetTester tester) async {
-      await tester
-          .pumpWidget(testApp(viewModeListenToRegisteredService: true, inherited: true, register: false, name: null));
+      await tester.pumpWidget(testApp(listenToRegisteredService: true, inherited: true, register: false, name: null));
 
       expect(Registrar.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
@@ -216,11 +220,10 @@ void main() {
 
     testWidgets('listening to Registrar and registered ViewModel  but not named ViewModel shows correct values',
         (WidgetTester tester) async {
-      await tester
-          .pumpWidget(testApp(viewModeListenToRegisteredService: true, inherited: false, register: true, name: null));
+      await tester.pumpWidget(testApp(listenToRegisteredService: true, inherited: false, register: true, name: null));
 
-      expect(Registrar.isRegistered<MyViewWidgetViewModel>(), true);
-      expect(Registrar.get<MyViewWidgetViewModel>().number, _number);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), true);
+      expect(Registrar.get<MyWidgetViewModel>().number, _number);
 
       // expect default values
       expect(find.text('$_number'), findsOneWidget);
@@ -231,9 +234,9 @@ void main() {
 
       // change values
       Registrar.get<MyRegisteredService>().incrementNumber();
-      Registrar.get<MyViewWidgetViewModel>().myStringProperty.value = _stringUpdated;
-      Registrar.get<MyViewWidgetViewModel>().myRegisteredStringProperty.value = _registeredStringUpdated;
-      Registrar.get<MyViewWidgetViewModel>().myNamedStringProperty.value = _namedStringUpdated;
+      Registrar.get<MyWidgetViewModel>().myStringProperty.value = _stringUpdated;
+      Registrar.get<MyWidgetViewModel>().myRegisteredStringProperty.value = _registeredStringUpdated;
+      Registrar.get<MyWidgetViewModel>().myNamedStringProperty.value = _namedStringUpdated;
       Registrar.get<MyRegisteredService>().myFloatProperty.value = _floatUpdated;
 
       await tester.pump();
@@ -248,13 +251,13 @@ void main() {
 
     testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
         (WidgetTester tester) async {
-      await tester.pumpWidget(
-          testApp(viewModeListenToRegisteredService: true, inherited: false, register: true, name: _viewModelName));
+      await tester
+          .pumpWidget(testApp(listenToRegisteredService: true, inherited: false, register: true, name: _viewModelName));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyViewWidgetViewModel>(), false);
-      expect(Registrar.isRegistered<MyViewWidgetViewModel>(name: _viewModelName), true);
-      expect(Registrar.get<MyViewWidgetViewModel>(name: _viewModelName).number, _number);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
+      expect(Registrar.get<MyWidgetViewModel>(name: _viewModelName).number, _number);
 
       Registrar.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
@@ -264,13 +267,13 @@ void main() {
 
     testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
         (WidgetTester tester) async {
-      await tester.pumpWidget(
-          testApp(viewModeListenToRegisteredService: true, inherited: false, register: true, name: _viewModelName));
+      await tester
+          .pumpWidget(testApp(listenToRegisteredService: true, inherited: false, register: true, name: _viewModelName));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyViewWidgetViewModel>(), false);
-      expect(Registrar.isRegistered<MyViewWidgetViewModel>(name: _viewModelName), true);
-      expect(Registrar.get<MyViewWidgetViewModel>(name: _viewModelName).number, _number);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
+      expect(Registrar.get<MyWidgetViewModel>(name: _viewModelName).number, _number);
 
       Registrar.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
@@ -282,7 +285,7 @@ void main() {
   group('Inherited model', () {
     testWidgets('listening to inherited model', (WidgetTester tester) async {
       await tester.pumpWidget(
-          testApp(viewModeListenToRegisteredService: false, inherited: false, register: true, name: _viewModelName));
+          testApp(listenToRegisteredService: false, inherited: false, register: true, name: _viewModelName));
 
       expect(Registrar.isRegistered<MyInheritedService>(), false);
       expect(find.text(_inheritedStringDefault), findsOneWidget);
