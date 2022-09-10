@@ -1,3 +1,8 @@
+Rich, update
+- Readme
+- Medium article
+- Breaking changes in Changelog
+
 ## Example tests are broken
 
 Need to cancel timer. Maybe bring timer back instead of stream.
