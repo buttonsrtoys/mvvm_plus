@@ -2,7 +2,7 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or as inherited widgets (like Provider, InheritedWidget), whichever you prefer.
+MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or via inherited widgets (like Provider), whichever you prefer. 
 
 ## Tiny API
 
