@@ -171,7 +171,7 @@ Instead of using the global registry, you have the option of adding ViewModels t
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    location: Location.tree,
+    location: Location.tree, // <- Puts ViewModel on the widget tree
     builder: () => MyOtherWidgetViewModel());
 }
 ```
@@ -201,7 +201,7 @@ By default, the Registrar widget registers the model when added to the widget tr
 removed. (To register multiple models with a single widget, check
 out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
 
-To make a ViewModel inherited, simply change the default location:
+As with the View class, to add a model to the widget tree, simply change the default location to `Location.tree`:
 
 ```dart
 Registrar<MyModel>(
@@ -246,8 +246,7 @@ disposed.
 When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your
 ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild
 your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing,
-unless your ViewModel is registered--any listeners to your registered ViewModel will be called
-on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary View builds, it is a best
+unless your ViewModel has other listeners. So, to eliminate unnecessary View builds, it is a best
 practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers are your MVVM Properties!
@@ -261,7 +260,7 @@ class MyViewModel {
 }
 ```
 
-In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with
+In Flutter, this is how ValueNotifiers work. So, MVVM+ adds a `typedef` that equates Property with
 ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties"
 or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "
 ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to
@@ -274,8 +273,7 @@ ValueNotifiers. So, if you have a Model that notifies in more than one place:
 class CloudService extends Model {
   CloudService({super.register, super.name});
 
-  late final currentUser = ValueNotifier<User>(null)
-    ..addListener(buildView);
+  late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
 
   void doSomething() {
     // do something
