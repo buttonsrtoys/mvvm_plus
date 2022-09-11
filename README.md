@@ -2,7 +2,7 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or as inherited widgets (like Provider). Whichever your use case requires.
+MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or as inherited widgets (like Provider, InheritedWidget), whichever you prefer.
 
 ## Tiny API
 
@@ -19,13 +19,13 @@ and `buildView`:
     - buildView
 - **Property** is a `typedef` of ValueNotifier, so adds nothing.
 
-But don't be fooled by MVVM+'s minimal interface. As documented below, MVVM+ is a full implementation of MVVM.
+**But** don't be fooled by MVVM+'s minimal interface. MVVM+ is a full implementation of MVVM.
 
 ## Model-View-View Model (MVVM)
 
-As with all MVVM implementations, MVVM+ organizes UI into an object called the View. The business
-logic associated with the View is organized into an object called the View Model. And states that
-span two or more View Models are organized into one or more Models.
+As with all MVVM implementations, MVVM+ organizes UI into an object called the View. Business
+logic associated with a View is organized into an object called a View Model. Business logic that
+spans two or more View Models is organized into one or more Models.
 
 ![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
 
@@ -34,7 +34,7 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 
 MVVM+ goals:
 
-- Clearly separate business logic from UI.
+- **Clearly** separate business logic from UI.
 - Optionally support access to View Models from anywhere in the widget tree.
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
