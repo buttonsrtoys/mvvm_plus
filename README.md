@@ -201,7 +201,7 @@ By default, the Registrar widget registers the model when added to the widget tr
 removed. (To register multiple models with a single widget, check
 out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
 
-As with the View class, to add a model to the widget tree, simply change the default location to `Location.tree`:
+As with the View class, to add a model to the widget tree (instead of the registry), simply change the default location to `Location.tree`:
 
 ```dart
 Registrar<MyModel>(
