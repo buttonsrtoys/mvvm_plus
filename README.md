@@ -19,7 +19,7 @@ and `buildView`:
     - buildView
 - **Property** is a `typedef` of ValueNotifier, so adds nothing.
 
-/But/ don't be fooled by MVVM+'s minimal interface. MVVM+ is a full implementation of MVVM.
+*But* don't be fooled by MVVM+'s minimal interface. MVVM+ is a full implementation of MVVM.
 
 ## Model-View-View Model (MVVM)
 
