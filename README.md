@@ -34,8 +34,9 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 
 MVVM+ goals:
 
-- **Clearly** separate business logic from UI.
-- Optionally support access to View Models from anywhere in the widget tree.
+- *Clearly* separate business logic from UI.
+- Support access to models from anywhere in the widget tree (like GetIt).
+- Support access to models from descendant widgets (like Provider).
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
 - Be simple.
@@ -87,9 +88,7 @@ class MyWidgetViewModel extends ViewModel {
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
 ```dart
-
-late final counter = ValueNotifier<int>(0)
-  ..addListener(buildView);
+late final counter = ValueNotifier<int>(0)..addListener(buildView);
 ```
 
 ## initState and dispose
