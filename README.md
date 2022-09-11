@@ -94,7 +94,7 @@ late final counter = ValueNotifier<int>(0)..addListener(buildView);
 ## initState and dispose
 
 Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState`
-and `dispose` member functions which are handy for subscribing to and canceling listeners:
+and `dispose` member functions which are handy for initialization and teardown.
 
 ```dart
 class MyWidgetViewModel extends ViewModel {
@@ -123,7 +123,7 @@ another branch of the widget tree). To make a ViewModel globally available, use 
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    location: Location.registry,
+    location: Location.registry, // <- Adds the ViewModel to the registry
     builder: () => MyOtherWidgetViewModel());
 }
 ```
@@ -133,7 +133,6 @@ Views and ViewModels anywhere on the widget tree can access the ViewModel with t
 ```dart
 
 final otherViewModel = get<MyOtherWidgetViewModel>();
-
 final otherViewModel = listenTo<MyOtherWidgetViewModel>();
 ```
 
@@ -165,9 +164,9 @@ final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
 final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 ```
 
-## Or add your ViewModel to the widget tree (like Provider, InheritedWidget)
+## Alternatively, make ViewModels inherited (like Provider, InheritedWidget)
 
-Instead of using the global registry, you have the option of adding ViewModels to the widget tree by adding the specifier `location: Location.tree`, which makes the ViewModel available to descendants:
+Instead of using the global registry, you have the option of adding ViewModels to the widget tree. Just add the specifier `location: Location.tree`, which makes the ViewModel available to descendants:
 
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
@@ -182,7 +181,6 @@ Views and ViewModels that are descendants can use their `context` and `get` or `
 ```dart
 
 final otherViewModel = get<MyOtherWidgetViewModel>(context: context);
-
 final otherViewModel = listenTo<MyOtherWidgetViewModel>(context: context);
 ```
 
@@ -192,16 +190,26 @@ The Model class is a super class of ViewModel with much of the functionality of 
 uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget
 named "Registrar" that adds Models to the widget tree:
 
-```
+```dart
 Registrar<MyModel>(
   builder: () => MyModel(),
   child: MyWidget(),
 );
 ```
 
-The Registrar widget registers the model when added to the widget tree and unregisters it when
-removed. To register multiple models with a single widget, check
-out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models).
+By default, the Registrar widget registers the model when added to the widget tree and unregisters it when
+removed. (To register multiple models with a single widget, check
+out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
+
+To make a ViewModel inherited, simply change the default location:
+
+```dart
+Registrar<MyModel>(
+  builder: () => MyModel(),
+  location: Location.tree,
+  child: MyWidget(),
+);
+```
 
 ## Listening to other widget's ViewModels
 
@@ -209,7 +217,6 @@ The `get` method of View and ViewModel retrieves registered ViewModels but does 
 future changes. For that, use `listenTo` from within your ViewModel:
 
 ```dart
-
 final someText = listenTo<MyOtherWidgetViewModel>().someText;
 ```
 
@@ -218,7 +225,6 @@ the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to
 queue a build, you can give `listenTo` a listener function:
 
 ```dart
-
 final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
 ```
 
