@@ -12,7 +12,7 @@ Widget myApp() => Registrar<ColorService>(
             debugShowCheckedModeBanner: false,
             home: Registrar<ColorService>(
               builder: () => ColorService(milliSeconds: 2250),
-              inherited: true,
+              location: Location.tree,
               child: Page(),
             )));
 
@@ -39,7 +39,7 @@ class IncrementButtonViewModel extends ViewModel {
 }
 
 class Page extends View<PageViewModel> {
-  Page({super.key}) : super(register: true, builder: () => PageViewModel());
+  Page({super.key}) : super(location: Location.registry, builder: () => PageViewModel());
 
   @override
   Widget build(BuildContext context) {

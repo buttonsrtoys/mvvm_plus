@@ -16,7 +16,6 @@ const _viewModelName = 'ViewModel Name';
 const _inheritedStringDefault = 'Inherited Default';
 const _inheritedStringUpdated = 'Inherited Updated';
 const _updateMyInheritedServiceButtonText = 'Update MyInheritedService';
-const _updateMyWidgetButtonText = 'Update MyWidget';
 
 /// [listenToMyRegisteredService] true to listen to [My]
 /// [myWidgetIsRegistered] true to register [MyWidgetViewModel]
@@ -24,8 +23,7 @@ const _updateMyWidgetButtonText = 'Update MyWidget';
 /// [myWidgetRegisteredName] is option name of registered [MyWidgetViewModel]
 Widget testApp({
   required bool listenToMyRegisteredService,
-  required bool myWidgetIsInherited,
-  required bool myWidgetIsRegistered,
+  required Location? location,
   required String? myWidgetRegisteredName,
 }) =>
     MaterialApp(
@@ -33,11 +31,10 @@ Widget testApp({
         builder: () => MyRegisteredService(),
         child: Registrar(
           builder: () => MyInheritedService(),
-          inherited: true,
+          location: Location.tree,
           child: MyWidget(
             listenToRegisteredService: listenToMyRegisteredService,
-            inherited: myWidgetIsInherited,
-            register: myWidgetIsRegistered,
+            location: location,
             name: myWidgetRegisteredName,
           ),
         ),
@@ -64,19 +61,16 @@ class MyWidget extends View<MyWidgetViewModel> {
   MyWidget({
     super.key,
     required bool listenToRegisteredService,
-    required this.inherited,
-    required this.register,
+    required this.location,
     this.name,
   }) : super(
-            inherited: inherited,
-            register: register,
+            location: location,
             name: name,
             builder: () => MyWidgetViewModel(
                   listenToRegistrar: listenToRegisteredService,
                 ));
 
-  final bool inherited;
-  final bool register;
+  final Location? location;
   final String? name;
 
   @override
@@ -89,7 +83,7 @@ class MyWidget extends View<MyWidgetViewModel> {
             onPressed: () => viewModel.updateMyInheritedService(),
             child: const Text(_updateMyInheritedServiceButtonText)),
         /// Add button that isn't tapped, but confirms registered or inherited [MyWidgetViewModel] is gettable
-        if (inherited || register) TextWidgetThatUsesGet(inherited: inherited, name: name),
+        if (location != null) TextWidgetThatUsesGet(location: location!, name: name),
         Text('${viewModel.number}'),
         Text(viewModel.myStringProperty.value),
         Text(viewModel.myRegisteredStringProperty.value),
@@ -103,14 +97,14 @@ class MyWidget extends View<MyWidgetViewModel> {
 
 /// Get text from inherited or registered [ViewModel]
 class TextWidgetThatUsesGet extends ViewWithStatelessViewModel {
-  TextWidgetThatUsesGet({super.key, required this.inherited, required this.name});
+  TextWidgetThatUsesGet({super.key, required this.location, required this.name});
 
-  final bool inherited;
+  final Location location;
   final String? name;
 
   @override
   Widget build(BuildContext context) {
-    return Text(get<MyWidgetViewModel>(context: inherited ? context : null, name: name).untestedText);
+    return Text(get<MyWidgetViewModel>(context: location == Location.tree ? context : null, name: name).untestedText);
   }
 }
 
@@ -194,8 +188,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: false,
-        myWidgetIsInherited: true,
-        myWidgetIsRegistered: false,
+        location: Location.tree,
         myWidgetRegisteredName: null,
       ));
 
@@ -213,8 +206,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
           listenToMyRegisteredService: true,
-          myWidgetIsInherited: true,
-          myWidgetIsRegistered: false,
+          location: Location.tree,
           myWidgetRegisteredName: null));
 
       expect(Registrar.isRegistered<MyRegisteredService>(), true);
@@ -230,8 +222,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
-        myWidgetIsInherited: false,
-        myWidgetIsRegistered: true,
+        location: Location.registry,
         myWidgetRegisteredName: null,
       ));
 
@@ -266,8 +257,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
-        myWidgetIsInherited: false,
-        myWidgetIsRegistered: true,
+        location: Location.registry,
         myWidgetRegisteredName: _viewModelName,
       ));
 
@@ -286,8 +276,7 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
-        myWidgetIsInherited: false,
-        myWidgetIsRegistered: true,
+        location: Location.registry,
         myWidgetRegisteredName: _viewModelName,
       ));
 
@@ -307,8 +296,7 @@ void main() {
     testWidgets('listening to inherited model', (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: false,
-        myWidgetIsInherited: false,
-        myWidgetIsRegistered: true,
+        location: Location.registry,
         myWidgetRegisteredName: _viewModelName,
       ));
 

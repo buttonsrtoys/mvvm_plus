@@ -12,8 +12,8 @@ void main() {
     await tester.tap(find.byType(IncrementButton));
     await tester.pump();
 
-    expect(find.text('a'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('b'), findsOneWidget);
+    expect(find.text('0'), findsOneWidget);
 
     await tester.tap(find.byType(IncrementButton));
     await tester.pump();
