@@ -2,10 +2,24 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM, plus support for sharing business logic across widgets.
+MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or as inherited widgets (like Provider). Whichever your use case requires.
 
-MVVM+ extends ChangeNotifier, ValueNotifier, and StatefulWidget. So, if you are familiar with these
-Flutter classes, MVVM+ will feel very familiar you.
+## Tiny API
+
+MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
+and `buildView`:
+
+- **Model** extends ChangeNotifier and adds:
+    - get
+    - listenTo
+- **View** extends StatefulWidget/State and adds:
+    - get
+    - listenTo
+- **ViewModel** extends Model and adds:
+    - buildView
+- **Property** is a `typedef` of ValueNotifier, so adds nothing.
+
+But don't be fooled by MVVM+'s minimal interface. As documented below, MVVM+ is a full implementation of MVVM.
 
 ## Model-View-View Model (MVVM)
 
@@ -27,24 +41,6 @@ MVVM+ goals:
 - Be simple.
 - Be small.
 
-## Tiny API
-
-MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
-and `buildView`:
-
-- **Model** extends ChangeNotifier and adds:
-    - get
-    - listenTo
-- **View** extends StatefulWidget/State and adds:
-    - get
-    - listenTo
-- **ViewModel** extends Model and adds:
-    - buildView
-- **Property** is a `typedef` of ValueNotifier, so adds nothing.
-
-But don't be fooled by MVVM+'s minimal interface. As documented below, MVVM+ is a full 
-implementation of MVVM.
-
 ## Views and View Models
 
 To create a View Model, extend ViewModel:
@@ -56,12 +52,12 @@ class MyWidgetViewModel extends ViewModel {
 ```
 
 To create a View, extend View. You give the super constructor a builder for your ViewModel (via
-the "viewModelBuilder" parameter) and you override View's `build` function (just like
+the "builder" parameter) and you override View's `build` function (just like
 StatelessWidget):
 
 ```dart
 class MyWidget extends View<MyWidgetViewModel> {
-  MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
+  MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -119,28 +115,27 @@ class MyWidgetViewModel extends ViewModel {
 }
 ```
 
-## Retrieving ViewModels from anywhere
+## Adding and getting ViewModels from the registry
 
-Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on
-another branch of the widget tree). This is accomplished by "registering" the ViewModel with the "
-register" parameter of the ViewModel constructor (similar to how GetIt works):
+Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on 
+another branch of the widget tree). To make a ViewModel globally available, use the View specifier 
+`location: Location.registry`:
 
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    viewModelBuilder: () =>
-        MyOtherWidgetViewModel(
-          register: true, // <- registers ViewModel instance
-        ),
-  );
+    location: Location.registry,
+    builder: () => MyOtherWidgetViewModel());
 }
 ```
 
-ViewModels can then "get" the other registered ViewModel:
+Views and ViewModels anywhere on the widget tree can access the ViewModel with their `get` or `listenTo` methods.
 
 ```dart
 
 final otherViewModel = get<MyOtherWidgetViewModel>();
+
+final otherViewModel = listenTo<MyOtherWidgetViewModel>();
 ```
 
 Like GetIt, registered ViewModels are not managed by InheritedWidget. So, widgets don't need to be
@@ -157,12 +152,9 @@ ViewModel instance a unique name:
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    viewModelBuilder: () =>
-        MyOtherWidgetViewModel(
-          register: true,
-          name: 'Header', // <- unique name
-        ),
-  );
+    location: Location.registry,
+    name: 'Header', // <- unique name
+    builder: () => MyOtherWidgetViewModel());
 }
 ```
 
@@ -172,6 +164,27 @@ and then get the ViewModel by type and name:
 
 final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
 final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
+```
+
+## Or add your ViewModel to the widget tree (like Provider, InheritedWidget)
+
+Instead of using the global registry, you have the option of adding ViewModels to the widget tree by adding the specifier `location: Location.tree`, which makes the ViewModel available to descendants:
+
+```dart
+class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+  MyOtherWidget(super.key) : super(
+    location: Location.tree,
+    builder: () => MyOtherWidgetViewModel());
+}
+```
+
+Views and ViewModels that are descendants can use their `context` and `get` or `listenTo` functions to access the ViewModel.
+
+```dart
+
+final otherViewModel = get<MyOtherWidgetViewModel>(context: context);
+
+final otherViewModel = listenTo<MyOtherWidgetViewModel>(context: context);
 ```
 
 ## Models
