@@ -105,10 +105,10 @@ packages:
   registrar:
     dependency: "direct main"
     description:
-      path: "../registrar"
-      relative: true
-    source: path
-    version: "0.3.1"
+      name: registrar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   sky_engine:
     dependency: transitive
     description: flutter

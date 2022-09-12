@@ -1,3 +1,6 @@
+## 0.6.0
+Upgraded Registrar, which now supports Registrar "location" parameter.
+
 ## 0.5.0
 Upgraded Registrar, which now supports locating inherited models on the widget tree.
 

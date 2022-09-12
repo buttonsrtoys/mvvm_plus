@@ -1,4 +1,1 @@
-Rich, update
-- Readme
-- Medium article
-- Breaking changes in Changelog
+# Update medium article
