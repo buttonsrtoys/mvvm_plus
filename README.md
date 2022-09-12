@@ -2,30 +2,7 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM, plus support for sharing business logic across widgets.
-
-MVVM+ extends ChangeNotifier, ValueNotifier, and StatefulWidget. So, if you are familiar with these
-Flutter classes, MVVM+ will feel very familiar you.
-
-## Model-View-View Model (MVVM)
-
-As with all MVVM implementations, MVVM+ organizes UI into an object called the View. The business
-logic associated with the View is organized into an object called the View Model. And states that
-span two or more View Models are organized into one or more Models.
-
-![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
-
-States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a
-Flutter widget and the View Model and Model are Dart models that extend ChangeNotifier.
-
-MVVM+ goals:
-
-- Clearly separate business logic from UI.
-- Optionally support access to View Models from anywhere in the widget tree.
-- Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
-- Be scalable and performant, so suitable for both indy and production apps.
-- Be simple.
-- Be small.
+MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or via inherited widgets (like Provider), whichever you prefer. 
 
 ## Tiny API
 
@@ -42,8 +19,28 @@ and `buildView`:
     - buildView
 - **Property** is a `typedef` of ValueNotifier, so adds nothing.
 
-But don't be fooled by MVVM+'s minimal interface. As documented below, MVVM+ is a full 
-implementation of MVVM.
+*But* don't be fooled by MVVM+'s minimal interface. MVVM+ is a full implementation of MVVM.
+
+## Model-View-View Model (MVVM)
+
+As with all MVVM implementations, MVVM+ organizes UI into an object called the View. Business
+logic associated with a View is organized into an object called a View Model. Business logic that
+spans two or more View Models is organized into one or more Models.
+
+![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
+
+States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a
+Flutter widget and the View Model and Model are Dart models that extend ChangeNotifier.
+
+MVVM+ goals:
+
+- *Clearly* separate business logic from UI.
+- Support access to models from anywhere in the widget tree (like GetIt).
+- Support access to models from descendant widgets (like Provider).
+- Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
+- Be scalable and performant, so suitable for both indy and production apps.
+- Be simple.
+- Be small.
 
 ## Views and View Models
 
@@ -56,12 +53,12 @@ class MyWidgetViewModel extends ViewModel {
 ```
 
 To create a View, extend View. You give the super constructor a builder for your ViewModel (via
-the "viewModelBuilder" parameter) and you override View's `build` function (just like
+the "builder" parameter) and you override View's `build` function (just like
 StatelessWidget):
 
 ```dart
 class MyWidget extends View<MyWidgetViewModel> {
-  MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel());
+  MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +88,13 @@ class MyWidgetViewModel extends ViewModel {
 Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
 
 ```dart
-
-late final counter = ValueNotifier<int>(0)
-  ..addListener(buildView);
+late final counter = ValueNotifier<int>(0)..addListener(buildView);
 ```
 
 ## initState and dispose
 
 Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState`
-and `dispose` member functions which are handy for subscribing to and canceling listeners:
+and `dispose` member functions which are handy for initialization and teardown.
 
 ```dart
 class MyWidgetViewModel extends ViewModel {
@@ -119,28 +114,26 @@ class MyWidgetViewModel extends ViewModel {
 }
 ```
 
-## Retrieving ViewModels from anywhere
+## Adding and getting ViewModels from the registry
 
-Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on
-another branch of the widget tree). This is accomplished by "registering" the ViewModel with the "
-register" parameter of the ViewModel constructor (similar to how GetIt works):
+Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on 
+another branch of the widget tree). To make a ViewModel globally available, use the View specifier 
+`location: Location.registry`:
 
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    viewModelBuilder: () =>
-        MyOtherWidgetViewModel(
-          register: true, // <- registers ViewModel instance
-        ),
-  );
+    location: Location.registry, // <- Adds the ViewModel to the registry
+    builder: () => MyOtherWidgetViewModel());
 }
 ```
 
-ViewModels can then "get" the other registered ViewModel:
+Views and ViewModels anywhere on the widget tree can access the ViewModel with their `get` or `listenTo` methods.
 
 ```dart
 
 final otherViewModel = get<MyOtherWidgetViewModel>();
+final otherViewModel = listenTo<MyOtherWidgetViewModel>();
 ```
 
 Like GetIt, registered ViewModels are not managed by InheritedWidget. So, widgets don't need to be
@@ -157,12 +150,9 @@ ViewModel instance a unique name:
 ```dart
 class MyOtherWidget extends View<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
-    viewModelBuilder: () =>
-        MyOtherWidgetViewModel(
-          register: true,
-          name: 'Header', // <- unique name
-        ),
-  );
+    location: Location.registry,
+    name: 'Header', // <- unique name
+    builder: () => MyOtherWidgetViewModel());
 }
 ```
 
@@ -174,22 +164,52 @@ final headerText = get<MyOtherWidgetViewModel>(name: 'Header').someText;
 final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 ```
 
+## Alternatively, make ViewModels inherited (like Provider, InheritedWidget)
+
+Instead of using the global registry, you have the option of adding ViewModels to the widget tree. Just add the specifier `location: Location.tree`, which makes the ViewModel available to descendants:
+
+```dart
+class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+  MyOtherWidget(super.key) : super(
+    location: Location.tree, // <- Puts ViewModel on the widget tree
+    builder: () => MyOtherWidgetViewModel());
+}
+```
+
+Views and ViewModels that are descendants can use their `context` and `get` or `listenTo` functions to access the ViewModel.
+
+```dart
+
+final otherViewModel = get<MyOtherWidgetViewModel>(context: context);
+final otherViewModel = listenTo<MyOtherWidgetViewModel>(context: context);
+```
+
 ## Models
 
 The Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+
 uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget
 named "Registrar" that adds Models to the widget tree:
 
-```
+```dart
 Registrar<MyModel>(
   builder: () => MyModel(),
   child: MyWidget(),
 );
 ```
 
-The Registrar widget registers the model when added to the widget tree and unregisters it when
-removed. To register multiple models with a single widget, check
-out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models).
+By default, the Registrar widget registers the model when added to the widget tree and unregisters it when
+removed. (To register multiple models with a single widget, check
+out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
+
+As with the View class, to add a model to the widget tree (instead of the registry), simply change the default location to `Location.tree`:
+
+```dart
+Registrar<MyModel>(
+  builder: () => MyModel(),
+  location: Location.tree,
+  child: MyWidget(),
+);
+```
 
 ## Listening to other widget's ViewModels
 
@@ -197,7 +217,6 @@ The `get` method of View and ViewModel retrieves registered ViewModels but does 
 future changes. For that, use `listenTo` from within your ViewModel:
 
 ```dart
-
 final someText = listenTo<MyOtherWidgetViewModel>().someText;
 ```
 
@@ -206,7 +225,6 @@ the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to
 queue a build, you can give `listenTo` a listener function:
 
 ```dart
-
 final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
 ```
 
@@ -228,8 +246,7 @@ disposed.
 When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your
 ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild
 your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing,
-unless your ViewModel is registered--any listeners to your registered ViewModel will be called
-on `notifyListeners` but not on `buildView`. So, to eliminate unnecessary View builds, it is a best
+unless your ViewModel has other listeners. So, to eliminate unnecessary View builds, it is a best
 practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers are your MVVM Properties!
@@ -243,7 +260,7 @@ class MyViewModel {
 }
 ```
 
-In Flutter, this is how ValueNotifiers work. So, MVVM+ added a `typedef` that equates Property with
+In Flutter, this is how ValueNotifiers work. So, MVVM+ adds a `typedef` that equates Property with
 ValueNotifier. As you use MVVM+, feel free to call your public members of ViewModels "Properties"
 or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documentation, I use "
 ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to
@@ -256,8 +273,7 @@ ValueNotifiers. So, if you have a Model that notifies in more than one place:
 class CloudService extends Model {
   CloudService({super.register, super.name});
 
-  late final currentUser = ValueNotifier<User>(null)
-    ..addListener(buildView);
+  late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
 
   void doSomething() {
     // do something

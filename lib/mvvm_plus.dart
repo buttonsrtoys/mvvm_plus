@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:registrar/registrar.dart';
 
@@ -16,14 +16,27 @@ typedef Property<T> = ValueNotifier<T>;
 ///     }
 ///   }
 ///
-/// [viewModelBuilder] is a builder for a [ViewModel] subclass.
+/// [builder] is a builder for a [ViewModel] subclass.
+/// [name] is the optional name for the [ViewModel] if registered.
+/// [location] is [Location.registry] to make the [ViewModel] globally available as a single service that is gettable
+/// from anywhere, [Location.tree] to add the [ViewModel] to the widget tree to be accessible by descendants, or null
+/// (the default) to not make the [ViewModel] accessible by other widgets and models. See [get] and
+/// [listenTo] for how to get and listen to models added to the registry or widget tree.
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
-    required this.viewModelBuilder,
+    required T Function() builder,
+    String? name,
+    Location? location,
     super.key,
-  }) : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel'));
-  final T Function() viewModelBuilder;
+  })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
+        assert(location != Location.tree || name == null, 'View cannot name a ViewModel that is not registered'),
+        _name = name,
+        _builder = builder,
+        _location = location;
+  final T Function() _builder;
   final _stateInstance = _StateInstance<T>();
+  final Location? _location;
+  final String? _name;
 
   /// Returns the [ViewModel] subclass bound to this [View].
   T get viewModel => _stateInstance.value._viewModel;
@@ -32,14 +45,14 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
   @protected
-  U get<U extends Object>({String? name}) => viewModel.get<U>(name: name);
+  U get<U extends Object>({BuildContext? context, String? name}) => viewModel.get<U>(context: context, name: name);
 
   /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener to [U].
   ///
   /// See [Model.listenTo] for more details.
   @protected
-  U listenTo<U extends ChangeNotifier>({U? notifier, String? name}) =>
-      viewModel.listenTo<U>(notifier: notifier, name: name);
+  U listenTo<U extends ChangeNotifier>({BuildContext? context, U? notifier, String? name}) =>
+      viewModel.listenTo<U>(context: context, notifier: notifier, name: name);
 
   /// Same functionality as [State.context].
   BuildContext get context => _stateInstance.value.context;
@@ -84,26 +97,33 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 }
 
 /// [_ViewState] does the heavy lifting of extending StatefulWidget into MVVM
-class _ViewState<T extends ViewModel> extends State<View<T>> {
+class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarStateImpl<T> {
   late T _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _initViewModel();
+    _viewModel = _buildViewModel();
     _viewModel.initState();
+    initStateImpl(
+      location: widget._location,
+      name: widget._name,
+      instance: _viewModel,
+    );
   }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    disposeImpl(location: widget._location, name: widget._name, dispose: true);
     super.dispose();
   }
 
-  void _initViewModel() {
-    _viewModel = widget.viewModelBuilder();
-    _viewModel.buildView = () => setState(() {});
-    _viewModel.addListener(_viewModel.buildView);
+  T _buildViewModel() {
+    final viewModel = widget._builder();
+    viewModel.buildView = () => setState(() {});
+    viewModel._context = context;
+    viewModel.addListener(viewModel.buildView);
+    return viewModel;
   }
 
   @override
@@ -139,7 +159,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> {
   @override
   Widget build(BuildContext context) {
     widget._stateInstance.value = this;
-    return widget.build(context);
+    return buildImpl(location: widget._location, child: widget.build(context));
   }
 }
 
@@ -148,89 +168,29 @@ class _StateInstance<T extends ViewModel> {
   late _ViewState<T> value;
 }
 
-/// Manages a listener that subscribes to a ChangeNotifier
-class _Subscription extends Equatable {
-  const _Subscription({required this.changeNotifier, required this.listener});
-
-  final void Function() listener;
-  final ChangeNotifier changeNotifier;
-
-  void subscribe() => changeNotifier.addListener(listener);
-
-  void unsubscribe() => changeNotifier.removeListener(listener);
-
-  @override
-  List<Object?> get props => [changeNotifier, listener];
-}
-
 /// Base class for a [Model]
-///
-/// This class manages listeners that are added with its [listenTo] member function. E.g., added listeners
-/// are removed when this class is disposed.
-abstract class Model extends ChangeNotifier {
-  final _subscriptions = <_Subscription>[];
-
-  /// Get a registered object.
-  ///
-  /// This method gets a registered object and does not listen to future changes. To listen for future changes,
-  /// see [listenTo].
-  ///
-  /// [name] is the optional name assigned to the object when it was registered.
-  @protected
-  T get<T extends Object>({String? name}) {
-    assert(T != Object, _missingGenericError('get', 'Object'));
-    return Registrar.get<T>(name: name);
-  }
-
-  /// Adds a listener to a ChangeNotifier.
-  ///
-  /// [notifier] is an optional instance to listen to. A common use case for passing [notifier] is using [get] to
-  /// retrieve a registered object and listening to one of its ValueNotifiers:
-  ///
-  ///     // Get (but don't listen to) an object
-  ///     final cloudService = get<CloudService>();
-  ///
-  ///     // listen to one of its ValueNotifiers
-  ///     final user = listenTo<ValueNotifier<User>>(notifier: cloudService.currentUser).value;
-  ///
-  /// [listener] is the listener to be added. A check is made to ensure the [listener] is only added once.
-  ///
-  /// If [notifier] is null, a registered ChangeNotifier is retrieved with
-  /// type [T] and [name], where [name] is the optional name assigned to the ChangeNotifier when it was registered.
-  @protected
-  T listenTo<T extends ChangeNotifier>({T? notifier, String? name, required void Function() listener}) {
-    assert(notifier == null || name == null, 'listenTo can only receive parameters "instance" or "name" but not both.');
-    final notifierToAdd = notifier ?? Registrar.get<T>(name: name);
-    final subscription = _Subscription(changeNotifier: notifierToAdd, listener: listener);
-    if (!_subscriptions.contains(subscription)) {
-      subscription.subscribe();
-      _subscriptions.add(subscription);
-    }
-    return notifierToAdd;
-  }
-
+abstract class Model extends ChangeNotifier with Observer {
   @override
   @mustCallSuper
   void dispose() {
-    for (final subscription in _subscriptions) {
-      subscription.unsubscribe();
-    }
-    _subscriptions.clear();
+    cancelSubscriptions();
     super.dispose();
   }
 }
 
 /// Base class for View Models
 ///
-/// See [_Registerable] for descriptions of [register] and [name].
-abstract class ViewModel extends Model with _Registerable {
-  ViewModel({
-    bool register = false,
-    String? name,
-  }) {
-    this.register = register || name != null;
-    this.name = name;
-  }
+/// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
+/// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
+/// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
+/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
+/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
+abstract class ViewModel extends Model {
+  /// The BuildContext of the associated [View]
+  @nonVirtual
+  @protected
+  BuildContext get context => _context;
+  late final BuildContext _context;
 
   /// Queues [View] to rebuild.
   ///
@@ -266,47 +226,14 @@ abstract class ViewModel extends Model with _Registerable {
   /// If [listener] is null then [buildView] is used as the listener. See [Model.listenTo] for more details.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>({T? notifier, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(context: context, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
   @mustCallSuper
-  void initState() {
-    registerIfNecessary();
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    unregisterIfNecessary();
-    super.dispose();
-  }
-}
-
-/// Mixed in with [ViewModel] to make it registerable
-///
-/// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
-/// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
-/// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
-/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
-/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
-mixin _Registerable {
-  bool register = false;
-  String? name;
-
-  void registerIfNecessary() {
-    if (register) {
-      Registrar.registerByRuntimeType(instance: this, name: name);
-    }
-  }
-
-  void unregisterIfNecessary() {
-    if (register) {
-      Registrar.unregisterByRuntimeType(runtimeType: runtimeType, name: name, dispose: false);
-    }
-  }
+  void initState() {}
 }
 
 /// Empty ViewModel used by [ViewWithStatelessViewModel]
@@ -337,7 +264,7 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// Under the hood, an empty ViewModel is created for [ViewWithStatelessViewModel]
 abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
-  ViewWithStatelessViewModel({super.key}) : super(viewModelBuilder: () => _StatelessViewModel());
+  ViewWithStatelessViewModel({super.key}) : super(builder: () => _StatelessViewModel());
 
   @override
   @protected
@@ -346,4 +273,4 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 
 String _missingGenericError(String function, String type) =>
     'Missing generic error: "$function" called without a custom subclass generic. Did you call '
-        '"$function(..)" instead of "$function<$type>(..)"?';
+    '"$function(..)" instead of "$function<$type>(..)"?';
