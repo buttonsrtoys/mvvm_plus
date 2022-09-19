@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:registrar/registrar.dart';
+import 'package:bilocator/bilocator.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
@@ -28,8 +28,10 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
     String? name,
     Location? location,
     super.key,
-  })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
-        assert(location != Location.tree || name == null, 'View cannot name a ViewModel that is not registered'),
+  })  : assert(T != ViewModel,
+            _missingGenericError('View constructor', 'ViewModel')),
+        assert(location != Location.tree || name == null,
+            'View cannot name a ViewModel that is not registered'),
         _name = name,
         _builder = builder,
         _location = location;
@@ -45,13 +47,15 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///
   /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
   @protected
-  U get<U extends Object>({BuildContext? context, String? name}) => viewModel.get<U>(context: context, name: name);
+  U get<U extends Object>({BuildContext? context, String? name}) =>
+      viewModel.get<U>(context: context, name: name);
 
   /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener to [U].
   ///
   /// See [Model.listenTo] for more details.
   @protected
-  U listenTo<U extends ChangeNotifier>({BuildContext? context, U? notifier, String? name}) =>
+  U listenTo<U extends ChangeNotifier>(
+          {BuildContext? context, U? notifier, String? name}) =>
       viewModel.listenTo<U>(context: context, notifier: notifier, name: name);
 
   /// Same functionality as [State.context].
@@ -97,7 +101,8 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 }
 
 /// [_ViewState] does the heavy lifting of extending StatefulWidget into MVVM
-class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarStateImpl<T> {
+class _ViewState<T extends ViewModel> extends State<View<T>>
+    with BilocatorStateImpl<T> {
   late T _viewModel;
 
   @override
@@ -226,9 +231,14 @@ abstract class ViewModel extends Model {
   /// If [listener] is null then [buildView] is used as the listener. See [Model.listenTo] for more details.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>(
+      {BuildContext? context,
+      T? notifier,
+      String? name,
+      void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(context: context, notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(
+        context: context, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
@@ -264,7 +274,8 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// Under the hood, an empty ViewModel is created for [ViewWithStatelessViewModel]
 abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
-  ViewWithStatelessViewModel({super.key}) : super(builder: () => _StatelessViewModel());
+  ViewWithStatelessViewModel({super.key})
+      : super(builder: () => _StatelessViewModel());
 
   @override
   @protected

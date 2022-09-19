@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:registrar/registrar.dart';
+import 'package:bilocator/bilocator.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
 const _number = 42;
@@ -27,9 +27,9 @@ Widget testApp({
   required String? myWidgetRegisteredName,
 }) =>
     MaterialApp(
-      home: Registrar(
+      home: Bilocator(
         builder: () => MyRegisteredService(),
-        child: Registrar(
+        child: Bilocator(
           builder: () => MyInheritedService(),
           location: Location.tree,
           child: MyWidget(
@@ -53,7 +53,8 @@ class MyRegisteredService extends Model {
 }
 
 class MyInheritedService extends Model {
-  late final text = Property<String>(_inheritedStringDefault)..addListener(notifyListeners);
+  late final text = Property<String>(_inheritedStringDefault)
+    ..addListener(notifyListeners);
 }
 
 /// The [View]
@@ -67,7 +68,7 @@ class MyWidget extends View<MyWidgetViewModel> {
             location: location,
             name: name,
             builder: () => MyWidgetViewModel(
-                  listenToRegistrar: listenToRegisteredService,
+                  listenToBilocator: listenToRegisteredService,
                 ));
 
   final Location? location;
@@ -75,15 +76,19 @@ class MyWidget extends View<MyWidgetViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    final float = listenTo<Property<double>>(notifier: get<MyRegisteredService>().myFloatProperty).value;
+    final float = listenTo<Property<double>>(
+            notifier: get<MyRegisteredService>().myFloatProperty)
+        .value;
     return Column(
       children: [
         /// Add button the tests can tap
         OutlinedButton(
             onPressed: () => viewModel.updateMyInheritedService(),
             child: const Text(_updateMyInheritedServiceButtonText)),
+
         /// Add button that isn't tapped, but confirms registered or inherited [MyWidgetViewModel] is gettable
-        if (location != null) TextWidgetThatUsesGet(location: location!, name: name),
+        if (location != null)
+          TextWidgetThatUsesGet(location: location!, name: name),
         Text('${viewModel.number}'),
         Text(viewModel.myStringProperty.value),
         Text(viewModel.myRegisteredStringProperty.value),
@@ -97,45 +102,53 @@ class MyWidget extends View<MyWidgetViewModel> {
 
 /// Get text from inherited or registered [ViewModel]
 class TextWidgetThatUsesGet extends ViewWithStatelessViewModel {
-  TextWidgetThatUsesGet({super.key, required this.location, required this.name});
+  TextWidgetThatUsesGet(
+      {super.key, required this.location, required this.name});
 
   final Location location;
   final String? name;
 
   @override
   Widget build(BuildContext context) {
-    return Text(get<MyWidgetViewModel>(context: location == Location.tree ? context : null, name: name).untestedText);
+    return Text(get<MyWidgetViewModel>(
+            context: location == Location.tree ? context : null, name: name)
+        .untestedText);
   }
 }
 
 /// The [ViewModel]
 class MyWidgetViewModel extends ViewModel {
   MyWidgetViewModel({
-    this.listenToRegistrar = false,
+    this.listenToBilocator = false,
   });
 
-  final bool listenToRegistrar;
+  final bool listenToBilocator;
   late final MyRegisteredService myModel;
-  late final myStringProperty = Property<String>(_stringDefault)..addListener(buildView);
-  late final myRegisteredStringProperty = Property<String>(_registeredStringDefault)..addListener(buildView);
-  late final myNamedStringProperty = Property<String>(_namedStringDefault)..addListener(buildView);
+  late final myStringProperty = Property<String>(_stringDefault)
+    ..addListener(buildView);
+  late final myRegisteredStringProperty =
+      Property<String>(_registeredStringDefault)..addListener(buildView);
+  late final myNamedStringProperty = Property<String>(_namedStringDefault)
+    ..addListener(buildView);
 
   /// Text for displaying but not testing with expects. Typically used to confirm [get] or [listenTo] did not throw.
   final untestedText = 'Blah';
 
-  String get inheritedText => listenTo<MyInheritedService>(context: context).text.value;
+  String get inheritedText =>
+      listenTo<MyInheritedService>(context: context).text.value;
 
   /// Method used to confirm [get] works.
   void unusedMethod() {}
 
   void updateMyInheritedService() {
-    get<MyInheritedService>(context: context).text.value = _inheritedStringUpdated;
+    get<MyInheritedService>(context: context).text.value =
+        _inheritedStringUpdated;
   }
 
   @override
   void initState() {
     super.initState();
-    if (listenToRegistrar) {
+    if (listenToBilocator) {
       // listen twice so can later test that only one listener added
       listenTo<MyRegisteredService>(); // 1st listen
       myModel = listenTo<MyRegisteredService>(); // 2nd listen
@@ -149,13 +162,13 @@ class MyWidgetViewModel extends ViewModel {
 
 /// Test app for widget subclassed from [ViewWithStatelessViewModel]
 Widget statelessTestApp({required bool listen}) => MaterialApp(
-      home: Registrar(
+      home: Bilocator(
         builder: () => MyRegisteredService(),
         child: MyStatelessView(listen: listen),
       ),
     );
 
-/// The [Registrar] service
+/// The [Bilocator] service
 class MyStatelessView extends ViewWithStatelessViewModel {
   MyStatelessView({
     super.key,
@@ -166,25 +179,28 @@ class MyStatelessView extends ViewWithStatelessViewModel {
 
   @override
   Widget build(BuildContext _) {
-    return listen ? Text('${listenTo<MyRegisteredService>().number}') : Text('${get<MyRegisteredService>().number}');
+    return listen
+        ? Text('${listenTo<MyRegisteredService>().number}')
+        : Text('${get<MyRegisteredService>().number}');
   }
 }
 
 void main() {
   setUp(() {
     /// Ensure no residuals
-    expect(Registrar.isRegistered<MyRegisteredService>(), false);
-    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+    expect(Bilocator.isRegistered<MyRegisteredService>(), false);
+    expect(Bilocator.isRegistered<MyWidgetViewModel>(), false);
   });
 
   tearDown(() {
     /// Ensure no residuals
-    expect(Registrar.isRegistered<MyRegisteredService>(), false);
-    expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
+    expect(Bilocator.isRegistered<MyRegisteredService>(), false);
+    expect(Bilocator.isRegistered<MyWidgetViewModel>(), false);
   });
 
   group('MyWidget', () {
-    testWidgets('not listening to Registrar, not registered, and not named ViewModel does not update value',
+    testWidgets(
+        'not listening to Registrar, not registered, and not named ViewModel does not update value',
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: false,
@@ -192,33 +208,35 @@ void main() {
         myWidgetRegisteredName: null,
       ));
 
-      expect(Registrar.isRegistered<MyRegisteredService>(), true);
+      expect(Bilocator.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       // expect does not increment b/c not listening
       expect(find.text('$_number'), findsOneWidget);
     });
 
-    testWidgets('listening to Registrar but not registered ViewModel shows correct values',
+    testWidgets(
+        'listening to Bilocator but not registered ViewModel shows correct values',
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
           listenToMyRegisteredService: true,
           location: Location.tree,
           myWidgetRegisteredName: null));
 
-      expect(Registrar.isRegistered<MyRegisteredService>(), true);
+      expect(Bilocator.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
     });
 
-    testWidgets('listening to Registrar and registered ViewModel  but not named ViewModel shows correct values',
+    testWidgets(
+        'listening to Bilocator and registered ViewModel  but not named ViewModel shows correct values',
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
@@ -226,8 +244,8 @@ void main() {
         myWidgetRegisteredName: null,
       ));
 
-      expect(Registrar.isRegistered<MyWidgetViewModel>(), true);
-      expect(Registrar.get<MyWidgetViewModel>().number, _number);
+      expect(Bilocator.isRegistered<MyWidgetViewModel>(), true);
+      expect(Bilocator.get<MyWidgetViewModel>().number, _number);
 
       // expect default values
       expect(find.text('$_number'), findsOneWidget);
@@ -237,11 +255,15 @@ void main() {
       expect(find.text('$_floatDefault'), findsOneWidget);
 
       // change values
-      Registrar.get<MyRegisteredService>().incrementNumber();
-      Registrar.get<MyWidgetViewModel>().myStringProperty.value = _stringUpdated;
-      Registrar.get<MyWidgetViewModel>().myRegisteredStringProperty.value = _registeredStringUpdated;
-      Registrar.get<MyWidgetViewModel>().myNamedStringProperty.value = _namedStringUpdated;
-      Registrar.get<MyRegisteredService>().myFloatProperty.value = _floatUpdated;
+      Bilocator.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyWidgetViewModel>().myStringProperty.value =
+          _stringUpdated;
+      Bilocator.get<MyWidgetViewModel>().myRegisteredStringProperty.value =
+          _registeredStringUpdated;
+      Bilocator.get<MyWidgetViewModel>().myNamedStringProperty.value =
+          _namedStringUpdated;
+      Bilocator.get<MyRegisteredService>().myFloatProperty.value =
+          _floatUpdated;
 
       await tester.pump();
 
@@ -253,7 +275,8 @@ void main() {
       expect(find.text('$_floatUpdated'), findsOneWidget);
     });
 
-    testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
+    testWidgets(
+        'listening to Bilocator, registered and named ViewModel shows correct values',
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
@@ -262,17 +285,20 @@ void main() {
       ));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
-      expect(Registrar.get<MyWidgetViewModel>(name: _viewModelName).number, _number);
+      expect(Bilocator.isRegistered<MyWidgetViewModel>(), false);
+      expect(Bilocator.isRegistered<MyWidgetViewModel>(name: _viewModelName),
+          true);
+      expect(Bilocator.get<MyWidgetViewModel>(name: _viewModelName).number,
+          _number);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
     });
 
-    testWidgets('listening to Registrar, registered and named ViewModel shows correct values',
+    testWidgets(
+        'listening to Bilocator, registered and named ViewModel shows correct values',
         (WidgetTester tester) async {
       await tester.pumpWidget(testApp(
         listenToMyRegisteredService: true,
@@ -281,11 +307,13 @@ void main() {
       ));
 
       expect(find.text('$_number'), findsOneWidget);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(), false);
-      expect(Registrar.isRegistered<MyWidgetViewModel>(name: _viewModelName), true);
-      expect(Registrar.get<MyWidgetViewModel>(name: _viewModelName).number, _number);
+      expect(Bilocator.isRegistered<MyWidgetViewModel>(), false);
+      expect(Bilocator.isRegistered<MyWidgetViewModel>(name: _viewModelName),
+          true);
+      expect(Bilocator.get<MyWidgetViewModel>(name: _viewModelName).number,
+          _number);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);
@@ -300,7 +328,7 @@ void main() {
         myWidgetRegisteredName: _viewModelName,
       ));
 
-      expect(Registrar.isRegistered<MyInheritedService>(), false);
+      expect(Bilocator.isRegistered<MyInheritedService>(), false);
       expect(find.text(_inheritedStringDefault), findsOneWidget);
 
       await tester.tap(find.text(_updateMyInheritedServiceButtonText));
@@ -311,26 +339,28 @@ void main() {
   });
 
   group('MyStatelessViewWidget', () {
-    testWidgets('non-listening stateless View does not update', (WidgetTester tester) async {
+    testWidgets('non-listening stateless View does not update',
+        (WidgetTester tester) async {
       await tester.pumpWidget(statelessTestApp(listen: false));
 
-      expect(Registrar.isRegistered<MyRegisteredService>(), true);
+      expect(Bilocator.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       // expect number did not increment (because not listening)
       expect(find.text('$_number'), findsOneWidget);
     });
 
-    testWidgets('listening stateless View updates', (WidgetTester tester) async {
+    testWidgets('listening stateless View updates',
+        (WidgetTester tester) async {
       await tester.pumpWidget(statelessTestApp(listen: true));
 
-      expect(Registrar.isRegistered<MyRegisteredService>(), true);
+      expect(Bilocator.isRegistered<MyRegisteredService>(), true);
       expect(find.text('$_number'), findsOneWidget);
 
-      Registrar.get<MyRegisteredService>().incrementNumber();
+      Bilocator.get<MyRegisteredService>().incrementNumber();
       await tester.pump();
 
       expect(find.text('${_number + 1}'), findsOneWidget);

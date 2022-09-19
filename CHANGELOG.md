@@ -1,3 +1,11 @@
+## 1.0.0
+- Migrated to `bilocator` from `registrar` (which is `registrar` renamed).
+- Breaking changes:
+    - Swapped locator package from `registrar` to `bilocator` (which is `registrar` renamed), so now uses Bilocator classes instead of Registrar.
+    - Changed View parameter name `viewModelBuilder` to `builder` to align with `bilocator` naming.
+    - Moved ViewModel parameter `inherited` to View and change its name to `location`.
+    - Moved ViewModel parameter `name` to View to align with `bilocator` naming.
+
 ## 0.6.0
 Upgraded Registrar, which now supports Registrar "location" parameter.
 

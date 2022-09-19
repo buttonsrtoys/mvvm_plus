@@ -35,8 +35,8 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 MVVM+ goals:
 
 - *Clearly* separate business logic from UI.
-- Support access to models from anywhere in the widget tree (like GetIt).
-- Support access to models from descendant widgets (like Provider).
+- Support access to models in a global registry (like GetIt).
+- Support access to models from descendant widgets (like Provider, InheritedWidget).
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
 - Be simple.
@@ -187,24 +187,24 @@ final otherViewModel = listenTo<MyOtherWidgetViewModel>(context: context);
 ## Models
 
 The Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+
-uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget
-named "Registrar" that adds Models to the widget tree:
+uses the [Bilocator](https://pub.dev/packages/bilocator) package under the hood which has a widget
+named "Bilocator" that adds Models to the widget tree:
 
 ```dart
-Registrar<MyModel>(
+Bilocator<MyModel>(
   builder: () => MyModel(),
   child: MyWidget(),
 );
 ```
 
-By default, the Registrar widget registers the model when added to the widget tree and unregisters it when
+By default, the Bilocator widget registers the model when added to the widget tree and unregisters it when
 removed. (To register multiple models with a single widget, check
-out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
+out [Bilocators](https://pub.dev/packages/bilocator#registering-models)).
 
 As with the View class, to add a model to the widget tree (instead of the registry), simply change the default location to `Location.tree`:
 
 ```dart
-Registrar<MyModel>(
+Bilocator<MyModel>(
   builder: () => MyModel(),
   location: Location.tree,
   child: MyWidget(),

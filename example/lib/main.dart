@@ -2,22 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
-import 'package:registrar/registrar.dart';
+import 'package:bilocator/bilocator.dart';
 
 void main() => runApp(myApp());
 
-Widget myApp() => Registrar<ColorService>(
-        builder: () => ColorService(milliSeconds: 1500),
-        child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Registrar<ColorService>(
-              builder: () => ColorService(milliSeconds: 2250),
-              location: Location.tree,
-              child: Page(),
-            )));
+Widget myApp() => Bilocator<ColorService>(
+    builder: () => ColorService(milliSeconds: 1500),
+    child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Bilocator<ColorService>(
+          builder: () => ColorService(milliSeconds: 2250),
+          location: Location.tree,
+          child: Page(),
+        )));
 
 class IncrementButton extends View<IncrementButtonViewModel> {
-  IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
+  IncrementButton({super.key})
+      : super(builder: () => IncrementButtonViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -32,27 +33,39 @@ class IncrementButtonViewModel extends ViewModel {
   bool isNumber = false;
   String get label => isNumber ? '+1' : '+a';
   void incrementCounter() {
-    isNumber ? get<PageViewModel>().incrementNumberCounter() : get<PageViewModel>().incrementLetterCounter();
+    isNumber
+        ? get<PageViewModel>().incrementNumberCounter()
+        : get<PageViewModel>().incrementLetterCounter();
     isNumber = !isNumber;
     buildView();
   }
 }
 
 class Page extends View<PageViewModel> {
-  Page({super.key}) : super(location: Location.registry, builder: () => PageViewModel());
+  Page({super.key})
+      : super(location: Location.registry, builder: () => PageViewModel());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            Text(viewModel.letterCount.value,
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color)),
-            Text(viewModel.numberCounter.toString(),
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color)),
-          ]),
-        ])),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(viewModel.letterCount.value,
+                        style: TextStyle(
+                            fontSize: 64,
+                            color: listenTo<ColorService>(context: context)
+                                .color)),
+                    Text(viewModel.numberCounter.toString(),
+                        style: TextStyle(
+                            fontSize: 64,
+                            color: listenTo<ColorService>().color)),
+                  ]),
+            ])),
         floatingActionButton: IncrementButton());
   }
 }
@@ -66,14 +79,20 @@ class PageViewModel extends ViewModel {
     buildView();
   }
 
-  void incrementLetterCounter() =>
-      letterCount.value = letterCount.value == 'z' ? 'a' : String.fromCharCode(letterCount.value.codeUnits[0] + 1);
+  void incrementLetterCounter() => letterCount.value = letterCount.value == 'z'
+      ? 'a'
+      : String.fromCharCode(letterCount.value.codeUnits[0] + 1);
 }
 
 class ColorService extends Model {
   ColorService({required int milliSeconds}) {
     _timer = Timer.periodic(Duration(milliseconds: milliSeconds), (_) {
-      color = <Color>[Colors.red, Colors.black, Colors.blue, Colors.orange][++_counter % 4];
+      color = <Color>[
+        Colors.red,
+        Colors.black,
+        Colors.blue,
+        Colors.orange
+      ][++_counter % 4];
       notifyListeners();
     });
   }
