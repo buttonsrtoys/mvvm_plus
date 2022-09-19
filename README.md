@@ -197,16 +197,15 @@ Bilocator<MyModel>(
 );
 ```
 
-By default, the Bilocator widget registers the model when added to the widget tree and unregisters it when
-removed. (To register multiple models with a single widget, check
-out [Bilocators](https://pub.dev/packages/bilocator#registering-models)).
+By default, the Bilocator widget adds its model to the global registry when added to the widget tree and unregisters it when
+removed. (To register multiple models with a single widget, check out [Bilocators](https://pub.dev/packages/bilocator#registering-models)).
 
-As with the View class, to add a model to the widget tree (instead of the registry), simply change the default location to `Location.tree`:
+As with the View class, to add a model to the widget tree (instead of the registry), simply specify the `location` to `Location.tree`:
 
 ```dart
 Bilocator<MyModel>(
   builder: () => MyModel(),
-  location: Location.tree,
+  location: Location.tree, // <- Adds model to widget tree instead of global registry
   child: MyWidget(),
 );
 ```
@@ -266,26 +265,10 @@ or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documen
 ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to
 use "Property" because it clarifies its purpose and because "Property" has fewer characters! :)
 
-So, for more granularity than listening to an entire registered Model, you can listen to one of its
-ValueNotifiers. So, if you have a Model that notifies in more than one place:
+So, for more granularity than listening to an entire registered Model, you can `get` a model and `listenTo` one of its
+ValueNotifiers:
 
 ```dart
-class CloudService extends Model {
-  CloudService({super.register, super.name});
-
-  late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
-
-  void doSomething() {
-    // do something
-    notifyListeners();
-  }
-}
-```
-
-you can listen to just one of its ValueNotifiers:
-
-```dart
-
 final cloud = get<CloudService>();
 final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
 ```
