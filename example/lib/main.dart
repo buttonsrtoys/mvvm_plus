@@ -29,7 +29,7 @@ class IncrementButtonViewModel extends ViewModel {
   late final isNumber = createProperty<bool>(false);
   String get buttonText => isNumber.value ? '+1' : '+a';
   void incrementCounter() {
-    isNumber.value ? get<PageViewModel>().incrementNumberCounter() : get<PageViewModel>().incrementLetterCounter();
+    isNumber.value ? get<PageViewModel>().incrementNumber() : get<PageViewModel>().incrementLetter();
     isNumber.value = !isNumber.value;
   }
 }
@@ -57,8 +57,8 @@ class PageViewModel extends ViewModel {
   late final numberCounter = createProperty<int>(0);
   late final letterCount = createProperty<String>('a');
 
-  void incrementNumberCounter() => numberCounter.value = numberCounter.value == 9 ? 0 : numberCounter.value + 1;
-  void incrementLetterCounter() =>
+  void incrementNumber() => numberCounter.value = numberCounter.value == 9 ? 0 : numberCounter.value + 1;
+  void incrementLetter() =>
       letterCount.value = letterCount.value == 'z' ? 'a' : String.fromCharCode(letterCount.value.codeUnits[0] + 1);
 }
 
