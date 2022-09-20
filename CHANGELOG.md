@@ -1,10 +1,13 @@
 ## 1.0.0
-- Migrated to `bilocator` from `registrar` (which is `registrar` renamed).
+- Added `createProperty` to ViewModel.
+- Migrated to `bilocator` from `registrar`. (`bilocator` is `registrar` renamed).
+- Changed parameter names to improve naming and to align `mvvm_plus` with the naming in `bilocator`.
 - Breaking changes:
-    - Swapped locator package from `registrar` to `bilocator` (which is `registrar` renamed), so now uses Bilocator classes instead of Registrar.
-    - Changed View parameter name `viewModelBuilder` to `builder` to align with `bilocator` naming.
+    - Changed Registrar class to Bilocator.
+    - Changed MultiRegistrar class to Bilocators.
+    - Changed View parameter name `viewModelBuilder` to `builder`.
     - Moved ViewModel parameter `inherited` to View and change its name to `location`.
-    - Moved ViewModel parameter `name` to View to align with `bilocator` naming.
+    - Moved ViewModel parameter `name` to View.
 
 ## 0.6.0
 Upgraded Registrar, which now supports Registrar "location" parameter.
