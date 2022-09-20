@@ -34,7 +34,7 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 
 MVVM+ goals:
 
-- *Clearly* separate business logic from UI.
+- *Clearly* separate stands *and* business logic from UI.
 - Support access to models in a global registry (like GetIt).
 - Support access to models from descendant widgets (like Provider, InheritedWidget).
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
@@ -91,7 +91,7 @@ Or use `buildView` as a listener to bind the ViewModel to the View with a ValueN
 late final counter = ValueNotifier<int>(0)..addListener(buildView);
 ```
 
-Because typing `..addListener(buildView)` for every property can get tedious, ViewModel has a convenience method `createProperty` that adds the `buildView` listener for you:
+Because typing `..addListener(buildView)` for every property can get tedious, ViewModel has a convenience method `createProperty` that adds the `buildView` listener for you. So you could refactor the line above as:
 
 ```dart
 late final counter = buildProperty<int>(0);
