@@ -91,6 +91,12 @@ Or use `buildView` as a listener to bind the ViewModel to the View with a ValueN
 late final counter = ValueNotifier<int>(0)..addListener(buildView);
 ```
 
+Because typing `..addListener(buildView)` for every property can get tedious, ViewModel has a convenience method `createProperty` that adds the `buildView` listener for you:
+
+```dart
+late final counter = buildProperty<int>(0);
+```
+
 ## initState and dispose
 
 Like the Flutter State class associated with StatefulWidget, the ViewModel class has `initState`

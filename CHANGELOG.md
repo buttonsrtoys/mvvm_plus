@@ -3,7 +3,7 @@
 - Migrated to `bilocator` from `registrar`. (`bilocator` is `registrar` renamed).
 - Changed parameter names to improve naming and to align `mvvm_plus` with the naming in `bilocator`.
 - Breaking changes:
-    - Changed Registrar class to Bilocator.
+    - Changed Registrar class to Bilocator class.
     - Changed MultiRegistrar class to Bilocators.
     - Changed View parameter name `viewModelBuilder` to `builder`.
     - Moved ViewModel parameter `inherited` to View and change its name to `location`.

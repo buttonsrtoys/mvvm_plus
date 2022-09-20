@@ -228,6 +228,7 @@ abstract class ViewModel extends Model {
   /// usage:
   ///
   ///   late final counterA = createProperty<int>(0);
+  ///   late final counterB = createProperty<int>(0, listener: myListener);
   ///
   ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
     final property = ValueNotifier<T>(initialValue);
