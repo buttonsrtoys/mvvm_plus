@@ -227,7 +227,7 @@ final someText = listenTo<MyOtherWidgetViewModel>().someText;
 
 `listenTo` performs a one-time add of the `buildView` method as a listener that is called every time
 the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just
-queue a build, you can give `listenTo` a listener function:
+queue a build, you can give `listenTo` a custom listener function:
 
 ```dart
 final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
@@ -272,7 +272,7 @@ ValueNotifier" to be more transparent with the Flutter underpinnings, but in pra
 use "Property" because it clarifies its purpose and because "Property" has fewer characters! :)
 
 So, for more granularity than listening to an entire registered Model, you can `get` a model and `listenTo` one of its
-ValueNotifiers:
+ValueNotifiers/Properties:
 
 ```dart
 final cloud = get<CloudService>();
@@ -288,6 +288,8 @@ article [How to Extend StatefulWidget into an MVVM Workhorse](https://medium.com
 For an *slightly* higher level introduction to MVVM+, see my
 article [Flutter State Management with MVVM+](https://medium.com/@buttonsrtoys/flutter-state-management-with-mvvm-1b55e6911975)
 . Please note that most of this ReadMe page overlaps with this article.
+
+To learn more about the `bilocator` package that MVVM+ uses for its locator, see the [bilocator documentation](https://pub.dev/packages/bilocator#registering-models).
 
 # Example
 

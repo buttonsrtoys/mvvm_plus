@@ -26,12 +26,11 @@ class IncrementButton extends View<IncrementButtonViewModel> {
 }
 
 class IncrementButtonViewModel extends ViewModel {
-  bool isNumber = false;
-  String get buttonText => isNumber ? '+1' : '+a';
+  late final isNumber = createProperty<bool>(false);
+  String get buttonText => isNumber.value ? '+1' : '+a';
   void incrementCounter() {
-    isNumber ? get<PageViewModel>().incrementNumberCounter() : get<PageViewModel>().incrementLetterCounter();
-    isNumber = !isNumber;
-    buildView();
+    isNumber.value ? get<PageViewModel>().incrementNumberCounter() : get<PageViewModel>().incrementLetterCounter();
+    isNumber.value = !isNumber.value;
   }
 }
 
@@ -45,9 +44,9 @@ class Page extends View<PageViewModel> {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             Text(viewModel.letterCount.value,
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color)),
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color.value)),
             Text(viewModel.numberCounter.value.toString(),
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color)),
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color.value)),
           ]),
         ])),
         floatingActionButton: IncrementButton());
@@ -66,13 +65,12 @@ class PageViewModel extends ViewModel {
 class ColorService extends Model {
   ColorService({required int milliSeconds}) {
     _timer = Timer.periodic(Duration(milliseconds: milliSeconds), (_) {
-      color = <Color>[Colors.red, Colors.black, Colors.blue, Colors.orange][++_counter % 4];
-      notifyListeners();
+      color.value = <Color>[Colors.red, Colors.black, Colors.blue, Colors.orange][++_counter % 4];
     });
   }
 
   int _counter = 0;
-  Color color = Colors.orange;
+  late final color = createProperty<Color>(Colors.orange);
   late Timer _timer;
 
   @override

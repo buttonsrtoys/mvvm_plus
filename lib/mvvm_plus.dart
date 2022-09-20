@@ -176,6 +176,28 @@ abstract class Model extends ChangeNotifier with Observer {
     cancelSubscriptions();
     super.dispose();
   }
+
+  /// Creates a property and adds a listener to it.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createProperty<int>(0);
+  ///
+  /// If a property is required with no initial listeners, instantiate a ValueNotifier:
+  ///
+  ///   final firstName = ValueNotifier<String>('');
+  ///
+  /// or its typedef equivalent:
+  ///
+  ///   final lastName = Property<String>('');
+  ///
+  ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
+    final property = ValueNotifier<T>(initialValue);
+    property.addListener(listener ?? notifyListeners);
+    return property;
+  }
 }
 
 /// Base class for View Models
@@ -223,13 +245,10 @@ abstract class ViewModel extends Model {
 
   /// Creates a property and adds a listener to it.
   ///
-  /// [listener] is the listener to add. If no listener is passed, [buildView] is used.
+  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
   ///
-  /// usage:
-  ///
-  ///   late final counterA = createProperty<int>(0);
-  ///   late final counterB = createProperty<int>(0, listener: myListener);
-  ///
+  /// See [Model.createProperty] for more information.
+  @override
   ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
     final property = ValueNotifier<T>(initialValue);
     property.addListener(listener ?? buildView);
