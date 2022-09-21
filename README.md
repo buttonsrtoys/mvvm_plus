@@ -94,7 +94,7 @@ late final counter = ValueNotifier<int>(0)..addListener(buildView);
 Because typing `..addListener(buildView)` for every property can get tedious, ViewModel has a convenience method `createProperty` that adds the `buildView` listener for you. So you could refactor the line above as:
 
 ```dart
-late final counter = buildProperty<int>(0);
+late final counter = createProperty<int>(0);
 ```
 
 ## initState and dispose
