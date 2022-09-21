@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.9.0"
+  bilocator:
+    dependency: "direct main"
+    description:
+      name: bilocator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -102,13 +109,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.2"
-  registrar:
-    dependency: "direct main"
-    description:
-      name: registrar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.0"
   sky_engine:
     dependency: transitive
     description: flutter

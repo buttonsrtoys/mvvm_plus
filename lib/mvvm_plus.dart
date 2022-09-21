@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:registrar/registrar.dart';
+import 'package:bilocator/bilocator.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
@@ -97,7 +97,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 }
 
 /// [_ViewState] does the heavy lifting of extending StatefulWidget into MVVM
-class _ViewState<T extends ViewModel> extends State<View<T>> with RegistrarStateImpl<T> {
+class _ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateImpl<T> {
   late T _viewModel;
 
   @override
@@ -176,6 +176,28 @@ abstract class Model extends ChangeNotifier with Observer {
     cancelSubscriptions();
     super.dispose();
   }
+
+  /// Creates a property and adds a listener to it.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createProperty<int>(0);
+  ///
+  /// If a property is required with no initial listeners, instantiate a ValueNotifier:
+  ///
+  ///   final firstName = ValueNotifier<String>('');
+  ///
+  /// or its typedef equivalent:
+  ///
+  ///   final lastName = Property<String>('');
+  ///
+  ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
+    final property = ValueNotifier<T>(initialValue);
+    property.addListener(listener ?? notifyListeners);
+    return property;
+  }
 }
 
 /// Base class for View Models
@@ -220,6 +242,18 @@ abstract class ViewModel extends Model {
   /// Typically this method is not overridden.
   @protected
   late void Function() buildView;
+
+  /// Creates a property and adds a listener to it.
+  ///
+  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
+  ///
+  /// See [Model.createProperty] for more information.
+  @override
+  ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
+    final property = ValueNotifier<T>(initialValue);
+    property.addListener(listener ?? buildView);
+    return property;
+  }
 
   /// Adds a listener to a ChangeNotifier.
   ///

@@ -2,7 +2,7 @@
 
 ![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
 
-MVVM+ is a Flutter implementation of MVVM, plus support for sharing models via a global registry (like GetIt) or via inherited widgets (like Provider), whichever you prefer. 
+MVVM+ is a lightweight Flutter implementation of MVVM, plus a locator for sharing states via a global registry (like GetIt) or inherited widgets (like Provider).
 
 ## Tiny API
 
@@ -34,9 +34,9 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 
 MVVM+ goals:
 
-- *Clearly* separate business logic from UI.
-- Support access to models from anywhere in the widget tree (like GetIt).
-- Support access to models from descendant widgets (like Provider).
+- *Clearly* separate stands *and* business logic from UI.
+- Support access to models in a global registry (like GetIt).
+- Support access to models from descendant widgets (like Provider, InheritedWidget).
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
 - Be scalable and performant, so suitable for both indy and production apps.
 - Be simple.
@@ -89,6 +89,12 @@ Or use `buildView` as a listener to bind the ViewModel to the View with a ValueN
 
 ```dart
 late final counter = ValueNotifier<int>(0)..addListener(buildView);
+```
+
+Because typing `..addListener(buildView)` for every property can get tedious, ViewModel has a convenience method `createProperty` that adds the `buildView` listener for you. So you could refactor the line above as:
+
+```dart
+late final counter = createProperty<int>(0);
 ```
 
 ## initState and dispose
@@ -187,26 +193,25 @@ final otherViewModel = listenTo<MyOtherWidgetViewModel>(context: context);
 ## Models
 
 The Model class is a super class of ViewModel with much of the functionality of ViewModel. MVVM+
-uses the [Registrar](https://pub.dev/packages/registrar) package under the hood which has a widget
-named "Registrar" that adds Models to the widget tree:
+uses the [Bilocator](https://pub.dev/packages/bilocator) package under the hood which has a widget
+named "Bilocator" that adds Models to the widget tree:
 
 ```dart
-Registrar<MyModel>(
+Bilocator<MyModel>(
   builder: () => MyModel(),
   child: MyWidget(),
 );
 ```
 
-By default, the Registrar widget registers the model when added to the widget tree and unregisters it when
-removed. (To register multiple models with a single widget, check
-out [MultiRegistrar](https://pub.dev/packages/registrar#registering-models)).
+By default, the Bilocator widget adds its model to the global registry when added to the widget tree and unregisters it when
+removed. (To register multiple models with a single widget, check out [Bilocators](https://pub.dev/packages/bilocator#registering-models)).
 
-As with the View class, to add a model to the widget tree (instead of the registry), simply change the default location to `Location.tree`:
+As with the View class, to add a model to the widget tree (instead of the registry), simply specify the `location` to `Location.tree`:
 
 ```dart
-Registrar<MyModel>(
+Bilocator<MyModel>(
   builder: () => MyModel(),
-  location: Location.tree,
+  location: Location.tree, // <- Adds model to widget tree instead of global registry
   child: MyWidget(),
 );
 ```
@@ -222,7 +227,7 @@ final someText = listenTo<MyOtherWidgetViewModel>().someText;
 
 `listenTo` performs a one-time add of the `buildView` method as a listener that is called every time
 the `notifyListeners` method of MyOtherWidgetViewModel is called. If you want to do more than just
-queue a build, you can give `listenTo` a listener function:
+queue a build, you can give `listenTo` a custom listener function:
 
 ```dart
 final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
@@ -266,26 +271,10 @@ or "ValueNotifiers", whichever is more comfortable to you. (In the MVVM+ documen
 ValueNotifier" to be more transparent with the Flutter underpinnings, but in practice, I prefer to
 use "Property" because it clarifies its purpose and because "Property" has fewer characters! :)
 
-So, for more granularity than listening to an entire registered Model, you can listen to one of its
-ValueNotifiers. So, if you have a Model that notifies in more than one place:
+So, for more granularity than listening to an entire registered Model, you can `get` a model and `listenTo` one of its
+ValueNotifiers/Properties:
 
 ```dart
-class CloudService extends Model {
-  CloudService({super.register, super.name});
-
-  late final currentUser = ValueNotifier<User>(null)..addListener(buildView);
-
-  void doSomething() {
-    // do something
-    notifyListeners();
-  }
-}
-```
-
-you can listen to just one of its ValueNotifiers:
-
-```dart
-
 final cloud = get<CloudService>();
 final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
 ```
@@ -299,6 +288,8 @@ article [How to Extend StatefulWidget into an MVVM Workhorse](https://medium.com
 For an *slightly* higher level introduction to MVVM+, see my
 article [Flutter State Management with MVVM+](https://medium.com/@buttonsrtoys/flutter-state-management-with-mvvm-1b55e6911975)
 . Please note that most of this ReadMe page overlaps with this article.
+
+To learn more about the `bilocator` package that MVVM+ uses for its locator, see the [bilocator documentation](https://pub.dev/packages/bilocator#registering-models).
 
 # Example
 
