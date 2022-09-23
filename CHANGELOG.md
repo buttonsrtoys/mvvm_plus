@@ -1,3 +1,6 @@
+## 1.0.1
+Upgraded Bilocator.
+
 ## 1.0.0
 - Added `createProperty` to ViewModel.
 - Migrated to `bilocator` from `registrar`. (`bilocator` is `registrar` renamed).
