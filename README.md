@@ -34,7 +34,7 @@ Flutter widget and the View Model and Model are Dart models that extend ChangeNo
 
 MVVM+ goals:
 
-- *Clearly* separate stands *and* business logic from UI.
+- *Clearly* separate business logic and state from UI.
 - Support access to models in a global registry (like GetIt).
 - Support access to models from descendant widgets (like Provider, InheritedWidget).
 - Work well alone or with other state management packages (BLoC, RxDart, Provider, GetIt, ...).
@@ -72,11 +72,11 @@ field or a button.
 
 ## VSCode mvvm+ extension
 
-The boilerplate for the View and ViewModel classes is very similar to that of the StatefulWidget and its State class. So, like the Flutter extension adds a "stful" command for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing View and ViewModel classes.
+The boilerplate for the View and ViewModel classes is very similar to that of the StatefulWidget and its State class. So, like the Flutter extension adds a "stful" snippet for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing View and ViewModel classes.
 
 ![mvvm plus extension](https://github.com/buttonsrtoys/mvvm_plus_vsce/blob/main/images/Snippet.gif)
 
-Search for VSCode extension marketplace for "mvvm plus". After installing the extension, just start typing "mvvm+" in the edit window and hit `Enter` when the `mvvm+` command is highlighted. Then type the name of your widget and the extension will populate the naming for you. Hit tab to edit the build function.
+Search for VSCode extension marketplace for "mvvm plus". After installing the extension, just start typing "mvvm+" in the edit window and hit `Enter` when the `mvvm+` snippet is highlighted. Then type the name of your widget and the extension will populate the naming for you. Hit tab to edit the build function.
 
 ## Rebuilding a View
 

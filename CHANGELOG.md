@@ -1,3 +1,6 @@
+## 1.0.2
+Fixed typo in readme.
+
 ## 1.0.1
 Upgraded Bilocator.
 
