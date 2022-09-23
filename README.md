@@ -70,6 +70,14 @@ class MyWidget extends View<MyWidgetViewModel> {
 Views are frequently nested and can be large, like an app page or feature. Or small, like a password
 field or a button.
 
+## VSCode mvvm+ extension
+
+The boilerplate for the View and ViewModel classes is very similar to that of the StatefulWidget and its State class. So, like the Flutter extension adds a "stful" command for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing View and ViewModel classes.
+
+![mvvm plus extension](https://github.com/buttonsrtoys/mvvm_plus_vsce/blob/main/images/Snippet.gif)
+
+Search for VSCode extension marketplace for "mvvm plus". After installing the extension, just start typing "mvvm+" in the edit window and hit `Enter` when the `mvvm+` command is highlighted. Then type the name of your widget and the extension will populate the naming for you. Hit tab to edit the build function.
+
 ## Rebuilding a View
 
 ViewModel includes a `buildView` method for rebuilding the View. You can call it explicitly:
