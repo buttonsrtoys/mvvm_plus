@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   equatable: ^2.0.3
-  bilocator: ^0.5.0
+  bilocator: ^0.5.1
 
 dev_dependencies:
   flutter_test:
