@@ -299,6 +299,8 @@ article [Flutter State Management with MVVM+](https://medium.com/@buttonsrtoys/f
 
 To learn more about the `bilocator` package that MVVM+ uses for its locator, see the [bilocator documentation](https://pub.dev/packages/bilocator#registering-models).
 
+If you are migrating from Provider, see [How to Migrate Your Flutter App from Provider to MVVM+](https://medium.com/@buttonsrtoys/how-to-migrate-from-provider-to-mvvm-c7400feef55c).
+
 # Example
 
 (The source code for the repo example is under the Pub.dev "Example" tab and in the
