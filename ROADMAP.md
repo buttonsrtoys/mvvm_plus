@@ -1,10 +1,10 @@
 # Create Property class
 - Replaces property typedef
+- Extends ValueNotifier
 - Immutable
-- Includes error handling
-    A SO response suggested having a Error property that is set when an error occurs:
+- No error handling b/c can be handled with custom property. See
     https://stackoverflow.com/questions/4228483/where-do-i-catch-exceptions-in-mvvm
-
+- Add isValid field
     This SO approach works with the current implementation.
 
     final counter = createProperty<int>(0);
@@ -17,7 +17,7 @@
 
     String text = counter.isValid ? 'Invalid number' : counter.value.toString();
 
-    Also, `value` getter would throw if used when value was bad?
+    -  `value` getter would throw if used when value was inValid?
 
     class Property<T extends object> extends ValueNotifier<T> {
       bool _isValid;
@@ -26,14 +26,14 @@
       // Logs when value set to invalid
       set isValid(bool value) {
         if (kDebug) {
-          debugPrint('Property<T> was set to invalid');
+          debugPrint('Property<T>.isValid was set to $value');
         }
         _isValid = value;
       }
       
       T get value {
         if (!isValid) {
-          throw Exception('Property<$T> contains in invalid value');
+          throw Exception('Property<$T>.value getter called on invalid value');
         }
       }
     }
