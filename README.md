@@ -4,6 +4,12 @@
 
 MVVM+ is a lightweight Flutter implementation of MVVM, plus a locator for sharing states via a global registry (like GetIt) or inherited widgets (like Provider).
 
+## Quick video intro
+
+Here's my attempt at a package-of-the-week style video to show the most common features.
+
+[![Now in Android: 55](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/ShortVidThumbnail.png)](https://youtu.be/QvDg8yg-UlY)
+
 ## Tiny API
 
 MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
