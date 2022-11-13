@@ -1,3 +1,6 @@
+## 1.0.3
+Updated readme with Medium article.
+
 ## 1.0.2
 Fixed typo in readme.
 

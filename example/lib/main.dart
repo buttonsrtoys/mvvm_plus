@@ -11,31 +11,10 @@ Widget myApp() => Bilocator<ColorService>(
     child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Bilocator<ColorService>(
-            builder: () => ColorService(milliSeconds: 2250), location: Location.tree, child: Page())));
+            builder: () => ColorService(milliSeconds: 2250), location: Location.tree, child: CounterPage())));
 
-class IncrementButton extends View<IncrementButtonViewModel> {
-  IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: viewModel.incrementCounter,
-      child: Text(viewModel.buttonText, style: const TextStyle(fontSize: 24)),
-    );
-  }
-}
-
-class IncrementButtonViewModel extends ViewModel {
-  late final isNumber = createProperty<bool>(false);
-  String get buttonText => isNumber.value ? '+1' : '+a';
-  void incrementCounter() {
-    isNumber.value ? get<PageViewModel>().incrementNumber() : get<PageViewModel>().incrementLetter();
-    isNumber.value = !isNumber.value;
-  }
-}
-
-class Page extends View<PageViewModel> {
-  Page({super.key}) : super(location: Location.registry, builder: () => PageViewModel());
+class CounterPage extends View<CounterPageViewModel> {
+  CounterPage({super.key}) : super(location: Location.registry, builder: () => CounterPageViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +32,7 @@ class Page extends View<PageViewModel> {
   }
 }
 
-class PageViewModel extends ViewModel {
+class CounterPageViewModel extends ViewModel {
   late final numberCounter = createProperty<int>(0);
   late final letterCount = createProperty<String>('a');
 
@@ -77,5 +56,26 @@ class ColorService extends Model {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+}
+
+class IncrementButton extends View<IncrementButtonViewModel> {
+  IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: viewModel.incrementCounter,
+      child: Text(viewModel.buttonText, style: const TextStyle(fontSize: 24)),
+    );
+  }
+}
+
+class IncrementButtonViewModel extends ViewModel {
+  late final isNumber = createProperty<bool>(false);
+  String get buttonText => isNumber.value ? '+1' : '+a';
+  void incrementCounter() {
+    isNumber.value ? get<CounterPageViewModel>().incrementNumber() : get<CounterPageViewModel>().incrementLetter();
+    isNumber.value = !isNumber.value;
   }
 }
