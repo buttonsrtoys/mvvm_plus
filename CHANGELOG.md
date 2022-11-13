@@ -1,3 +1,7 @@
+## 1.0.4
+Reworked example.
+Added YouTube video to readme.
+
 ## 1.0.3
 Updated readme with Medium article.
 
