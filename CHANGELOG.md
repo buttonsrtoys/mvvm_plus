@@ -1,3 +1,6 @@
+## 1.0.5
+Fixed ending to short video.
+
 ## 1.0.4
 Reworked example.
 Added YouTube video to readme.

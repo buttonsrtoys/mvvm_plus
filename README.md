@@ -8,7 +8,7 @@ MVVM+ is a lightweight Flutter implementation of MVVM, plus a locator for sharin
 
 My attempt at a package-of-the-week style video:
 
-[![short vid](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/ShortVidThumbnail.png)](https://youtu.be/3AzUDI8BLfo)
+[![short vid](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/ShortVidThumbnail.png)](https://youtu.be/GZ_aErgShOU)
 
 My longer demo video:
 
