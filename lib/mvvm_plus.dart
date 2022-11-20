@@ -2,8 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:bilocator/bilocator.dart';
 
-typedef Property<T> = ValueNotifier<T>;
-
 /// A View widget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
@@ -303,6 +301,44 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
   @override
   @protected
   Widget build(BuildContext context);
+}
+
+/// Property class, which is identical to a ValueNotifier class but with some error functionality.
+///
+/// [this._value] is the initial value.
+/// [onInvalid] is called when the [value] getter is called when [isValid] is false. Ideally, [onInvalid] should never
+/// be called because because the consumer should check the state of [isValid] before using the [value] getter
+/// (assuming, of course, that the value is invalid-able). The default value for [onInvalid] is a function that
+/// throws an exception.
+class Property<T extends Object> extends ChangeNotifier implements ValueListenable<T> {
+  Property(this._value, {VoidCallback? onGetInvalidValue}) {
+    if (onGetInvalidValue != null) {
+      _onGetInvalidValue = onGetInvalidValue!;
+    }
+  }
+
+  T _value;
+  bool isValid = true;
+  VoidCallback _onGetInvalidValue = () => throw Exception('Property.value called when Property.isValid == false');
+
+  @override
+  T get value {
+    if (!isValid) {
+      _onGetInvalidValue();
+    }
+    return _value;
+  }
+
+  set value(T newValue) {
+    if (_value != newValue) {
+      isValid = true;
+      _value = newValue;
+      notifyListeners();
+    }
+  }
+
+  @override
+  String toString() => '${describeIdentity(this)}($value)';
 }
 
 String _missingGenericError(String function, String type) =>
