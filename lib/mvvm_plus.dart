@@ -310,14 +310,13 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 /// be called because because the consumer should check the state of [isValid] before using the [value] getter
 /// (assuming, of course, that the value is invalid-able). The default value for [onInvalid] is a function that
 /// throws an exception.
-class Property<T extends Object> extends ChangeNotifier implements ValueListenable<T> {
-  Property(this._value, {VoidCallback? onGetInvalidValue}) {
+class Property<T extends Object> extends ValueNotifier<T> {
+  Property(super.value, {VoidCallback? onGetInvalidValue}) {
     if (onGetInvalidValue != null) {
       _onGetInvalidValue = onGetInvalidValue!;
     }
   }
 
-  T _value;
   bool isValid = true;
   VoidCallback _onGetInvalidValue = () => throw Exception('Property.value called when Property.isValid == false');
 
@@ -326,19 +325,8 @@ class Property<T extends Object> extends ChangeNotifier implements ValueListenab
     if (!isValid) {
       _onGetInvalidValue();
     }
-    return _value;
+    return super.value;
   }
-
-  set value(T newValue) {
-    if (_value != newValue) {
-      isValid = true;
-      _value = newValue;
-      notifyListeners();
-    }
-  }
-
-  @override
-  String toString() => '${describeIdentity(this)}($value)';
 }
 
 String _missingGenericError(String function, String type) =>
