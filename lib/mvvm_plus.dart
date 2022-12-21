@@ -306,8 +306,8 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 /// Property class, which is identical to a ValueNotifier class but with some error functionality.
 ///
 /// [this._value] is the initial value.
-/// [onInvalid] is called when the [value] getter is called when [isValid] is false. Ideally, [onInvalid] should never
-/// be called because because the consumer should check the state of [isValid] before using the [value] getter
+/// [onInvalid] is called when the [value] getter is called when [valid] is false. Ideally, [onInvalid] should never
+/// be called because because the consumer should check the state of [valid] before using the [value] getter
 /// (assuming, of course, that the value is invalid-able). The default value for [onInvalid] is a function that
 /// throws an exception.
 class Property<T extends Object> extends ValueNotifier<T> {
@@ -317,12 +317,12 @@ class Property<T extends Object> extends ValueNotifier<T> {
     }
   }
 
-  bool isValid = true;
-  VoidCallback _onGetInvalidValue = () => throw Exception('Property.value called when Property.isValid == false');
+  bool valid = true;
+  VoidCallback _onGetInvalidValue = () => throw Exception('Property.value called when Property.valid == false');
 
   @override
   T get value {
-    if (!isValid) {
+    if (!valid) {
       _onGetInvalidValue();
     }
     return super.value;
