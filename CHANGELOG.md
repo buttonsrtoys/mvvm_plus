@@ -1,3 +1,6 @@
+## 1.0.6
+Edited the readme page.
+
 ## 1.0.5
 Fixed ending to short video.
 
