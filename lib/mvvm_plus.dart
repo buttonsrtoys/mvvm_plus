@@ -239,7 +239,22 @@ abstract class ViewModel extends Model {
   ///
   /// Typically this method is not overridden.
   @protected
-  late void Function() buildView;
+  late void Function() buildView = unusedBuildView;
+
+  /// Returns the number of calls to buildView when unit testing a ViewModel
+  ///
+  /// [buildView] is initialized with a simple counter function that counts the number of times the build function is
+  /// called primarily for using for unit testing. [_buildViewCalls] returns the number of calls made to [buildView].
+  ///
+  /// Returns -1 for the invalid usage of calling this function after [buildView] was overridden. E.g., during View
+  /// initialization for a ViewModel that is pair with a View.
+  int buildViewCalls() => buildView == unusedBuildView ? _buildViewCalls : -1;
+
+  /// see the comments in [buildViewCalls]
+  int _buildViewCalls = 0;
+
+  /// see the comments in [buildViewCalls]
+  void unusedBuildView() => _buildViewCalls++;
 
   /// Creates a property and adds a listener to it.
   ///
