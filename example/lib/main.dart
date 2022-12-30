@@ -6,12 +6,10 @@ import 'package:bilocator/bilocator.dart';
 
 void main() => runApp(myApp());
 
-Widget myApp() => Bilocator<ColorService>(
-    builder: () => ColorService(milliSeconds: 1500),
-    child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Bilocator<ColorService>(
-            builder: () => ColorService(milliSeconds: 2250), location: Location.tree, child: CounterPage())));
+Widget myApp() => Bilocators(delegates: [
+      BilocatorDelegate<ColorService>(builder: () => ColorService(milliSeconds: 1500), name: 'letter'),
+      BilocatorDelegate<ColorService>(builder: () => ColorService(milliSeconds: 1500), name: 'number'),
+    ], child: MaterialApp(debugShowCheckedModeBanner: false, home: CounterPage()));
 
 class CounterPage extends View<CounterPageViewModel> {
   CounterPage({super.key}) : super(location: Location.registry, builder: () => CounterPageViewModel());
@@ -23,9 +21,9 @@ class CounterPage extends View<CounterPageViewModel> {
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             Text(viewModel.letterCount.value,
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(context: context).color.value)),
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(name: 'letter').color.value)),
             Text(viewModel.numberCounter.value.toString(),
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>().color.value)),
+                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(name: 'number').color.value)),
           ]),
         ])),
         floatingActionButton: IncrementButton());

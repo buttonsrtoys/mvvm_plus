@@ -14,7 +14,7 @@ packages:
       path: "../../bilocator"
       relative: true
     source: path
-    version: "0.5.1"
+    version: "0.5.2"
   boolean_selector:
     dependency: transitive
     description:

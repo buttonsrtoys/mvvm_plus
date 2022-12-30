@@ -1,5 +1,3 @@
-# ViewModel needs mounted getter
-
 # Add buildViewCalls
 - Add a counter for `buildView` calls for testing.
 - Fix test error when the late `buildView` not instantiated during test.
@@ -21,9 +19,5 @@ could add. You have a couple options. Use the `name` parameter to make it unique
 # Register BilocatorDelegates in construction
 - Currently registered in Bilocators constructor. Register in BilocatorDelegate constructor.
 - Is Bilocator registering in Constructor?
-
-# Add comment regarding danger of passing closures to listenTo
-
-# fix context.listenTo and .get to update on notifyListeners
 
 # Rename Bilocators to MultiBilocators to be inline with Flutter?
