@@ -1,15 +1,6 @@
 ## 1.1.0
-- Add buildViewCalls
-- Add a counter for `buildView` calls for testing.
-
-- Add Property class
-- Has `valid` field.
-
-- Register BilocatorDelegates in construction
-- Currently registered in Bilocators constructor. Register in BilocatorDelegate constructor.
-- Is Bilocator registering in Constructor?
-
-- fix context.listenTo and .get to update on notifyListeners
+- Add ViewModel.buildViewCalls to facilitate testing.
+- fixed bug where `name` was ignored in `listenTo(name: name)`.
 
 ## 1.0.6
 Edited the readme page.
