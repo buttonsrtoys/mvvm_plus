@@ -258,7 +258,21 @@ abstract class ViewModel extends Model {
 
   /// Creates a property and adds a listener to it.
   ///
-  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
+  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding
+  /// [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
+  ///
+  /// This function cannot be called during initialization. So, use late:
+  ///
+  ///     late final myProperty = createProporty<int>(0);
+  ///
+  /// Or call from within initState:
+  ///
+  ///     late final myProperty;
+  ///     @override
+  ///     void initState() {
+  ///         super.initState();
+  ///         myProperty = createProperty<int>(0);
+  ///     }
   ///
   /// See [Model.createProperty] for more information.
   @override
