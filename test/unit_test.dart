@@ -3,8 +3,7 @@ import 'package:bilocator/bilocator.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
 class MyNumberViewModel extends ViewModel {
-  // final answer = 42;
-  late final answer = createProperty<int>(42);
+  late final number = createProperty<int>(42);
 }
 
 void main() {
@@ -13,7 +12,7 @@ void main() {
       expect(Bilocator.isRegistered<MyNumberViewModel>(), false);
       Bilocator.register<MyNumberViewModel>(instance: MyNumberViewModel());
       expect(Bilocator.isRegistered<MyNumberViewModel>(), true);
-      expect(Bilocator.get<MyNumberViewModel>().answer.value, 42);
+      expect(Bilocator.get<MyNumberViewModel>().number.value, 42);
       Bilocator.unregister<MyNumberViewModel>();
       expect(Bilocator.isRegistered<MyNumberViewModel>(), false);
       expect(() => Bilocator.get<MyNumberViewModel>(), throwsA(isA<Exception>()));
@@ -26,7 +25,7 @@ void main() {
       Bilocator.register<MyNumberViewModel>(instance: MyNumberViewModel(), name: name);
       expect(Bilocator.isRegistered<MyNumberViewModel>(), false);
       expect(Bilocator.isRegistered<MyNumberViewModel>(name: name), true);
-      expect(Bilocator.get<MyNumberViewModel>(name: name).answer.value, 42);
+      expect(Bilocator.get<MyNumberViewModel>(name: name).number.value, 42);
       Bilocator.unregister<MyNumberViewModel>(name: name);
       expect(Bilocator.isRegistered<MyNumberViewModel>(), false);
       expect(Bilocator.isRegistered<MyNumberViewModel>(name: name), false);
@@ -37,9 +36,9 @@ void main() {
     test('buildViewCalls', () {
       final myNumberViewModel = MyNumberViewModel();
       expect(myNumberViewModel.buildViewCalls(), 0);
-      myNumberViewModel.answer.value = 43;
+      myNumberViewModel.number.value = 43;
       expect(myNumberViewModel.buildViewCalls(), 1);
-      myNumberViewModel.answer.value = 42;
+      myNumberViewModel.number.value = 42;
       expect(myNumberViewModel.buildViewCalls(), 2);
       // ignore: invalid_use_of_protected_member
       myNumberViewModel.buildView = () {};
