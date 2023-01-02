@@ -241,11 +241,38 @@ abstract class ViewModel extends Model {
   ///
   /// Typically this method is not overridden.
   @protected
-  late void Function() buildView;
+  late void Function() buildView = _defaultBuildView;
+
+  /// Returns the number of calls to buildView when unit testing a ViewModel
+  ///
+  /// [buildViewCalls] is for unit testing a [ViewModel]. [ViewModel.buildView] is initialized with a simple counter
+  /// function that counts the number of times the build function is called. [buildViewCalls] returns the number of
+  /// calls made to this counter function.
+  ///
+  /// Returns -1 if [buildView] was overridden. E.g., when a ViewModel is pair with a View widget.
+  int buildViewCalls() => buildView == _defaultBuildView ? _buildViewCalls : -1;
+
+  /// see the comments in [buildViewCalls]
+  int _buildViewCalls = 0;
+  void _defaultBuildView() => _buildViewCalls++;
 
   /// Creates a property and adds a listener to it.
   ///
-  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
+  /// [listener] is the listener to add. If listener is null, [buildView] is used. (Note that the default of adding
+  /// [buildView] is different than the [Model] base class which adds [notifyListeners] as a default.)
+  ///
+  /// This function cannot be called during initialization. So, use late:
+  ///
+  ///     late final myProperty = createProporty<int>(0);
+  ///
+  /// Or call from within initState:
+  ///
+  ///     late final myProperty;
+  ///     @override
+  ///     void initState() {
+  ///         super.initState();
+  ///         myProperty = createProperty<int>(0);
+  ///     }
   ///
   /// See [Model.createProperty] for more information.
   @override
@@ -262,7 +289,7 @@ abstract class ViewModel extends Model {
   @override
   T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(context: context, notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(context: context, name: name, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
