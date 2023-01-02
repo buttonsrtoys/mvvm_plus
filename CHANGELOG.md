@@ -1,6 +1,6 @@
 ## 1.1.0
-- Add ViewModel.buildViewCalls to facilitate testing.
-- fixed bug where `name` was ignored in `listenTo(name: name)`.
+- Added ViewModel.buildViewCalls to facilitate unit testing of ViewModels.
+- fixed bug where `name` was ignored in `ViewModel.listenTo(name: name)`.
 
 ## 1.0.6
 Edited the readme page.
