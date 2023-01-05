@@ -118,9 +118,13 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with BilocatorState
     super.dispose();
   }
 
+  void _buildView() {
+    if (mounted) setState(() {});
+  }
+
   T _buildViewModel() {
     final viewModel = widget._builder();
-    viewModel.buildView = () => setState(() {});
+    viewModel.buildView = _buildView;
     viewModel._context = context;
     viewModel.addListener(viewModel.buildView);
     return viewModel;

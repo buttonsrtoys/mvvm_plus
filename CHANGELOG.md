@@ -1,3 +1,7 @@
+## 1.1.1
+- Added check for whether View is mounted before calling setState.
+- Refactored buildView to a name function.
+
 ## 1.1.0
 - Added ViewModel.buildViewCalls to facilitate unit testing of ViewModels.
 - fixed bug where `name` was ignored in `ViewModel.listenTo(name: name)`.
