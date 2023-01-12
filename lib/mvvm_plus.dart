@@ -1,6 +1,6 @@
+import 'package:bilocator/bilocator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:bilocator/bilocator.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
@@ -38,9 +38,6 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   final Location? _location;
   final String? _name;
 
-  /// Returns the [ViewModel] subclass bound to this [View].
-  T get viewModel => _stateInstance.value._viewModel;
-
   /// Get a registered object.
   ///
   /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
@@ -54,53 +51,65 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   U listenTo<U extends ChangeNotifier>({BuildContext? context, U? notifier, String? name}) =>
       viewModel.listenTo<U>(context: context, notifier: notifier, name: name);
 
+  /// Returns the [ViewModel] subclass bound to this [View].
+  T get viewModel => _stateInstance.value._viewModel;
+
   /// Same functionality as [State.context].
   BuildContext get context => _stateInstance.value.context;
 
   /// Same functionality as [State.mounted].
   bool get mounted => _stateInstance.value.mounted;
 
-  /// Same functionality as [State.didUpdateWidget].
-  @protected
-  @mustCallSuper
-  void didUpdateWidget(covariant View<T> oldWidget) {}
-
-  /// Same functionality as [State.reassemble].
-  @protected
-  @mustCallSuper
-  void reassemble() {}
-
-  /// Same functionality as [State.deactivate].
-  @protected
-  @mustCallSuper
-  void deactivate() {}
-
-  /// Same functionality as [State.activate].
-  @protected
-  @mustCallSuper
-  void activate() {}
-
-  /// Same functionality as [State.didChangeDependencies].
-  @protected
-  @mustCallSuper
-  void didChangeDependencies() {}
+  /// Gets the state associated with this View class
+  State<View<T>> get state => _stateInstance.value;
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
   @protected
   Widget build(BuildContext context);
 
-  /// [createState] provides the logic for this [View] class and typically would not be overridden. To specify the
-  /// interface, override [build].
+  /// Builds the state than manages this [View]
+  ///
+  /// This functions is already defined for this [View] class so typically doesn't need to be overridden. The exception
+  /// is when you need to add a mixin to the state class. To add a mixin, extend ViewState<View<T>> with the mixin:
+  ///
+  ///    class MyWidget extends View<MyWidgetViewModel> {
+  ///      MyWidget({super.key}) : super(builder: () MyWidgetViewModel());
+  ///
+  ///         :
+  ///
+  ///      @override
+  ///      MyWidgetState createState => MyWidgetState();
+  ///
+  ///      @override
+  ///      Widget build(BuildContext context) {
+  ///        state.doSomething();
+  ///        return Text(viewModel.message);
+  ///      }
+  ///    }
+  ///
+  ///    class MyWidgetState extends ViewState<MyWidget> with MyMixin {}
+  ///
+  ///    mixin MyMixin {
+  ///      doSomething() {..}
+  ///    }
+  ///
+  ///    class MyWidgetViewModel extends ViewModel {
+  ///      late final message = createProperty<String>('Hello');
+  ///    }
+  ///
   @override
   @mustCallSuper
-  State<View<T>> createState() => _ViewState<T>();
+  State<View<T>> createState() => ViewState<T>();
 }
 
-/// [_ViewState] does the heavy lifting of extending StatefulWidget into MVVM
-class _ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateImpl<T> {
+/// [ViewState] does the heavy lifting of extending StatefulWidget into MVVM
+///
+/// Typically state classes are private. This one is public mixins cane be added. See [View.createState] for more info.
+class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateImpl<T> {
   late T _viewModel;
 
   @override
+  @mustCallSuper
   void initState() {
     super.initState();
     _viewModel = _buildViewModel();
@@ -113,6 +122,7 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with BilocatorState
   }
 
   @override
+  @mustCallSuper
   void dispose() {
     disposeImpl(location: widget._location, name: widget._name, dispose: true);
     super.dispose();
@@ -131,45 +141,15 @@ class _ViewState<T extends ViewModel> extends State<View<T>> with BilocatorState
   }
 
   @override
-  void didUpdateWidget(covariant View<T> oldWidget) {
-    widget.didUpdateWidget(oldWidget);
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void reassemble() {
-    widget.reassemble();
-    super.reassemble();
-  }
-
-  @override
-  void deactivate() {
-    widget.deactivate();
-    super.deactivate();
-  }
-
-  @override
-  void activate() {
-    widget.activate();
-    super.activate();
-  }
-
-  @override
-  void didChangeDependencies() {
-    widget.didChangeDependencies();
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
     widget._stateInstance.value = this;
     return buildImpl(location: widget._location, child: widget.build(context));
   }
 }
 
-/// Wrapper for [_ViewState] to facilitate access by [View]
+/// Wrapper for [ViewState] to facilitate access by [View]
 class _StateInstance<T extends ViewModel> {
-  late _ViewState<T> value;
+  late ViewState<T> value;
 }
 
 /// Base class for a [Model]
