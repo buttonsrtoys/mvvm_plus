@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:bilocator/bilocator.dart';
 import 'package:flutter/material.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
-import 'package:bilocator/bilocator.dart';
 
 void main() => runApp(myApp());
 
@@ -61,13 +61,20 @@ class IncrementButton extends View<IncrementButtonViewModel> {
   IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
 
   @override
+  MyIncrementButtonState createState() => MyIncrementButtonState();
+
+  @override
   Widget build(BuildContext context) {
+    getState<MyIncrementButtonState>().saySomething();
+
     return FloatingActionButton(
       onPressed: viewModel.incrementCounter,
       child: Text(viewModel.buttonText, style: const TextStyle(fontSize: 24)),
     );
   }
 }
+
+class MyIncrementButtonState extends ViewState<IncrementButtonViewModel> with MyMixin {}
 
 class IncrementButtonViewModel extends ViewModel {
   late final isNumber = createProperty<bool>(false);
@@ -76,4 +83,8 @@ class IncrementButtonViewModel extends ViewModel {
     isNumber.value ? get<CounterPageViewModel>().incrementNumber() : get<CounterPageViewModel>().incrementLetter();
     isNumber.value = !isNumber.value;
   }
+}
+
+mixin MyMixin {
+  void saySomething() => debugPrint('Hello');
 }

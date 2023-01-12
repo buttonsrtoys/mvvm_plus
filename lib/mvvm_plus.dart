@@ -61,7 +61,9 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   bool get mounted => _stateInstance.value.mounted;
 
   /// Gets the state associated with this View class
-  State<View<T>> get state => _stateInstance.value;
+  // Rich, we need a check warning if value is not of type U and to tell the dev they need to define createState
+  // to build their custom State.
+  U getState<U extends ViewState<T>>() => _stateInstance.value as U;
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
   @protected
@@ -98,7 +100,6 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///    }
   ///
   @override
-  @mustCallSuper
   State<View<T>> createState() => ViewState<T>();
 }
 
