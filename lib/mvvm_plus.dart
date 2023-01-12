@@ -110,9 +110,10 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   State<View<T>> createState() => ViewState<T>();
 }
 
-/// [ViewState] does the heavy lifting of extending StatefulWidget into MVVM
+/// [ViewState] stores the states of [View], including its [ViewModel]
 ///
-/// Typically state classes are private. This one is public mixins cane be added. See [View.createState] for more info.
+/// Use this public access wisely. MVVM+ uses this class for logic and states. Typically it does not need to be
+/// accessed. An exception to extending this class for mixins. See [View.createState] for more info.
 class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateImpl<T> {
   late T _viewModel;
 
