@@ -61,9 +61,16 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   bool get mounted => _stateInstance.value.mounted;
 
   /// Gets the state associated with this View class
-  // Rich, we need a check warning if value is not of type U and to tell the dev they need to define createState
-  // to build their custom State.
-  U getState<U extends ViewState<T>>() => _stateInstance.value as U;
+  U getState<U extends ViewState<T>>() {
+    assert(
+      _stateInstance.value is U,
+      'getState failed because the constructed State class is of type '
+      '${_stateInstance.value.runtimeType} which does not match the generic type $U. Possible causes:\n'
+      ' - You did not override the function `createState`. See the docs for `createState` for more information.'
+      ' - The generic was omitted. E.g., you used `getState()` instead of `getState<MyWidgetState>().`',
+    );
+    return _stateInstance.value as U;
+  }
 
   /// Same functionality as [StatelessWidget.build]. E.g., override this function to define the interface.
   @protected
