@@ -60,6 +60,31 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   /// Same functionality as [State.mounted].
   bool get mounted => _stateInstance.value.mounted;
 
+  /// Same functionality as [State.didUpdateWidget].
+  @protected
+  @mustCallSuper
+  void didUpdateWidget(covariant View<T> oldWidget) {}
+
+  /// Same functionality as [State.reassemble].
+  @protected
+  @mustCallSuper
+  void reassemble() {}
+
+  /// Same functionality as [State.deactivate].
+  @protected
+  @mustCallSuper
+  void deactivate() {}
+
+  /// Same functionality as [State.activate].
+  @protected
+  @mustCallSuper
+  void activate() {}
+
+  /// Same functionality as [State.didChangeDependencies].
+  @protected
+  @mustCallSuper
+  void didChangeDependencies() {}
+
   /// Gets the state associated with this View class
   U getState<U extends ViewState<T>>() {
     assert(
@@ -147,6 +172,36 @@ class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateI
     viewModel._context = context;
     viewModel.addListener(viewModel.buildView);
     return viewModel;
+  }
+
+  @override
+  void didUpdateWidget(covariant View<T> oldWidget) {
+    widget.didUpdateWidget(oldWidget);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void reassemble() {
+    widget.reassemble();
+    super.reassemble();
+  }
+
+  @override
+  void deactivate() {
+    widget.deactivate();
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    widget.activate();
+    super.activate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    widget.didChangeDependencies();
+    super.didChangeDependencies();
   }
 
   @override
