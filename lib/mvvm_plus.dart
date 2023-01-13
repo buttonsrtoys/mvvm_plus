@@ -103,28 +103,28 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
 
   /// Builds the state than manages this [View]
   ///
-  /// This functions is already defined for this [View] class so typically doesn't need to be overridden. The exception
+  /// This functions is already defined for this [View] class so typically doesn't need to be overridden. An exception
   /// is when you need to add a mixin to the state class. To add a mixin, extend ViewState<View<T>> with the mixin:
   ///
   ///    class MyWidget extends View<MyWidgetViewModel> {
-  ///      MyWidget({super.key}) : super(builder: () MyWidgetViewModel());
+  ///      MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
   ///
-  ///         :
-  ///
+  ///      // Overriding createState is only required when adding mixins
   ///      @override
-  ///      MyWidgetState createState => MyWidgetState();
+  ///      MyWidgetState createState() => MyWidgetState();
   ///
   ///      @override
   ///      Widget build(BuildContext context) {
-  ///        state.doSomething();
-  ///        return Text(viewModel.message);
+  ///      // Use `getState` to retrieve your custom ViewState/mixin object
+  ///        return getState<MyWidgetState>().buildGreeting(viewModel.message.value);
   ///      }
   ///    }
   ///
-  ///    class MyWidgetState extends ViewState<MyWidget> with MyMixin {}
+  ///    // Extend `ViewState` and add your mixin
+  ///    class MyWidgetState extends ViewState<MyWidgetViewModel> with MyMixin {}
   ///
   ///    mixin MyMixin {
-  ///      doSomething() {..}
+  ///      buildGreeting(String message) => Text(message);
   ///    }
   ///
   ///    class MyWidgetViewModel extends ViewModel {

@@ -10,8 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   mvvm_plus:
-    path: ../
-  bilocator: ^0.5.3
+    path: ../../mvvm_plus
+  bilocator:
+    path: ../../bilocator
 
 dev_dependencies:
   flutter_test:
