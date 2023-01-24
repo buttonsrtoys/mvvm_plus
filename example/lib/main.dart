@@ -85,6 +85,7 @@ class IncrementButtonViewModel extends ViewModel {
   }
 }
 
+// Rich, mixin test below
 mixin MyMixin {
-  void saySomething() => debugPrint('Hello');
+  void saySomething() => debugPrint('Hello from MyMixin');
 }
