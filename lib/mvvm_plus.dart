@@ -380,6 +380,34 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
   Widget build(BuildContext context);
 }
 
+/// Property that receives a Future as an initial value and notifies listeners when Future resolves.
+///
+/// Rich, comment
+class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
+  /// [value] is a future.
+  FutureProperty(super.value) {
+    value.then((result) {
+      _data = result;
+      _hasData = true;
+      notifyListeners();
+    });
+  }
+
+  /// True if the Future has resolved and its data is available.
+  bool get hasData => _hasData;
+  bool _hasData = false;
+
+  late T _data;
+
+  /// The data of the resolved Future. An exception is thrown if this getter is called before the Future resolves.
+  T get data {
+    if (!_hasData) {
+      throw Exception('FutureProperty.resolvedValue was called when the Future has not yet resolved.');
+    }
+    return _data;
+  }
+}
+
 String _missingGenericError(String function, String type) =>
     'Missing generic error: "$function" called without a custom subclass generic. Did you call '
     '"$function(..)" instead of "$function<$type>(..)"?';
