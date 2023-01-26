@@ -337,7 +337,7 @@ void main() {
   });
 
   group('Mixin and State', () {
-    /* Rich, write a test for the mix and state features
+    /* Rich, write a test for the mixin and state features
 
 
     class IncrementButton extends View<IncrementButtonViewModel> {

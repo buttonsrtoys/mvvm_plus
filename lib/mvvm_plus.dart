@@ -248,6 +248,8 @@ abstract class Model extends ChangeNotifier with Observer {
   }
 }
 
+// Rich, need createFutureProperty and createStreamProperty
+
 /// Base class for View Models
 ///
 /// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
@@ -380,31 +382,79 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
   Widget build(BuildContext context);
 }
 
-/// Property that receives a Future as an initial value and notifies listeners when Future resolves.
-///
-/// Rich, comment
+/// Property that manages a Future and notifies listeners when Future resolves.
 class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
-  /// [value] is a future.
   FutureProperty(super.value) {
-    value.then((result) {
-      _data = result;
-      _hasData = true;
-      notifyListeners();
-    });
+    _getFuture(value);
   }
 
-  /// True if the Future has resolved and its data is available.
+  /// Setter for a new Future.
+  @override
+  set value(Future<T> newValue) {
+    if (super.value != newValue) {
+      super.value = newValue;
+      _getFuture(value);
+      notifyListeners();
+    }
+  }
+
+  /// Returns true if one ore more values in stream resolved (so [data] is value).
   bool get hasData => _hasData;
   bool _hasData = false;
-
   late T _data;
 
-  /// The data of the resolved Future. An exception is thrown if this getter is called before the Future resolves.
+  /// The data in the resolved Future. Use [hasData] to see if Future resolved (so data is available.)
   T get data {
     if (!_hasData) {
-      throw Exception('FutureProperty.resolvedValue was called when the Future has not yet resolved.');
+      throw Exception('FutureProperty.data was called when the Future has not yet resolved.');
     }
     return _data;
+  }
+
+  void _getFuture(Future<T> future) async {
+    _hasData = false;
+    _data = await future;
+    _hasData = true;
+    notifyListeners();
+  }
+}
+
+/// Property that manages a Stream and notifies listeners when its value updates.
+class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
+  StreamProperty(super.value) {
+    _getStream(value);
+  }
+
+  /// Setter for a new Stream.
+  @override
+  set value(Stream<T> newValue) {
+    if (super.value != newValue) {
+      super.value = newValue;
+      _getStream(value);
+      notifyListeners();
+    }
+  }
+
+  /// Returns true if one ore more values in stream resolved (so [data] is value).
+  bool get hasData => _hasData;
+  late T _data;
+  bool _hasData = false;
+
+  /// Current stream value. Use [hasData] to see if data is available.
+  T get data {
+    if (!_hasData) {
+      throw Exception('StreamProperty.data was called when the Stream has not yet resolved.');
+    }
+    return _data;
+  }
+
+  void _getStream(Stream<T> stream) async {
+    _hasData = false;
+    await for (final value in stream) {
+      _data = value;
+      _hasData = true;
+      notifyListeners();
+    }
   }
 }
 
