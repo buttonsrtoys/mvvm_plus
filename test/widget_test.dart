@@ -97,7 +97,7 @@ class MyWidget extends View<MyWidgetViewModel> {
 }
 
 /// Get text from inherited or registered [ViewModel]
-class TextWidgetThatUsesGet extends ViewWithStatelessViewModel {
+class TextWidgetThatUsesGet extends StatelessView {
   TextWidgetThatUsesGet({super.key, required this.location, required this.name});
 
   final Location location;
@@ -148,7 +148,7 @@ class MyWidgetViewModel extends ViewModel {
   int get number => myModel.number;
 }
 
-/// Test app for widget subclassed from [ViewWithStatelessViewModel]
+/// Test app for widget subclassed from [StatelessView]
 Widget statelessTestApp({required bool listen}) => MaterialApp(
       home: Bilocator(
         builder: () => MyRegisteredService(),
@@ -157,7 +157,7 @@ Widget statelessTestApp({required bool listen}) => MaterialApp(
     );
 
 /// The [Bilocator] service
-class MyStatelessView extends ViewWithStatelessViewModel {
+class MyStatelessView extends StatelessView {
   MyStatelessView({
     super.key,
     required this.listen,

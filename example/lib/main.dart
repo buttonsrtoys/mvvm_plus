@@ -118,7 +118,7 @@ class PropertyWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates [get] and [listenTo]
-class GetListenToWidget extends ViewWithStatelessViewModel {
+class GetListenToWidget extends StatelessView {
   GetListenToWidget({super.key});
 
   @override
@@ -136,7 +136,7 @@ class GetListenToWidget extends ViewWithStatelessViewModel {
   }
 }
 
-class ModelWidget extends ViewWithStatelessViewModel {
+class ModelWidget extends StatelessView {
   ModelWidget({super.key});
 
   @override
@@ -153,7 +153,7 @@ class ModelWidget extends ViewWithStatelessViewModel {
 }
 
 /// Demonstrates [BuildContext.of] extension
-class ContextOfWidget extends ViewWithStatelessViewModel {
+class ContextOfWidget extends StatelessView {
   ContextOfWidget({super.key});
 
   @override
@@ -170,7 +170,7 @@ class ContextOfWidget extends ViewWithStatelessViewModel {
 }
 
 /// Demonstrates [get] and [listenTo] with [BuildContext]
-class GetListenToContextWidget extends ViewWithStatelessViewModel {
+class GetListenToContextWidget extends StatelessView {
   GetListenToContextWidget({super.key});
 
   @override

@@ -4,10 +4,6 @@ import 'package:flutter/widgets.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
-extension ValueNotifierExtension on ValueNotifier {
-  //
-}
-
 /// A View widget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
@@ -419,7 +415,7 @@ abstract class ViewModel extends Model {
   void initState() {}
 }
 
-/// Empty ViewModel used by [ViewWithStatelessViewModel]
+/// Empty ViewModel used by [StatelessView]
 class _StatelessViewModel extends ViewModel {}
 
 /// A [View] with a predefined [ViewModel] that has no states.
@@ -439,13 +435,17 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// you can skip MyStatelessViewModel and its builder and instead write
 ///
-///     class MyView extends ViewWithStatelessViewModel {
+///     class MyView extends StatelessView {
 ///       MyView({super.key});
 ///       @override
 ///       Widget build(BuildContext context) => Container();
 ///     }
 ///
-/// Under the hood, an empty ViewModel is created for [ViewWithStatelessViewModel]
+/// Under the hood, an empty ViewModel is created for [StatelessView]
+///
+typedef StatelessView = ViewWithStatelessViewModel;
+
+@Deprecated('This class was renamed to [StatelessView]')
 abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
   ViewWithStatelessViewModel({super.key}) : super(builder: () => _StatelessViewModel());
 
