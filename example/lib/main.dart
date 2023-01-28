@@ -151,7 +151,7 @@ class Home extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(child: ContextOfWidget()),
-                    Expanded(child: PropertyWidget()),
+                    Expanded(child: GetListenToContextWidget()),
                   ],
                 ),
                 const Spacer(),
@@ -287,6 +287,22 @@ class ContextOfWidget extends ViewWithStatelessViewModel {
     return Column(
       children: [
         const Text('Context.of'),
+        Text('${context.of<MyModel>().count}'),
+        const SizedBox(height: 10),
+        _Fab(onPressed: () => get<MyModel>(context: context).incrementCount()),
+      ],
+    );
+  }
+}
+
+class GetListenToContextWidget extends ViewWithStatelessViewModel {
+  GetListenToContextWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('get/listenTo(context)'),
         Text('${context.of<MyModel>().count}'),
         const SizedBox(height: 10),
         _Fab(onPressed: () => get<MyModel>(context: context).incrementCount()),
