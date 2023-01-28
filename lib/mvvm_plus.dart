@@ -4,6 +4,10 @@ import 'package:flutter/widgets.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
+extension ValueNotifierExtension on ValueNotifier {
+  //
+}
+
 /// A View widget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
