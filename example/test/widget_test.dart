@@ -2,7 +2,7 @@ import 'package:example/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Press every counter button to ensure every counter works.', (WidgetTester tester) async {
     await tester.pumpWidget(myApp());
     await tester.pump(const Duration(seconds: 10)); // Wait for Future and Stream delays
 
