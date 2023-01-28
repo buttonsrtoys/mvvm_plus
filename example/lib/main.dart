@@ -66,7 +66,7 @@ class Home extends StatelessWidget {
                   ),
                   const Spacer(),
                   Row(
-                    children: const [
+                    children: [
                       Expanded(child: FutureWidget()),
                       Expanded(child: StreamWidget()),
                     ],
@@ -190,6 +190,7 @@ class ModelWidget extends ViewWithStatelessViewModel {
   }
 }
 
+/// Demonstrates [BuildContext.of] extension
 class ContextOfWidget extends ViewWithStatelessViewModel {
   ContextOfWidget({super.key});
 
@@ -206,6 +207,7 @@ class ContextOfWidget extends ViewWithStatelessViewModel {
   }
 }
 
+/// Demonstrates [get] and [listenTo] with [BuildContext]
 class GetListenToContextWidget extends ViewWithStatelessViewModel {
   GetListenToContextWidget({super.key});
 
@@ -223,32 +225,31 @@ class GetListenToContextWidget extends ViewWithStatelessViewModel {
   }
 }
 
+/// Demonstrates [FutureProperty] by using a future to delay a counter.
 Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 500), () => number);
 
-class FutureWidget extends StatefulWidget {
-  const FutureWidget({Key? key}) : super(key: key);
-
-  @override
-  State<FutureWidget> createState() => _FutureWidgetState();
-}
-
-class _FutureWidgetState extends State<FutureWidget> {
-  int count = 0;
-  late final futureProperty = FutureProperty<int>(setNumberSlowly(count))..addListener(() => setState(() {}));
+class FutureWidget extends View<FutureWidgetViewModel> {
+  FutureWidget({super.key}) : super(builder: () => FutureWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const Text('Future'),
-        Text(futureProperty.hasData ? futureProperty.data.toString() : 'Loading...'),
+        Text(viewModel.futureProperty.hasData ? viewModel.futureProperty.data.toString() : 'Loading...'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => futureProperty.value = setNumberSlowly(++count)),
+        _Fab(onPressed: () => viewModel.futureProperty.value = setNumberSlowly(++viewModel.count)),
       ],
     );
   }
 }
 
+class FutureWidgetViewModel extends ViewModel {
+  int count = 0;
+  late final futureProperty = FutureProperty<int>(setNumberSlowly(count))..addListener(buildView);
+}
+
+/// Demonstrates [StreamProperty] by streaming numbers with a delay.
 int streamCounter = 0;
 Stream<int> addToSlowly(int increment) async* {
   int i = streamCounter;
