@@ -42,7 +42,7 @@ class Home extends StatelessWidget {
   }
 }
 
-/// Demonstrates [StatefulWidget] and [State] widgets for comparison to [View] and [ViewModel].
+/// Demonstrates [StatefulWidget] and [State] classes for comparison to [View] and [ViewModel].
 class StatefulAndStateWidget extends StatefulWidget {
   const StatefulAndStateWidget({super.key});
 
@@ -52,6 +52,11 @@ class StatefulAndStateWidget extends StatefulWidget {
 
 class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
   int count = 0;
+  incrementCount() {
+    setState(() {
+      count++;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,34 +65,13 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
         const Text('StatefulWidget/State'),
         Text('$count'),
         const SizedBox(height: 10),
-        Fab(onPressed: () => setState(() => count++)),
+        Fab(onPressed: incrementCount),
       ],
     );
   }
 }
 
-/// Demonstrates the [View], [ViewModel], and the [Property] classes.
-class ViewAndViewModelWidget extends View<PropertyWidgetViewModel> {
-  ViewAndViewModelWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text('View/ViewModel'),
-        Text('${viewModel.count.value}'),
-        const SizedBox(height: 10),
-        Fab(onPressed: () => viewModel.count.value++),
-      ],
-    );
-  }
-}
-
-class PropertyWidgetViewModel extends ViewModel {
-  late final count = createProperty<int>(0);
-}
-
-/// Demonstrates the [buildView] function.
+/// Demonstrates the [View], [ViewModel] classes and the [buildView] function.
 class BuildViewWidget extends View<BuildViewWidgetViewModel> {
   BuildViewWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
 
@@ -110,6 +94,27 @@ class BuildViewWidgetViewModel extends ViewModel {
     count++;
     buildView();
   }
+}
+
+/// Demonstrates the [buildView] function.
+class ViewAndViewModelWidget extends View<PropertyWidgetViewModel> {
+  ViewAndViewModelWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('View/ViewModel'),
+        Text('${viewModel.count.value}'),
+        const SizedBox(height: 10),
+        Fab(onPressed: () => viewModel.count.value++),
+      ],
+    );
+  }
+}
+
+class PropertyWidgetViewModel extends ViewModel {
+  late final count = createProperty<int>(0);
 }
 
 /// Demonstrates [get] and [listenTo]

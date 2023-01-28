@@ -4,23 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(myApp());
+    await tester.pump(const Duration(seconds: 10)); // Wait for Future and Stream delays
 
-    expect(find.text('a'), findsOneWidget);
-    expect(find.text('0'), findsOneWidget);
+    expect(find.text('0'), findsNWidgets(10));
+    expect(find.byType(Fab), findsNWidgets(10));
 
-    // Rich, fix tests
-    /*
-    await tester.tap(find.byType(IncrementButton));
-    await tester.pump();
-
-    expect(find.text('b'), findsOneWidget);
-    expect(find.text('0'), findsOneWidget);
-
-    await tester.tap(find.byType(IncrementButton));
-    await tester.pump();
-
-    expect(find.text('b'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
-     */
+    // await tester.tap(find.byType(Fab));
+    // await tester.pump();
   });
 }
