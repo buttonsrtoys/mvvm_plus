@@ -229,7 +229,7 @@ abstract class Model extends ChangeNotifier with Observer {
     super.dispose();
   }
 
-  /// Creates a property and adds a listener to it.
+  /// Creates a [Property] and adds a listener to it.
   ///
   /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
   ///
@@ -239,20 +239,50 @@ abstract class Model extends ChangeNotifier with Observer {
   ///
   /// If a property is required with no initial listeners, instantiate a ValueNotifier:
   ///
-  ///   final firstName = ValueNotifier<String>('');
-  ///
-  /// or its typedef equivalent:
-  ///
-  ///   final lastName = Property<String>('');
+  ///   final counter = Property<int>(0);
   ///
   ValueNotifier<T> createProperty<T>(T initialValue, {VoidCallback? listener}) {
     final property = ValueNotifier<T>(initialValue);
     property.addListener(listener ?? notifyListeners);
     return property;
   }
-}
 
-// Rich, need createFutureProperty and createStreamProperty
+  /// Creates a [FutureProperty] and adds a listener.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createFutureProperty<int>(0);
+  ///
+  /// If a property is required with no initial listeners, instantiate a Property instead:
+  ///
+  ///   final counter = Property<int>(0);
+  ///
+  FutureProperty<T> createFutureProperty<T>(Future<T> initialValue, {VoidCallback? listener}) {
+    final futureProperty = FutureProperty<T>(initialValue);
+    futureProperty.addListener(listener ?? notifyListeners);
+    return futureProperty;
+  }
+
+  /// Creates a [StreamProperty] and adds a listener.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createStreamProperty<int>(createStream());
+  ///
+  /// If a stream is required with no initial listeners, instantiate a StreamProperty instead:
+  ///
+  ///   final counter = StreamProperty<String>(createStream());
+  ///
+  StreamProperty<T> createStreamProperty<T>(Stream<T> initialValue, {VoidCallback? listener}) {
+    final streamProperty = StreamProperty<T>(initialValue);
+    streamProperty.addListener(listener ?? notifyListeners);
+    return streamProperty;
+  }
+}
 
 /// Base class for View Models
 ///
@@ -317,7 +347,7 @@ abstract class ViewModel extends Model {
   ///
   /// This function cannot be called during initialization. So, use late:
   ///
-  ///     late final myProperty = createProporty<int>(0);
+  ///     late final myProperty = createProperty<int>(0);
   ///
   /// Or call from within initState:
   ///
@@ -334,6 +364,44 @@ abstract class ViewModel extends Model {
     final property = ValueNotifier<T>(initialValue);
     property.addListener(listener ?? buildView);
     return property;
+  }
+
+  /// Creates a [FutureProperty] and adds a listener.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createFutureProperty<int>(0);
+  ///
+  /// If a property is required with no initial listeners, instantiate a Property instead:
+  ///
+  ///   final counter = Property<int>(0);
+  ///
+  @override
+  FutureProperty<T> createFutureProperty<T>(Future<T> initialValue, {VoidCallback? listener}) {
+    final futureProperty = FutureProperty<T>(initialValue);
+    futureProperty.addListener(listener ?? buildView);
+    return futureProperty;
+  }
+
+  /// Creates a [StreamProperty] and adds a listener.
+  ///
+  /// [listener] is the listener to add. If listener is null, [Model.notifyListeners] is used.
+  ///
+  /// Requires the `late` keyword when used during initialization:
+  ///
+  ///   late final counter = createStreamProperty<int>(createStream());
+  ///
+  /// If a stream is required with no initial listeners, instantiate a StreamProperty instead:
+  ///
+  ///   final counter = StreamProperty<String>(createStream());
+  ///
+  @override
+  StreamProperty<T> createStreamProperty<T>(Stream<T> initialValue, {VoidCallback? listener}) {
+    final streamProperty = StreamProperty<T>(initialValue);
+    streamProperty.addListener(listener ?? buildView);
+    return streamProperty;
   }
 
   /// Adds a listener to a ChangeNotifier.

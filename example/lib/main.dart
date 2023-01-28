@@ -208,7 +208,8 @@ class FutureWidget extends View<FutureWidgetViewModel> {
 
 class FutureWidgetViewModel extends ViewModel {
   int count = 0;
-  late final futureProperty = FutureProperty<int>(setNumberSlowly(count))..addListener(buildView);
+  // late final futureProperty = FutureProperty<int>(setNumberSlowly(count))..addListener(buildView);
+  late final futureProperty = createFutureProperty<int>(setNumberSlowly(count));
 }
 
 /// Demonstrates [StreamProperty] by streaming numbers with a delay.
@@ -241,7 +242,8 @@ class StreamWidget extends View<StreamWidgetViewModel> {
 }
 
 class StreamWidgetViewModel extends ViewModel {
-  late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
+  // late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
+  late final streamProperty = createStreamProperty<int>(addToSlowly(streamCounter));
 }
 
 /// Demonstrates exposing [ViewState] to use a mixin.
