@@ -15,8 +15,7 @@ void main() {
     }
     await tester.pump(const Duration(seconds: 10)); // Wait for Future and Stream delays
 
-    expect(find.text('1'), findsNWidgets(8));
-    expect(find.text('2'), findsNWidgets(1));
+    expect(find.text('1'), findsNWidgets(9));
     expect(find.text('5'), findsNWidgets(1));
   });
 }

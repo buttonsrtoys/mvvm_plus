@@ -253,14 +253,14 @@ class MixinWidget extends View<MixinWidgetViewModel> {
   @override
   MixinWidgetState createState() => MixinWidgetState();
 
-  late final factor = getState<MixinWidgetState>().factor;
+  late final color = getState<MixinWidgetState>().color;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const Text('Mixin'),
-        Text('${viewModel.count.value * getState<MixinWidgetState>().factor}'),
+        Text('${viewModel.count.value}', style: TextStyle(color: getState<MixinWidgetState>().color)),
         const SizedBox(height: 10),
         Fab(onPressed: () => viewModel.count.value++),
       ],
@@ -269,7 +269,7 @@ class MixinWidget extends View<MixinWidgetViewModel> {
 }
 
 mixin MyMixin {
-  final int factor = 2;
+  final color = Colors.red;
 }
 
 class MixinWidgetState extends ViewState<MixinWidgetViewModel> with MyMixin {}
