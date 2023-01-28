@@ -72,6 +72,8 @@ class Home extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
+                  MixinWidget(),
+                  const Spacer(),
                 ],
               ),
             ),
@@ -82,11 +84,11 @@ class Home extends StatelessWidget {
   }
 }
 
-class _Fab extends StatelessWidget {
-  const _Fab({
-    Key? key,
+class Fab extends StatelessWidget {
+  const Fab({
+    super.key,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   final VoidCallback onPressed;
 
@@ -94,14 +96,8 @@ class _Fab extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.blue,
-        shape: const CircleBorder(),
-      ),
-      child: const Icon(
-        Icons.add,
-        color: Colors.white,
-      ),
+      style: TextButton.styleFrom(backgroundColor: Colors.blue, shape: const CircleBorder()),
+      child: const Icon(Icons.add, color: Colors.white),
     );
   }
 }
@@ -117,7 +113,7 @@ class BuildViewWidget extends View<BuildViewWidgetViewModel> {
         const Text('buildView'),
         Text('${viewModel.count}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: viewModel.incrementCount),
+        Fab(onPressed: viewModel.incrementCount),
       ],
     );
   }
@@ -142,7 +138,7 @@ class PropertyWidget extends View<PropertyWidgetViewModel> {
         const Text('Property'),
         Text(viewModel.count.value.toString()),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => viewModel.count.value++),
+        Fab(onPressed: () => viewModel.count.value++),
       ],
     );
   }
@@ -166,7 +162,7 @@ class GetListenToWidget extends ViewWithStatelessViewModel {
         const Text('get/listenTo'),
         Text('${listenTo(notifier: get<MyClass>().count).value}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () {
+        Fab(onPressed: () {
           get<MyClass>().count.value++;
         }),
       ],
@@ -184,7 +180,7 @@ class ModelWidget extends ViewWithStatelessViewModel {
         const Text('Model'),
         Text('${listenTo<MyModel>().count}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: get<MyModel>().incrementCount),
+        Fab(onPressed: get<MyModel>().incrementCount),
       ],
     );
   }
@@ -201,7 +197,7 @@ class ContextOfWidget extends ViewWithStatelessViewModel {
         const Text('Context.of'),
         Text('${context.of<MyModel>().count}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => context.of<MyModel>().incrementCount()),
+        Fab(onPressed: () => context.of<MyModel>().incrementCount()),
       ],
     );
   }
@@ -219,7 +215,7 @@ class GetListenToContextWidget extends ViewWithStatelessViewModel {
         const Text('get/listenTo(context)'),
         Text('${listenTo(notifier: countProperty).value}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => get<MyClass>(context: context).count.value++),
+        Fab(onPressed: () => get<MyClass>(context: context).count.value++),
       ],
     );
   }
@@ -238,7 +234,7 @@ class FutureWidget extends View<FutureWidgetViewModel> {
         const Text('Future'),
         Text(viewModel.futureProperty.hasData ? viewModel.futureProperty.data.toString() : 'Loading...'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => viewModel.futureProperty.value = setNumberSlowly(++viewModel.count)),
+        Fab(onPressed: () => viewModel.futureProperty.value = setNumberSlowly(++viewModel.count)),
       ],
     );
   }
@@ -271,7 +267,7 @@ class StreamWidget extends View<StreamWidgetViewModel> {
         const Text('Stream'),
         Text(viewModel.streamProperty.hasData ? viewModel.streamProperty.data.toString() : 'Loading...'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () {
+        Fab(onPressed: () {
           viewModel.streamProperty.value = addToSlowly(5);
         }),
       ],
@@ -282,70 +278,34 @@ class StreamWidget extends View<StreamWidgetViewModel> {
 class StreamWidgetViewModel extends ViewModel {
   late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
 }
-/*
-class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
-  FutureProperty(super.value) {
-    _getFuture(value);
-  }
 
-  void _getFuture(Future<T> future) async {
-    _hasData = false;
-    _data = await future;
-    _hasData = true;
-    notifyListeners();
-  }
+/// Demonstrates exposing [ViewState] to use a mixin.
+class MixinWidget extends View<MixinWidgetViewModel> {
+  MixinWidget({super.key}) : super(builder: () => MixinWidgetViewModel());
 
   @override
-  set value(Future<T> newValue) {
-    if (super.value != newValue) {
-      super.value = newValue;
-      _getFuture(value);
-      notifyListeners();
-    }
-  }
+  MixinWidgetState createState() => MixinWidgetState();
 
-  bool get hasData => _hasData;
-  bool _hasData = false;
-  late T _data;
-  T get data {
-    if (!_hasData) {
-      throw Exception('FutureProperty.resolvedValue was called when the Future has not yet resolved.');
-    }
-    return _data;
+  late final factor = getState<MixinWidgetState>().factor;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Mixin'),
+        Text('${viewModel.count.value * getState<MixinWidgetState>().factor}'),
+        const SizedBox(height: 10),
+        Fab(onPressed: () => viewModel.count.value++),
+      ],
+    );
   }
 }
 
-class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
-  StreamProperty(super.value) {
-    _getStream(value);
-  }
-
-  @override
-  set value(Stream<T> newValue) {
-    if (super.value != newValue) {
-      super.value = newValue;
-      _getStream(value);
-      notifyListeners();
-    }
-  }
-
-  void _getStream(Stream<T> stream) async {
-    _hasData = false;
-    await for (final value in stream) {
-      _data = value;
-      _hasData = true;
-      notifyListeners();
-    }
-  }
-
-  bool get hasData => _hasData;
-  bool _hasData = false;
-  late T _data;
-  T get data {
-    if (!_hasData) {
-      throw Exception('FutureProperty.resolvedValue was called when the Future has not yet resolved.');
-    }
-    return _data;
-  }
+mixin MyMixin {
+  final double factor = 2;
 }
-*/
+
+class MixinWidgetState extends ViewState<MixinWidgetViewModel> with MyMixin {}
+
+class MixinWidgetViewModel extends ViewModel {
+  late final count = createProperty<int>(0);
+}
