@@ -455,6 +455,21 @@ abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
 }
 
 /// Property that manages a Future and notifies listeners when Future resolves.
+///
+/// [data] is the value of the resolved Future. Check if [hasData] is true before trying to retrieve the data as
+/// calling [data] before the Future resolves will throw an exception.
+///
+/// The [value] field holds the [Future].
+///
+/// Typical usage:
+///
+///     @override
+///     Widget build(BuildContext context) {
+///       return futureName.hasData
+///         ? Text('${futureName.data}')
+///         : CircularProgressIndicator();
+///     }
+///
 class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
   FutureProperty(super.value) {
     _getFuture(value);
@@ -492,6 +507,21 @@ class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
 }
 
 /// Property that manages a Stream and notifies listeners when its value updates.
+///
+/// [data] is the value of the resolved Stream. Check if [hasData] is true before trying to retrieve the data as
+/// calling [data] before the Stream resolves will throw an exception.
+///
+/// The [value] field holds the [Stream].
+///
+/// Typical usage:
+///
+///     @override
+///     Widget build(BuildContext context) {
+///       return weatherConditionsStream.hasData
+///         ? Text('${weatherConditionsStream.data}')
+///         : CircularProgressIndicator();
+///     }
+///
 class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
   StreamProperty(super.value) {
     _getStream(value);

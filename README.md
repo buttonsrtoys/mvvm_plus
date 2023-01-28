@@ -297,6 +297,30 @@ final cloud = get<CloudService>();
 final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
 ```
 
+## FutureProperty and StreamProperty
+
+MVVM+ supports Flutter `Future` and `Stream` with the `FutureProperty` and `StreamProperty`. When 
+either of these resolves, its `hasData` field is set to true and its listeners are notified, 
+enabling rendering to update and access the values through its `data` field.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return futureName.hasData
+    ? Text('${futureName.data}')
+    : CircularProgressIndicator();
+}
+```
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return weatherConditionsStream.hasData
+    ? Text('${weatherConditionsStream.data}')
+    : CircularProgressIndicator();
+}
+```
+
 # Mixins
 
 Builds the state than manages this [View]
