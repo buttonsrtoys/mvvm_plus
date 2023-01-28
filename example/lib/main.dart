@@ -106,30 +106,6 @@ class _Fab extends StatelessWidget {
   }
 }
 
-/// Demonstrates the [Property] class
-class PropertyWidget extends View<PropertyWidgetViewModel> {
-  PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text('Property'),
-        Text(viewModel.count.value.toString()),
-        const SizedBox(height: 10),
-        _Fab(onPressed: () => viewModel.count.value++),
-      ],
-    );
-  }
-}
-
-class PropertyWidgetViewModel extends ViewModel {
-  // The three lines below are identical
-  // late final count = ValueNotifier<int>(0)..addListener(buildView);
-  // late final count = Property<int>(0)..addListener(buildView);
-  late final count = createProperty<int>(0);
-}
-
 /// Demonstrates the [buildView] function.
 class BuildViewWidget extends View<BuildViewWidgetViewModel> {
   BuildViewWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
@@ -153,6 +129,30 @@ class BuildViewWidgetViewModel extends ViewModel {
     count++;
     buildView();
   }
+}
+
+/// Demonstrates the [Property] class
+class PropertyWidget extends View<PropertyWidgetViewModel> {
+  PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Property'),
+        Text(viewModel.count.value.toString()),
+        const SizedBox(height: 10),
+        _Fab(onPressed: () => viewModel.count.value++),
+      ],
+    );
+  }
+}
+
+class PropertyWidgetViewModel extends ViewModel {
+  // The three lines below are identical
+  // late final count = ValueNotifier<int>(0)..addListener(buildView);
+  // late final count = Property<int>(0)..addListener(buildView);
+  late final count = createProperty<int>(0);
 }
 
 /// Demonstrates [get] and [listenTo]
@@ -261,31 +261,27 @@ Stream<int> addToSlowly(int increment) async* {
   }
 }
 
-class StreamWidget extends StatefulWidget {
-  const StreamWidget({Key? key}) : super(key: key);
-
-  @override
-  State<StreamWidget> createState() => _StreamWidgetState();
-}
-
-class _StreamWidgetState extends State<StreamWidget> {
-  late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(() => setState(() {}));
+class StreamWidget extends View<StreamWidgetViewModel> {
+  StreamWidget({super.key}) : super(builder: () => StreamWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         const Text('Stream'),
-        Text(streamProperty.hasData ? streamProperty.data.toString() : 'Loading...'),
+        Text(viewModel.streamProperty.hasData ? viewModel.streamProperty.data.toString() : 'Loading...'),
         const SizedBox(height: 10),
         _Fab(onPressed: () {
-          streamProperty.value = addToSlowly(5);
+          viewModel.streamProperty.value = addToSlowly(5);
         }),
       ],
     );
   }
 }
 
+class StreamWidgetViewModel extends ViewModel {
+  late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
+}
 /*
 class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
   FutureProperty(super.value) {
