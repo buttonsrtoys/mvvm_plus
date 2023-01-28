@@ -335,42 +335,4 @@ void main() {
       expect(find.text('${_number + 1}'), findsOneWidget);
     });
   });
-
-  group('Mixin and State', () {
-    /* Rich, write a test for the mixin and state features
-
-
-    class IncrementButton extends View<IncrementButtonViewModel> {
-    IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
-
-    @override
-    MyIncrementButtonState createState() => MyIncrementButtonState();
-
-    @override
-    Widget build(BuildContext context) {
-    getState<MyIncrementButtonState>().saySomething();
-
-    return FloatingActionButton(
-    onPressed: viewModel.incrementCounter,
-    child: Text(viewModel.buttonText, style: const TextStyle(fontSize: 24)),
-    );
-    }
-    }
-
-    class MyIncrementButtonState extends ViewState<IncrementButtonViewModel> with MyMixin {}
-
-    class IncrementButtonViewModel extends ViewModel {
-    late final isNumber = createProperty<bool>(false);
-    String get buttonText => isNumber.value ? '+1' : '+a';
-    void incrementCounter() {
-    isNumber.value ? get<CounterPageViewModel>().incrementNumber() : get<CounterPageViewModel>().incrementLetter();
-    isNumber.value = !isNumber.value;
-    }
-    }
-
-    mixin MyMixin {
-    void saySomething() => debugPrint('Hello');
-    }
-     */
-  });
 }
