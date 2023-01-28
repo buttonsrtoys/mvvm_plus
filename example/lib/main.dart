@@ -72,14 +72,14 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
 }
 
 /// Demonstrates the [View], [ViewModel] classes and the [buildView] function.
-class BuildViewWidget extends View<BuildViewWidgetViewModel> {
-  BuildViewWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
+class ViewAndViewModelWidget extends View<BuildViewWidgetViewModel> {
+  ViewAndViewModelWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('buildView'),
+        const Text('View/ViewModel'),
         Text('${viewModel.count}'),
         const SizedBox(height: 10),
         Fab(onPressed: viewModel.incrementCount),
@@ -97,14 +97,14 @@ class BuildViewWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates the [buildView] function.
-class ViewAndViewModelWidget extends View<PropertyWidgetViewModel> {
-  ViewAndViewModelWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
+class PropertyWidget extends View<PropertyWidgetViewModel> {
+  PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('View/ViewModel'),
+        const Text('Property'),
         Text('${viewModel.count.value}'),
         const SizedBox(height: 10),
         Fab(onPressed: () => viewModel.count.value++),
@@ -298,7 +298,7 @@ class _GridOfCounters extends StatelessWidget {
           const Spacer(),
           Row(
             children: [
-              Expanded(child: BuildViewWidget()),
+              Expanded(child: PropertyWidget()),
               Expanded(child: GetListenToWidget()),
             ],
           ),
