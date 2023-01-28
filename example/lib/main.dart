@@ -4,102 +4,9 @@ import 'package:bilocator/bilocator.dart';
 import 'package:flutter/material.dart';
 import 'package:mvvm_plus/mvvm_plus.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(myApp());
 
-/*
-Widget myApp() => Bilocators(delegates: [
-      BilocatorDelegate<ColorService>(builder: () => ColorService(milliSeconds: 1500), name: 'letter'),
-      BilocatorDelegate<ColorService>(builder: () => ColorService(milliSeconds: 1500), name: 'number'),
-    ], child: MaterialApp(debugShowCheckedModeBanner: false, home: CounterPage()));
-
-class CounterPage extends View<CounterPageViewModel> {
-  CounterPage({super.key}) : super(location: Location.registry, builder: () => CounterPageViewModel());
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Center(
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            Text(viewModel.letterCount.value,
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(name: 'letter').color.value)),
-            Text(viewModel.numberCounter.value.toString(),
-                style: TextStyle(fontSize: 64, color: listenTo<ColorService>(name: 'number').color.value)),
-          ]),
-        ])),
-        floatingActionButton: IncrementButton());
-  }
-}
-
-class CounterPageViewModel extends ViewModel {
-  late final numberCounter = createProperty<int>(0);
-  late final letterCount = createProperty<String>('a');
-
-  void incrementNumber() => numberCounter.value = numberCounter.value == 9 ? 0 : numberCounter.value + 1;
-  void incrementLetter() =>
-      letterCount.value = letterCount.value == 'z' ? 'a' : String.fromCharCode(letterCount.value.codeUnits[0] + 1);
-}
-
-class ColorService extends Model {
-  ColorService({required int milliSeconds}) {
-    _timer = Timer.periodic(Duration(milliseconds: milliSeconds), (_) {
-      color.value = <Color>[Colors.red, Colors.black, Colors.blue, Colors.orange][++_counter % 4];
-    });
-  }
-
-  int _counter = 0;
-  late final color = createProperty<Color>(Colors.orange);
-  late Timer _timer;
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-}
-
-class IncrementButton extends View<IncrementButtonViewModel> {
-  IncrementButton({super.key}) : super(builder: () => IncrementButtonViewModel());
-
-  @override
-  MyIncrementButtonState createState() => MyIncrementButtonState();
-
-  @override
-  Widget build(BuildContext context) {
-    getState<MyIncrementButtonState>().saySomething();
-
-    return FloatingActionButton(
-      onPressed: viewModel.incrementCounter,
-      child: Text(viewModel.buttonText, style: const TextStyle(fontSize: 24)),
-    );
-  }
-}
-
-class MyIncrementButtonState extends ViewState<IncrementButtonViewModel> with MyMixin {}
-
-class IncrementButtonViewModel extends ViewModel {
-  late final isNumber = createProperty<bool>(false);
-  String get buttonText => isNumber.value ? '+1' : '+a';
-  void incrementCounter() {
-    isNumber.value ? get<CounterPageViewModel>().incrementNumber() : get<CounterPageViewModel>().incrementLetter();
-    isNumber.value = !isNumber.value;
-  }
-}
-
-// Rich, mixin test below
-mixin MyMixin {
-  void saySomething() => debugPrint('Hello from MyMixin');
-}
-*/
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(home: Home());
-  }
-}
+Widget myApp() => const MaterialApp(debugShowCheckedModeBanner: false, home: Home());
 
 class MyClass {
   late final count = Property<int>(0);
@@ -119,6 +26,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Bilocators(
+      key: const ValueKey('Bilocators'), // <- Use a consistent key to support hot reloading
       delegates: [
         BilocatorDelegate<MyClass>(builder: () => MyClass()),
         BilocatorDelegate<MyModel>(builder: () => MyModel()),
@@ -126,43 +34,46 @@ class Home extends StatelessWidget {
       child: Bilocator(
         location: Location.tree,
         builder: () => MyModel(),
-        child: Scaffold(
-          appBar: AppBar(title: const Text('Counter example')),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Parameter, Get, Listen, Mixin, Inherited, Context, Future, Stream'),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(child: BuildViewWidget()),
-                    Expanded(child: PropertyWidget()),
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(child: GetListenToWidget()),
-                    Expanded(child: ModelWidget()),
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(child: ContextOfWidget()),
-                    Expanded(child: GetListenToContextWidget()),
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: const [
-                    Expanded(child: FutureWidget()),
-                    Expanded(child: StreamWidget()),
-                  ],
-                ),
-                const Spacer(),
-              ],
+        child: Bilocator(
+          location: Location.tree,
+          builder: () => MyClass(),
+          child: Scaffold(
+            appBar: AppBar(title: const Text('Counter example')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(child: BuildViewWidget()),
+                      Expanded(child: PropertyWidget()),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(child: GetListenToWidget()),
+                      Expanded(child: ModelWidget()),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(child: ContextOfWidget()),
+                      Expanded(child: GetListenToContextWidget()),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: const [
+                      Expanded(child: FutureWidget()),
+                      Expanded(child: StreamWidget()),
+                    ],
+                  ),
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         ),
@@ -289,7 +200,7 @@ class ContextOfWidget extends ViewWithStatelessViewModel {
         const Text('Context.of'),
         Text('${context.of<MyModel>().count}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => get<MyModel>(context: context).incrementCount()),
+        _Fab(onPressed: () => context.of<MyModel>().incrementCount()),
       ],
     );
   }
@@ -300,12 +211,13 @@ class GetListenToContextWidget extends ViewWithStatelessViewModel {
 
   @override
   Widget build(BuildContext context) {
+    final countProperty = get<MyClass>(context: context).count;
     return Column(
       children: [
         const Text('get/listenTo(context)'),
-        Text('${context.of<MyModel>().count}'),
+        Text('${listenTo(notifier: countProperty).value}'),
         const SizedBox(height: 10),
-        _Fab(onPressed: () => get<MyModel>(context: context).incrementCount()),
+        _Fab(onPressed: () => get<MyClass>(context: context).count.value++),
       ],
     );
   }
@@ -373,6 +285,7 @@ class _StreamWidgetState extends State<StreamWidget> {
   }
 }
 
+/*
 class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
   FutureProperty(super.value) {
     _getFuture(value);
@@ -438,3 +351,4 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
     return _data;
   }
 }
+*/
