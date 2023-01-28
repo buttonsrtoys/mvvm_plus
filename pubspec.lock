@@ -11,10 +11,10 @@ packages:
   bilocator:
     dependency: "direct main"
     description:
-      path: "../bilocator"
-      relative: true
-    source: path
-    version: "0.5.3"
+      name: bilocator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.5"
   boolean_selector:
     dependency: transitive
     description:

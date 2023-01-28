@@ -7,12 +7,11 @@ environment:
   sdk: ">=2.17.1 <3.0.0"
 
 dependencies:
+  bilocator: ^0.5.5
   flutter:
     sdk: flutter
   mvvm_plus:
     path: ../../mvvm_plus
-  bilocator:
-    path: ../../bilocator
 
 dev_dependencies:
   flutter_test:
