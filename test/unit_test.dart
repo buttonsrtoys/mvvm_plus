@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bilocator/bilocator.dart';
-import 'package:mvvm_plus/mvvm_plus.dart';
+import 'package:mvvm_plus/src/src.dart';
 
 class MyNumberViewModel extends ViewModel {
   late final number = createProperty<int>(42);

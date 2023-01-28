@@ -1,7 +1,7 @@
 import 'package:bilocator/bilocator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mvvm_plus/mvvm_plus.dart';
+import 'package:mvvm_plus/src/src.dart';
 
 const _number = 42;
 const _floatDefault = 3.14159;

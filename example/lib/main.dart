@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bilocator/bilocator.dart';
 import 'package:flutter/material.dart';
-import 'package:mvvm_plus/mvvm_plus.dart';
 
 void main() => runApp(myApp());
 
