@@ -16,7 +16,7 @@ A longer demo video:
 
 ## Tiny API
 
-MVVM+'s API introduces only three methods to existing Flutter APIs: `get`, `listenTo`,
+MVVM+ extends existing Flutter classes and introduces three methods: `get`, `listenTo`,
 and `buildView`:
 
 - **Model** extends ChangeNotifier and adds:
@@ -295,6 +295,64 @@ ValueNotifiers/Properties:
 ```dart
 final cloud = get<CloudService>();
 final currentUser = listenTo<ValueNotifier<User>>(notifier: cloud.currentUser).value;
+```
+
+## FutureProperty and StreamProperty
+
+MVVM+ supports Flutter `Future` and `Stream` with the `FutureProperty` and `StreamProperty`. When 
+either of these resolves, its `hasData` field is set to true and its listeners are notified, 
+enabling rendering to update and access the values through its `data` field.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return futureName.hasData
+    ? Text('${futureName.data}')
+    : CircularProgressIndicator();
+}
+```
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return weatherConditionsStream.hasData
+    ? Text('${weatherConditionsStream.data}')
+    : CircularProgressIndicator();
+}
+```
+
+# Mixins
+
+Builds the state than manages this [View]
+
+This functions is already defined for this [View] class so typically doesn't need to be overridden. The exception
+is when you need to add a mixin to the state class. To add a mixin, extend ViewState<View<T>> with the mixin:
+
+```dart
+class MyWidget extends View<MyWidgetViewModel> {
+  MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
+
+  @override
+  // Overriding createState is only required when adding mixins
+  MyWidgetState createState() => MyWidgetState();
+
+  @override
+  Widget build(BuildContext context) {
+    // Use `getState` to retrieve your custom ViewState/mixin object
+    return getState<MyWidgetState>().buildGreeting(viewModel.message.value);
+  }
+}
+
+// Extend `ViewState` and add your mixin
+class MyWidgetState extends ViewState<MyWidgetViewModel> with MyMixin {}
+
+mixin MyMixin {
+  buildGreeting(String message) => Text(message);
+}
+
+class MyWidgetViewModel extends ViewModel {
+  late final message = createProperty<String>('Hello');
+}
 ```
 
 # Additional documentation

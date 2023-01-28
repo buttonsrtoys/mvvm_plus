@@ -1,6 +1,14 @@
-## 1.1.1
+## 1.2.0
+- Added FutureProperty and StreamProperty classes.
+- Added Model.createFutureProperty() and Model.createStreamProperty() member functions.
+- Added Model.createStreamProperty() and Model.createStreamProperty() member functions.
 - Added check for whether View is mounted before calling setState.
 - Refactored buildView to a name function.
+- Renamed ViewWithStatelessViewModel to StatelessView.
+- Improved example to show 10 counters.
+- Added support for mixins for View class by exposing its underlying ViewState class.
+  - Adds View.getState member function.
+- Updated Readme documentation.
 
 ## 1.1.0
 - Added ViewModel.buildViewCalls to facilitate unit testing of ViewModels.
