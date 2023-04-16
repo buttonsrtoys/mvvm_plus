@@ -448,7 +448,7 @@ class _StatelessViewModel extends ViewModel {}
 ///
 typedef StatelessViewWidget = StatelessView;
 
-/// Deprecated do to naming collision with [View] in Flutter beta channel
+/// Deprecated because of a name collision with [View] in Flutter beta channel
 @Deprecated('This class was renamed to [StatelessViewWidget]')
 typedef StatelessView = ViewWithStatelessViewModel;
 
