@@ -42,7 +42,7 @@ class Home extends StatelessWidget {
   }
 }
 
-/// Demonstrates [StatefulWidget] and [State] classes for comparison to [View] and [ViewModel].
+/// Demonstrates [StatefulWidget] and [State] classes for comparison to [ViewWidget] and [ViewModel].
 class StatefulAndStateWidget extends StatefulWidget {
   const StatefulAndStateWidget({super.key});
 
@@ -71,8 +71,8 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
   }
 }
 
-/// Demonstrates the [View], [ViewModel] classes and the [buildView] function.
-class ViewAndViewModelWidget extends View<BuildViewWidgetViewModel> {
+/// Demonstrates the [ViewWidget], [ViewModel] classes and the [buildView] function.
+class ViewAndViewModelWidget extends ViewWidget<BuildViewWidgetViewModel> {
   ViewAndViewModelWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
 
   @override
@@ -97,7 +97,7 @@ class BuildViewWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates the [buildView] function.
-class PropertyWidget extends View<PropertyWidgetViewModel> {
+class PropertyWidget extends ViewWidget<PropertyWidgetViewModel> {
   PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
 
   @override
@@ -118,7 +118,7 @@ class PropertyWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates [get] and [listenTo]
-class GetListenToWidget extends StatelessView {
+class GetListenToWidget extends StatelessViewWidget {
   GetListenToWidget({super.key});
 
   @override
@@ -136,7 +136,7 @@ class GetListenToWidget extends StatelessView {
   }
 }
 
-class ModelWidget extends StatelessView {
+class ModelWidget extends StatelessViewWidget {
   ModelWidget({super.key});
 
   @override
@@ -153,7 +153,7 @@ class ModelWidget extends StatelessView {
 }
 
 /// Demonstrates [BuildContext.of] extension
-class ContextOfWidget extends StatelessView {
+class ContextOfWidget extends StatelessViewWidget {
   ContextOfWidget({super.key});
 
   @override
@@ -170,7 +170,7 @@ class ContextOfWidget extends StatelessView {
 }
 
 /// Demonstrates [get] and [listenTo] with [BuildContext]
-class GetListenToContextWidget extends StatelessView {
+class GetListenToContextWidget extends StatelessViewWidget {
   GetListenToContextWidget({super.key});
 
   @override
@@ -190,7 +190,7 @@ class GetListenToContextWidget extends StatelessView {
 /// Demonstrates [FutureProperty] by using a future to delay a counter.
 Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 200), () => number);
 
-class FutureWidget extends View<FutureWidgetViewModel> {
+class FutureWidget extends ViewWidget<FutureWidgetViewModel> {
   FutureWidget({super.key}) : super(builder: () => FutureWidgetViewModel());
 
   @override
@@ -223,7 +223,7 @@ Stream<int> addToSlowly(int increment) async* {
   }
 }
 
-class StreamWidget extends View<StreamWidgetViewModel> {
+class StreamWidget extends ViewWidget<StreamWidgetViewModel> {
   StreamWidget({super.key}) : super(builder: () => StreamWidgetViewModel());
 
   @override
@@ -247,7 +247,7 @@ class StreamWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates exposing [ViewState] to use a mixin.
-class MixinWidget extends View<MixinWidgetViewModel> {
+class MixinWidget extends ViewWidget<MixinWidgetViewModel> {
   MixinWidget({super.key}) : super(builder: () => MixinWidgetViewModel());
 
   @override
@@ -285,46 +285,45 @@ class _GridOfCounters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Counter example')),
         body: Center(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          const Spacer(),
-          Row(
-            children: [
-              const Expanded(child: StatefulAndStateWidget()),
-              Expanded(child: ViewAndViewModelWidget()),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(child: PropertyWidget()),
-              Expanded(child: GetListenToWidget()),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(child: ModelWidget()),
-              Expanded(child: MixinWidget()),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(child: ContextOfWidget()),
-              Expanded(child: GetListenToContextWidget()),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(child: FutureWidget()),
-              Expanded(child: StreamWidget()),
-            ],
-          ),
-          const Spacer(),
-        ])));
+      const Spacer(),
+      Row(
+        children: [
+          const Expanded(child: StatefulAndStateWidget()),
+          Expanded(child: ViewAndViewModelWidget()),
+        ],
+      ),
+      const Spacer(),
+      Row(
+        children: [
+          Expanded(child: PropertyWidget()),
+          Expanded(child: GetListenToWidget()),
+        ],
+      ),
+      const Spacer(),
+      Row(
+        children: [
+          Expanded(child: ModelWidget()),
+          Expanded(child: MixinWidget()),
+        ],
+      ),
+      const Spacer(),
+      Row(
+        children: [
+          Expanded(child: ContextOfWidget()),
+          Expanded(child: GetListenToContextWidget()),
+        ],
+      ),
+      const Spacer(),
+      Row(
+        children: [
+          Expanded(child: FutureWidget()),
+          Expanded(child: StreamWidget()),
+        ],
+      ),
+      const Spacer(),
+    ])));
   }
 }
 

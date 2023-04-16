@@ -56,8 +56,8 @@ class MyInheritedService extends Model {
   late final text = Property<String>(_inheritedStringDefault)..addListener(notifyListeners);
 }
 
-/// The [View]
-class MyWidget extends View<MyWidgetViewModel> {
+/// The [ViewWidget]
+class MyWidget extends ViewWidget<MyWidgetViewModel> {
   MyWidget({
     super.key,
     required bool listenToRegisteredService,
@@ -97,7 +97,7 @@ class MyWidget extends View<MyWidgetViewModel> {
 }
 
 /// Get text from inherited or registered [ViewModel]
-class TextWidgetThatUsesGet extends StatelessView {
+class TextWidgetThatUsesGet extends StatelessViewWidget {
   TextWidgetThatUsesGet({super.key, required this.location, required this.name});
 
   final Location location;
@@ -148,7 +148,7 @@ class MyWidgetViewModel extends ViewModel {
   int get number => myModel.number;
 }
 
-/// Test app for widget subclassed from [StatelessView]
+/// Test app for widget subclassed from [StatelessViewWidget]
 Widget statelessTestApp({required bool listen}) => MaterialApp(
       home: Bilocator(
         builder: () => MyRegisteredService(),
@@ -157,7 +157,7 @@ Widget statelessTestApp({required bool listen}) => MaterialApp(
     );
 
 /// The [Bilocator] service
-class MyStatelessView extends StatelessView {
+class MyStatelessView extends StatelessViewWidget {
   MyStatelessView({
     super.key,
     required this.listen,
