@@ -6,8 +6,7 @@ import 'package:mvvm_plus/mvvm_plus.dart';
 
 void main() => runApp(myApp());
 
-Widget myApp() =>
-    const MaterialApp(debugShowCheckedModeBanner: false, home: Home());
+Widget myApp() => const MaterialApp(debugShowCheckedModeBanner: false, home: Home());
 
 class MyClass {
   late final count = Property<int>(0);
@@ -27,8 +26,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Bilocators(
-        key: const ValueKey(
-            'Bilocators'), // <- Use a consistent key to support hot reloading
+        key: const ValueKey('Bilocators'), // <- Use a consistent key to support hot reloading
         delegates: [
           BilocatorDelegate<MyClass>(builder: () => MyClass()),
           BilocatorDelegate<MyModel>(builder: () => MyModel()),
@@ -75,8 +73,7 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
 
 /// Demonstrates the [ViewWidget], [ViewModel] classes and the [buildView] function.
 class ViewAndViewModelWidget extends ViewWidget<BuildViewWidgetViewModel> {
-  ViewAndViewModelWidget({super.key})
-      : super(builder: () => BuildViewWidgetViewModel());
+  ViewAndViewModelWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -191,8 +188,7 @@ class GetListenToContextWidget extends StatelessViewWidget {
 }
 
 /// Demonstrates [FutureProperty] by using a future to delay a counter.
-Future<int> setNumberSlowly(int number) async =>
-    Future.delayed(const Duration(milliseconds: 200), () => number);
+Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 200), () => number);
 
 class FutureWidget extends ViewWidget<FutureWidgetViewModel> {
   FutureWidget({super.key}) : super(builder: () => FutureWidgetViewModel());
@@ -202,13 +198,9 @@ class FutureWidget extends ViewWidget<FutureWidgetViewModel> {
     return Column(
       children: [
         const Text('Future'),
-        Text(viewModel.futureProperty.hasData
-            ? '${viewModel.futureProperty.data}'
-            : 'Loading...'),
+        Text(viewModel.futureProperty.hasData ? '${viewModel.futureProperty.data}' : 'Loading...'),
         const SizedBox(height: 10),
-        Fab(
-            onPressed: () => viewModel.futureProperty.value =
-                setNumberSlowly(++viewModel.count)),
+        Fab(onPressed: () => viewModel.futureProperty.value = setNumberSlowly(++viewModel.count)),
       ],
     );
   }
@@ -239,9 +231,7 @@ class StreamWidget extends ViewWidget<StreamWidgetViewModel> {
     return Column(
       children: [
         const Text('Stream'),
-        Text(viewModel.streamProperty.hasData
-            ? '${viewModel.streamProperty.data}'
-            : 'Loading...'),
+        Text(viewModel.streamProperty.hasData ? '${viewModel.streamProperty.data}' : 'Loading...'),
         const SizedBox(height: 10),
         Fab(onPressed: () {
           viewModel.streamProperty.value = addToSlowly(5);
@@ -253,8 +243,7 @@ class StreamWidget extends ViewWidget<StreamWidgetViewModel> {
 
 class StreamWidgetViewModel extends ViewModel {
   // late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
-  late final streamProperty =
-      createStreamProperty<int>(addToSlowly(streamCounter));
+  late final streamProperty = createStreamProperty<int>(addToSlowly(streamCounter));
 }
 
 /// Demonstrates exposing [ViewState] to use a mixin.
@@ -271,8 +260,7 @@ class MixinWidget extends ViewWidget<MixinWidgetViewModel> {
     return Column(
       children: [
         const Text('Mixin'),
-        Text('${viewModel.count.value}',
-            style: TextStyle(color: getState<MixinWidgetState>().color)),
+        Text('${viewModel.count.value}', style: TextStyle(color: getState<MixinWidgetState>().color)),
         const SizedBox(height: 10),
         Fab(onPressed: () => viewModel.count.value++),
       ],
@@ -298,8 +286,7 @@ class _GridOfCounters extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       const Spacer(),
       Row(
         children: [
@@ -350,8 +337,7 @@ class Fab extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      style: TextButton.styleFrom(
-          backgroundColor: Colors.blue, shape: const CircleBorder()),
+      style: TextButton.styleFrom(backgroundColor: Colors.blue, shape: const CircleBorder()),
       child: const Icon(Icons.add, color: Colors.white),
     );
   }
