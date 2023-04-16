@@ -22,6 +22,9 @@ typedef Property<T> = ValueNotifier<T>;
 /// from anywhere, [Location.tree] to add the [ViewModel] to the widget tree to be accessible by descendants, or null
 /// (the default) to not make the [ViewModel] accessible by other widgets and models. See [get] and
 /// [listenTo] for how to get and listen to models added to the registry or widget tree.
+typedef ViewWidget<T extends ViewModel> = View<T>;
+
+@Deprecated('This class was renamed to [ViewWidget] due to a name collision in the Flutter beta channel')
 abstract class View<T extends ViewModel> extends StatefulWidget {
   View({
     required T Function() builder,
@@ -135,11 +138,11 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   State<View<T>> createState() => ViewState<T>();
 }
 
-/// [ViewState] stores the states of [View], including its [ViewModel]
+/// [ViewState] stores the states of [ViewWidget], including its [ViewModel]
 ///
 /// Use this public access wisely. MVVM+ uses this class for logic and states. Typically it does not need to be
-/// accessed. An exception to extending this class for mixins. See [View.createState] for more info.
-class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateImpl<T> {
+/// accessed. An exception to extending this class for mixins. See [ViewWidget.createState] for more info.
+class ViewState<T extends ViewModel> extends State<ViewWidget<T>> with BilocatorStateImpl<T> {
   late T _viewModel;
 
   @override
@@ -175,7 +178,7 @@ class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateI
   }
 
   @override
-  void didUpdateWidget(covariant View<T> oldWidget) {
+  void didUpdateWidget(covariant ViewWidget<T> oldWidget) {
     widget.didUpdateWidget(oldWidget);
     super.didUpdateWidget(oldWidget);
   }
@@ -211,7 +214,7 @@ class ViewState<T extends ViewModel> extends State<View<T>> with BilocatorStateI
   }
 }
 
-/// Wrapper for [ViewState] to facilitate access by [View]
+/// Wrapper for [ViewState] to facilitate access by [ViewWidget]
 class _StateInstance<T extends ViewModel> {
   late ViewState<T> value;
 }
@@ -283,20 +286,20 @@ abstract class Model extends ChangeNotifier with Observer {
 /// Base class for View Models
 ///
 /// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
-/// using [ViewModel.get], [View.get], [ViewModel.listenTo], or [View.listenTo], Subclasses are typically only
+/// using [ViewModel.get], [ViewWidget.get], [ViewModel.listenTo], or [ViewWidget.listenTo], Subclasses are typically only
 /// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
 /// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
 /// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
 abstract class ViewModel extends Model {
-  /// The BuildContext of the associated [View]
+  /// The BuildContext of the associated [ViewWidget]
   @nonVirtual
   @protected
   BuildContext get context => _context;
   late final BuildContext _context;
 
-  /// Queues [View] to rebuild.
+  /// Queues [ViewWidget] to rebuild.
   ///
-  /// Typically called when data rendered in [View] changed:
+  /// Typically called when data rendered in [ViewWidget] changed:
   ///
   ///     int _counter = 0;
   ///     void incrementCounter() {
@@ -304,7 +307,7 @@ abstract class ViewModel extends Model {
   ///       buildView();
   ///     }
   ///
-  /// or used to bind a [ViewModel] to a [View]:
+  /// or used to bind a [ViewModel] to a [ViewWidget]:
   ///
   ///     final counter = ValueNotifier<int>(0);
   ///     @override
@@ -315,7 +318,7 @@ abstract class ViewModel extends Model {
   ///
   /// Note that [buildView] is automatically added as a listener to [ViewModel], so [buildView] is called every time
   /// [notifyListeners] is called. However, there is an important distinction between calling [notifyListeners] and
-  /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [View] to build AND
+  /// [buildView]. When this [ViewModel] is registered, calling [notifyListeners] will queue [ViewWidget] to build AND
   /// will also notify the listeners of [ViewModel] of a change, while [buildView] will not notify other listeners.
   /// Therefore, to avoid accidentally notifying listeners, defer to [buildView] unless listeners need to be notified.
   ///
@@ -415,10 +418,10 @@ abstract class ViewModel extends Model {
   void initState() {}
 }
 
-/// Empty ViewModel used by [StatelessView]
+/// Empty ViewModel used by [StatelessViewWidget]
 class _StatelessViewModel extends ViewModel {}
 
-/// A [View] with a predefined [ViewModel] that has no states.
+/// A [ViewWidget] with a predefined [ViewModel] that has no states.
 ///
 /// This is a convenience class for creating Views that don't have any states but update on changes to registered
 /// ChangeNotifiers. E.g., a widget that listens to a service but doesn't have its own states.
@@ -441,8 +444,12 @@ class _StatelessViewModel extends ViewModel {}
 ///       Widget build(BuildContext context) => Container();
 ///     }
 ///
-/// Under the hood, an empty ViewModel is created for [StatelessView]
+/// Under the hood, an empty ViewModel is created for [StatelessViewWidget]
 ///
+typedef StatelessViewWidget = StatelessView;
+
+/// Deprecated do to naming collision with [View] in Flutter beta channel
+@Deprecated('This class was renamed to [StatelessViewWidget]')
 typedef StatelessView = ViewWithStatelessViewModel;
 
 @Deprecated('This class was renamed to [StatelessView]')
