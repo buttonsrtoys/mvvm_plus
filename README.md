@@ -22,7 +22,7 @@ and `buildView`:
 - **Model** extends ChangeNotifier and adds:
     - get
     - listenTo
-- **View** extends StatefulWidget/State and adds:
+- **ViewWidget** extends StatefulWidget/State and adds:
     - get
     - listenTo
 - **ViewModel** extends Model and adds:
@@ -62,12 +62,12 @@ class MyWidgetViewModel extends ViewModel {
 }
 ```
 
-To create a View, extend View. You give the super constructor a builder for your ViewModel (via
-the "builder" parameter) and you override View's `build` function (just like
+To create a View, extend ViewWidget. You give the super constructor a builder for your ViewModel (via
+the "builder" parameter) and you override ViewWidget's `build` function (just like
 StatelessWidget):
 
 ```dart
-class MyWidget extends View<MyWidgetViewModel> {
+class MyWidget extends ViewWidget<MyWidgetViewModel> {
   MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
 
   @override
@@ -82,15 +82,15 @@ field or a button.
 
 ## VSCode mvvm+ extension
 
-The boilerplate for the View and ViewModel classes is very similar to that of StatefulWidget and its State class. So, like the Flutter extension adds a "stful" snippet for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing View and ViewModel classes.
+The boilerplate for the ViewWidget and ViewModel classes is very similar to that of StatefulWidget and its State class. So, like the Flutter extension adds a "stful" snippet for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing ViewWidget and ViewModel classes.
 
 ![mvvm plus extension](https://github.com/buttonsrtoys/mvvm_plus_vsce/blob/main/images/Snippet.gif)
 
 Search the VSCode extension marketplace for "mvvm plus". After installing the extension, just start typing "mvvm+" in the edit window and hit `Enter` when the `mvvm+` snippet is highlighted. Then type the name of your widget and the extension will populate the naming for you. Hit tab to edit the build function.
 
-## Rebuilding a View
+## Rebuilding a ViewWidget
 
-ViewModel includes a `buildView` method for rebuilding the View. You can call it explicitly:
+ViewModel includes a `buildView` method for rebuilding the ViewWidget. You can call it explicitly:
 
 ```dart
 class MyWidgetViewModel extends ViewModel {
@@ -98,12 +98,12 @@ class MyWidgetViewModel extends ViewModel {
 
   void incrementCounter() {
     counter++;
-    buildView(); // <- queues View to build
+    buildView(); // <- queues ViewWidget to build
   }
 }
 ```
 
-Or use `buildView` as a listener to bind the ViewModel to the View with a ValueNotifier:
+Or use `buildView` as a listener to bind the ViewModel to the ViewWidget with a ValueNotifier:
 
 ```dart
 late final counter = ValueNotifier<int>(0)..addListener(buildView);
@@ -141,11 +141,11 @@ class MyWidgetViewModel extends ViewModel {
 ## Adding and getting ViewModels from the registry
 
 Occasionally you need to access another widget's ViewModel instance (e.g., if it's an ancestor or on 
-another branch of the widget tree). To make a ViewModel globally available, use the View specifier 
+another branch of the widget tree). To make a ViewModel globally available, use the ViewWidget specifier 
 `location: Location.registry`:
 
 ```dart
-class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+class MyOtherWidget extends ViewWidget<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
     location: Location.registry, // <- Adds the ViewModel to the registry
     builder: () => MyOtherWidgetViewModel());
@@ -161,18 +161,18 @@ final otherViewModel = listenTo<MyOtherWidgetViewModel>();
 ```
 
 Like GetIt, registered ViewModels are not managed by InheritedWidget. So, widgets don't need to be
-children of a View widget to get its registered ViewModel. This is a big plus for use cases where
+children of a ViewWidget to get its registered ViewModel. This is a big plus for use cases where
 the accessed ViewModel is not an ancestor.
 
 Unlike GetIt the lifecycle of all ViewModel instances (including registered) are bound to the
-lifecycle of the View instances that instantiated them. So, when a View instance is removed from the
+lifecycle of the ViewWidget instances that instantiated them. So, when a ViewWidget instance is removed from the
 widget tree, its ViewModel is disposed.
 
 On rare occasions when you need to register multiple ViewModels of the same type, just give each
 ViewModel instance a unique name:
 
 ```dart
-class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+class MyOtherWidget extends ViewWidget<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
     location: Location.registry,
     name: 'Header', // <- unique name
@@ -193,7 +193,7 @@ final footerText = get<MyOtherWidgetViewModel>(name: 'Footer').someText;
 Instead of using the global registry, you have the option of adding ViewModels to the widget tree. Just add the specifier `location: Location.tree`, which makes the ViewModel available to descendants:
 
 ```dart
-class MyOtherWidget extends View<MyOtherWidgetViewModel> {
+class MyOtherWidget extends ViewWidget<MyOtherWidgetViewModel> {
   MyOtherWidget(super.key) : super(
     location: Location.tree, // <- Puts ViewModel on the widget tree
     builder: () => MyOtherWidgetViewModel());
@@ -224,7 +224,7 @@ Bilocator<MyModel>(
 By default, the Bilocator widget adds its model to the global registry when added to the widget tree and unregisters it when
 removed. (To register multiple models with a single widget, check out [Bilocators](https://pub.dev/packages/bilocator#registering-models)).
 
-As with the View class, to add a model to the widget tree (instead of the registry), simply specify the `location` to `Location.tree`:
+As with the ViewWidget class, to add a model to the widget tree (instead of the registry), simply specify the `location` to `Location.tree`:
 
 ```dart
 Bilocator<MyModel>(
@@ -236,7 +236,7 @@ Bilocator<MyModel>(
 
 ## Listening to other widget's ViewModels
 
-The `get` method of View and ViewModel retrieves registered ViewModels but does not listen for
+The `get` method of ViewWidget and ViewModel retrieves registered ViewModels but does not listen for
 future changes. For that, use `listenTo` from within your ViewModel:
 
 ```dart
@@ -251,7 +251,7 @@ queue a build, you can give `listenTo` a custom listener function:
 final someText = listenTo<MyWidgetViewModel>(listener: myListener).someText;
 ```
 
-If you want to rebuild your View after your custom listener finishes, just call `buildView` within
+If you want to rebuild your ViewWidget after your custom listener finishes, just call `buildView` within
 your listener:
 
 ```dart
@@ -266,10 +266,10 @@ disposed.
 
 ## notifyListeners vs buildView
 
-When your View and ViewModel classes are instantiated, `buildView` is added as a listener to your
+When your ViewWidget and ViewModel classes are instantiated, `buildView` is added as a listener to your
 ViewModel. So, calling `buildView` or `notifyListeners` from within your ViewModel will both rebuild
-your View. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing,
-unless your ViewModel has other listeners. So, to eliminate unnecessary View builds, it is a best
+your ViewWidget. So, what's the difference between calling `buildView` and `notifyListeners`? Nothing,
+unless your ViewModel has other listeners. So, to eliminate unnecessary ViewWidget builds, it is a best
 practice to use `buildView` unless your use case requires listeners to be notified of a change.
 
 ## ValueNotifiers are your MVVM Properties!
@@ -323,13 +323,13 @@ Widget build(BuildContext context) {
 
 # Mixins
 
-Builds the state than manages this [View]
+Builds the state than manages this [ViewWidget]
 
-This functions is already defined for this [View] class so typically doesn't need to be overridden. The exception
-is when you need to add a mixin to the state class. To add a mixin, extend ViewState<View<T>> with the mixin:
+This functions is already defined for this [ViewWidget] class so typically doesn't need to be overridden. The exception
+is when you need to add a mixin to the state class. To add a mixin, extend ViewState<ViewWidget<T>> with the mixin:
 
 ```dart
-class MyWidget extends View<MyWidgetViewModel> {
+class MyWidget extends ViewWidget<MyWidgetViewModel> {
   MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
 
   @override
@@ -379,7 +379,7 @@ increment floating action button (FAB) that toggles between incrementing the num
 When the FAB displays "+1" a press increments the number and when it displays "+a" the character
 will increment.
 
-Two View widgets are used in this example. One for the increment button/FAB which maintains the
+Two ViewWidgets are used in this example. One for the increment button/FAB which maintains the
 state ("+1"/"+a") and one for the page which maintains current count and other states.
 
 The page listens to two services: one that changes the number color and another that changes the
