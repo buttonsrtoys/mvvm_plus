@@ -1,3 +1,8 @@
+## 1.3.0
+- Renamed View to ViewWidget because of a name collision on the Flutter beta channel.
+- Renamed StatelessView to StatelessViewWidget to be consistent with ViewWidget renaming.
+- Removed unused `equatable` dependency.
+
 ## 1.2.0
 - Added FutureProperty and StreamProperty classes.
 - Added Model.createFutureProperty() and Model.createStreamProperty() member functions.
