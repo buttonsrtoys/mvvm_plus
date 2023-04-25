@@ -26,7 +26,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Bilocators(
-        key: const ValueKey('Bilocators'), // <- Use a consistent key to support hot reloading
+        key: const ValueKey('Bilocators'), // <- supports hot reloading
         delegates: [
           BilocatorDelegate<MyClass>(builder: () => MyClass()),
           BilocatorDelegate<MyModel>(builder: () => MyModel()),
@@ -42,9 +42,11 @@ class Home extends StatelessWidget {
   }
 }
 
-/// Demonstrates [StatefulWidget] and [State] classes for comparison to [ViewWidget] and [ViewModel].
+/// Demonstrates [StatefulWidget] and [State] classes for comparison to [View] and [ViewModel].
 class StatefulAndStateWidget extends StatefulWidget {
-  const StatefulAndStateWidget({super.key});
+  const StatefulAndStateWidget({super.key, required this.title});
+
+  final String title;
 
   @override
   State<StatefulAndStateWidget> createState() => _StatefulAndStateWidgetState();
@@ -62,7 +64,7 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('StatefulWidget/State'),
+        Text(widget.title),
         Text('$count'),
         const SizedBox(height: 10),
         Fab(onPressed: incrementCount),
@@ -71,15 +73,17 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
   }
 }
 
-/// Demonstrates the [ViewWidget], [ViewModel] classes and the [buildView] function.
-class ViewAndViewModelWidget extends ViewWidget<BuildViewWidgetViewModel> {
-  ViewAndViewModelWidget({super.key}) : super(builder: () => BuildViewWidgetViewModel());
+/// Demonstrates the [View], [ViewModel] classes and the [buildView] function.
+class ViewWidget extends View<ViewWidgetViewModel> {
+  ViewWidget({super.key, required this.title}) : super(builder: () => ViewWidgetViewModel());
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('View/ViewModel'),
+        Text(title),
         Text('${viewModel.count}'),
         const SizedBox(height: 10),
         Fab(onPressed: viewModel.incrementCount),
@@ -88,7 +92,7 @@ class ViewAndViewModelWidget extends ViewWidget<BuildViewWidgetViewModel> {
   }
 }
 
-class BuildViewWidgetViewModel extends ViewModel {
+class ViewWidgetViewModel extends ViewModel {
   int count = 0;
   incrementCount() {
     count++;
@@ -97,10 +101,9 @@ class BuildViewWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates the [buildView] function.
-class PropertyWidget extends ViewWidget<PropertyWidgetViewModel> {
+class PropertyWidget extends View<PropertyWidgetViewModel> {
   PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
 
-  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -114,11 +117,14 @@ class PropertyWidget extends ViewWidget<PropertyWidgetViewModel> {
 }
 
 class PropertyWidgetViewModel extends ViewModel {
+  /// The below lines are identical
+  // late final count = ValueNotifier<int>(0)..addListener(buildView);
+  // late final count = Property<int>(0)..addListener(buildView);
   late final count = createProperty<int>(0);
 }
 
 /// Demonstrates [get] and [listenTo]
-class GetListenToWidget extends StatelessViewWidget {
+class GetListenToWidget extends StatelessView {
   GetListenToWidget({super.key});
 
   @override
@@ -128,15 +134,13 @@ class GetListenToWidget extends StatelessViewWidget {
         const Text('get/listenTo'),
         Text('${listenTo(notifier: get<MyClass>().count).value}'),
         const SizedBox(height: 10),
-        Fab(onPressed: () {
-          get<MyClass>().count.value++;
-        }),
+        Fab(onPressed: () => get<MyClass>().count.value++),
       ],
     );
   }
 }
 
-class ModelWidget extends StatelessViewWidget {
+class ModelWidget extends StatelessView {
   ModelWidget({super.key});
 
   @override
@@ -153,7 +157,7 @@ class ModelWidget extends StatelessViewWidget {
 }
 
 /// Demonstrates [BuildContext.of] extension
-class ContextOfWidget extends StatelessViewWidget {
+class ContextOfWidget extends StatelessView {
   ContextOfWidget({super.key});
 
   @override
@@ -170,7 +174,7 @@ class ContextOfWidget extends StatelessViewWidget {
 }
 
 /// Demonstrates [get] and [listenTo] with [BuildContext]
-class GetListenToContextWidget extends StatelessViewWidget {
+class GetListenToContextWidget extends StatelessView {
   GetListenToContextWidget({super.key});
 
   @override
@@ -188,9 +192,9 @@ class GetListenToContextWidget extends StatelessViewWidget {
 }
 
 /// Demonstrates [FutureProperty] by using a future to delay a counter.
-Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 200), () => number);
+Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 350), () => number);
 
-class FutureWidget extends ViewWidget<FutureWidgetViewModel> {
+class FutureWidget extends View<FutureWidgetViewModel> {
   FutureWidget({super.key}) : super(builder: () => FutureWidgetViewModel());
 
   @override
@@ -214,40 +218,45 @@ class FutureWidgetViewModel extends ViewModel {
 
 /// Demonstrates [StreamProperty] by streaming numbers with a delay.
 int streamCounter = 0;
-Stream<int> addToSlowly(int increment) async* {
+Stream<int> addFiveSlowly() async* {
   int i = streamCounter;
-  streamCounter += increment;
+  streamCounter += 5;
   for (; i <= streamCounter; i++) {
-    await Future.delayed(const Duration(milliseconds: 200));
+    await Future.delayed(const Duration(milliseconds: 350));
     yield i;
   }
 }
 
-class StreamWidget extends ViewWidget<StreamWidgetViewModel> {
-  StreamWidget({super.key}) : super(builder: () => StreamWidgetViewModel());
+class StreamWidget extends View<StreamWidgetViewModel> {
+  StreamWidget({super.key})
+      : super(
+          /// Below line adds the ViewModel to the Registry
+          location: Location.registry,
+          builder: () => StreamWidgetViewModel(),
+        );
 
   @override
   Widget build(BuildContext context) {
+    final streamProperty = get<StreamWidgetViewModel>().streamProperty;
     return Column(
       children: [
         const Text('Stream'),
-        Text(viewModel.streamProperty.hasData ? '${viewModel.streamProperty.data}' : 'Loading...'),
+        Text(streamProperty.hasData ? '${streamProperty.data}' : 'Loading...'),
         const SizedBox(height: 10),
-        Fab(onPressed: () {
-          viewModel.streamProperty.value = addToSlowly(5);
-        }),
+        Fab(onPressed: () => streamProperty.value = addFiveSlowly()),
       ],
     );
   }
 }
 
 class StreamWidgetViewModel extends ViewModel {
+  /// The below lines are identical
   // late final streamProperty = StreamProperty<int>(addToSlowly(streamCounter))..addListener(buildView);
-  late final streamProperty = createStreamProperty<int>(addToSlowly(streamCounter));
+  late final streamProperty = createStreamProperty<int>(Stream.value(0));
 }
 
 /// Demonstrates exposing [ViewState] to use a mixin.
-class MixinWidget extends ViewWidget<MixinWidgetViewModel> {
+class MixinWidget extends View<MixinWidgetViewModel> {
   MixinWidget({super.key}) : super(builder: () => MixinWidgetViewModel());
 
   @override
@@ -290,8 +299,8 @@ class _GridOfCounters extends StatelessWidget {
       const Spacer(),
       Row(
         children: [
-          const Expanded(child: StatefulAndStateWidget()),
-          Expanded(child: ViewAndViewModelWidget()),
+          const Expanded(child: StatefulAndStateWidget(title: 'StatefulWidget/State')),
+          Expanded(child: ViewWidget(title: 'View/ViewModel')),
         ],
       ),
       const Spacer(),

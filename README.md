@@ -321,12 +321,11 @@ Widget build(BuildContext context) {
 }
 ```
 
-# Mixins
+## Mixins
 
-Builds the state than manages this [ViewWidget]
-
-This functions is already defined for this [ViewWidget] class so typically doesn't need to be overridden. The exception
-is when you need to add a mixin to the state class. To add a mixin, extend ViewState<ViewWidget<T>> with the mixin:
+The `ViewWidget` class is an extensions of a `StatefulWidget`, complete with the usual `State` class under the hood
+(named `ViewState`) that manages `View` and its `ViewModel`. Some packages include a mixin that must be mixed in
+with `State`. For this, you can extend `ViewState` to include your mixin. See the example below:
 
 ```dart
 class MyWidget extends ViewWidget<MyWidgetViewModel> {
@@ -374,20 +373,9 @@ If you are migrating from Provider, see [How to Migrate Your Flutter App from Pr
 (The source code for the repo example is under the Pub.dev "Example" tab and in the
 GitHub `example/lib/main.dart` file.)
 
-This example increments a number (0, 1, 2, ...) and a letter character (a, b, c, ...) using a single
-increment floating action button (FAB) that toggles between incrementing the number and the letter.
-When the FAB displays "+1" a press increments the number and when it displays "+a" the character
-will increment.
+The example has several counter which demonstrate the the typical uses of MVVM+.
 
-Two ViewWidgets are used in this example. One for the increment button/FAB which maintains the
-state ("+1"/"+a") and one for the page which maintains current count and other states.
-
-The page listens to two services: one that changes the number color and another that changes the
-letter color. The number color service has a stream that emits a new color every N seconds. The
-letter color service is a ChangeNotifier with a timer that changes the current letter color and then
-calls `notifyListeners`.
-
-![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/example/example.gif)
+![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/example/example.png)
 
 ## That's it!
 
