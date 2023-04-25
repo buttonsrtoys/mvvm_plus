@@ -13,10 +13,10 @@ packages:
     dependency: "direct main"
     description:
       name: bilocator
-      sha256: e6e302ad49b8b4ddb203a02c4484d920bd9988298da841b106e37f73fc93487b
+      sha256: "29fc24053155400516f0b82e22d9f438068b84da4f374c918b32c6b0f5cbf5ad"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.5"
+    version: "0.6.0"
   boolean_selector:
     dependency: transitive
     description:
