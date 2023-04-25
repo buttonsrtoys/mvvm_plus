@@ -42,7 +42,7 @@ class Home extends StatelessWidget {
   }
 }
 
-/// Demonstrates [StatefulWidget] and [State] classes for comparison to [View] and [ViewModel].
+/// Demonstrates [StatefulWidget] and [State] classes for comparison to [ViewWidget] and [ViewModel].
 class StatefulAndStateWidget extends StatefulWidget {
   const StatefulAndStateWidget({super.key, required this.title});
 
@@ -73,9 +73,9 @@ class _StatefulAndStateWidgetState extends State<StatefulAndStateWidget> {
   }
 }
 
-/// Demonstrates the [View], [ViewModel] classes and the [buildView] function.
-class ViewWidget extends View<ViewWidgetViewModel> {
-  ViewWidget({super.key, required this.title}) : super(builder: () => ViewWidgetViewModel());
+/// Demonstrates the [ViewWidget], [ViewModel] classes and the [buildView] function.
+class MyViewWidget extends ViewWidget<ViewWidgetViewModel> {
+  MyViewWidget({super.key, required this.title}) : super(builder: () => ViewWidgetViewModel());
 
   final String title;
 
@@ -101,9 +101,10 @@ class ViewWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates the [buildView] function.
-class PropertyWidget extends View<PropertyWidgetViewModel> {
+class PropertyWidget extends ViewWidget<PropertyWidgetViewModel> {
   PropertyWidget({super.key}) : super(builder: () => PropertyWidgetViewModel());
 
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -124,7 +125,7 @@ class PropertyWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates [get] and [listenTo]
-class GetListenToWidget extends StatelessView {
+class GetListenToWidget extends StatelessViewWidget {
   GetListenToWidget({super.key});
 
   @override
@@ -140,7 +141,7 @@ class GetListenToWidget extends StatelessView {
   }
 }
 
-class ModelWidget extends StatelessView {
+class ModelWidget extends StatelessViewWidget {
   ModelWidget({super.key});
 
   @override
@@ -157,7 +158,7 @@ class ModelWidget extends StatelessView {
 }
 
 /// Demonstrates [BuildContext.of] extension
-class ContextOfWidget extends StatelessView {
+class ContextOfWidget extends StatelessViewWidget {
   ContextOfWidget({super.key});
 
   @override
@@ -174,7 +175,7 @@ class ContextOfWidget extends StatelessView {
 }
 
 /// Demonstrates [get] and [listenTo] with [BuildContext]
-class GetListenToContextWidget extends StatelessView {
+class GetListenToContextWidget extends StatelessViewWidget {
   GetListenToContextWidget({super.key});
 
   @override
@@ -194,7 +195,7 @@ class GetListenToContextWidget extends StatelessView {
 /// Demonstrates [FutureProperty] by using a future to delay a counter.
 Future<int> setNumberSlowly(int number) async => Future.delayed(const Duration(milliseconds: 350), () => number);
 
-class FutureWidget extends View<FutureWidgetViewModel> {
+class FutureWidget extends ViewWidget<FutureWidgetViewModel> {
   FutureWidget({super.key}) : super(builder: () => FutureWidgetViewModel());
 
   @override
@@ -227,7 +228,7 @@ Stream<int> addFiveSlowly() async* {
   }
 }
 
-class StreamWidget extends View<StreamWidgetViewModel> {
+class StreamWidget extends ViewWidget<StreamWidgetViewModel> {
   StreamWidget({super.key})
       : super(
           /// Below line adds the ViewModel to the Registry
@@ -256,7 +257,7 @@ class StreamWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates exposing [ViewState] to use a mixin.
-class MixinWidget extends View<MixinWidgetViewModel> {
+class MixinWidget extends ViewWidget<MixinWidgetViewModel> {
   MixinWidget({super.key}) : super(builder: () => MixinWidgetViewModel());
 
   @override
@@ -300,7 +301,7 @@ class _GridOfCounters extends StatelessWidget {
       Row(
         children: [
           const Expanded(child: StatefulAndStateWidget(title: 'StatefulWidget/State')),
-          Expanded(child: ViewWidget(title: 'View/ViewModel')),
+          Expanded(child: MyViewWidget(title: 'ViewWidget/ViewModel')),
         ],
       ),
       const Spacer(),
