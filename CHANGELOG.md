@@ -1,6 +1,6 @@
 ## 1.4.0
 - Upgraded bilocator to 1.6.0
-- Cleaned up renaming of View to ViewModel and StatelessView to StatelessViewWidget
+- Cleanup of renaming of View to ViewModel and StatelessView to StatelessViewWidget
 
 ## 1.3.0
 - Renamed View to ViewWidget because of a name collision on the Flutter beta channel.
