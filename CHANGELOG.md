@@ -1,3 +1,6 @@
+## 1.4.1
+- Reformatted code to 80 chars wide
+
 ## 1.4.0
 - Upgraded bilocator to 1.6.0
 - Cleanup of renaming of View to ViewModel and StatelessView to StatelessViewWidget
