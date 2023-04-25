@@ -408,9 +408,15 @@ abstract class ViewModel extends Model {
   /// If [listener] is null then [buildView] is used as the listener. See [Model.listenTo] for more details.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>({
+    BuildContext? context,
+    T? notifier,
+    String? name,
+    Filter? filter,
+    void Function()? listener,
+  }) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(context: context, name: name, notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(context: context, name: name, filter: filter, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
