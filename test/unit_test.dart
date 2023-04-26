@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bilocator/bilocator.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mvvm_plus/src/src.dart';
 
 class MyNumberViewModel extends ViewModel {
@@ -7,7 +7,7 @@ class MyNumberViewModel extends ViewModel {
 }
 
 void main() {
-  group('View', () {
+  group('ViewWidget', () {
     test('unnamed view model', () {
       expect(Bilocator.isRegistered<MyNumberViewModel>(), false);
       Bilocator.register<MyNumberViewModel>(instance: MyNumberViewModel());

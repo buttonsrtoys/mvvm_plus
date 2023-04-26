@@ -4,11 +4,11 @@ import 'package:flutter/widgets.dart';
 
 typedef Property<T> = ValueNotifier<T>;
 
-/// A View widget with a builder for a ViewModel
+/// A ViewWidget with a builder for a ViewModel
 ///
 /// Consumed like StatelessWidget. I.e., override its Widget build() function
 ///
-///   class MyWidget extends View<MyWidgetViewModel> {
+///   class MyWidget extends ViewWidget<MyWidgetViewModel> {
 ///     MyWidget({super.key}) : super(viewModelBuilder: () => MyWidgetViewModel);
 ///     @override
 ///     Widget build() {
@@ -22,17 +22,17 @@ typedef Property<T> = ValueNotifier<T>;
 /// from anywhere, [Location.tree] to add the [ViewModel] to the widget tree to be accessible by descendants, or null
 /// (the default) to not make the [ViewModel] accessible by other widgets and models. See [get] and
 /// [listenTo] for how to get and listen to models added to the registry or widget tree.
-typedef ViewWidget<T extends ViewModel> = View<T>;
-
 @Deprecated('This class was renamed to [ViewWidget] due to a name collision in the Flutter beta channel')
-abstract class View<T extends ViewModel> extends StatefulWidget {
-  View({
+typedef View<T extends ViewModel> = ViewWidget<T>;
+
+abstract class ViewWidget<T extends ViewModel> extends StatefulWidget {
+  ViewWidget({
     required T Function() builder,
     String? name,
     Location? location,
     super.key,
-  })  : assert(T != ViewModel, _missingGenericError('View constructor', 'ViewModel')),
-        assert(location != Location.tree || name == null, 'View cannot name a ViewModel that is not registered'),
+  })  : assert(T != ViewModel, _missingGenericError('ViewWidget constructor', 'ViewModel')),
+        assert(location != Location.tree || name == null, 'ViewWidget cannot name a ViewModel that is not registered'),
         _name = name,
         _builder = builder,
         _location = location;
@@ -54,7 +54,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   U listenTo<U extends ChangeNotifier>({BuildContext? context, U? notifier, String? name}) =>
       viewModel.listenTo<U>(context: context, notifier: notifier, name: name);
 
-  /// Returns the [ViewModel] subclass bound to this [View].
+  /// Returns the [ViewModel] subclass bound to this [ViewWidget].
   T get viewModel => _stateInstance.value._viewModel;
 
   /// Same functionality as [State.context].
@@ -66,7 +66,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   /// Same functionality as [State.didUpdateWidget].
   @protected
   @mustCallSuper
-  void didUpdateWidget(covariant View<T> oldWidget) {}
+  void didUpdateWidget(covariant ViewWidget<T> oldWidget) {}
 
   /// Same functionality as [State.reassemble].
   @protected
@@ -88,7 +88,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   @mustCallSuper
   void didChangeDependencies() {}
 
-  /// Gets the state associated with this View class
+  /// Gets the state associated with this ViewWidget class
   U getState<U extends ViewState<T>>() {
     assert(
       _stateInstance.value is U,
@@ -104,12 +104,12 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   @protected
   Widget build(BuildContext context);
 
-  /// Builds the state than manages this [View]
+  /// Builds the state than manages this [ViewWidget]
   ///
-  /// This functions is already defined for this [View] class so typically doesn't need to be overridden. An exception
-  /// is when you need to add a mixin to the state class. To add a mixin, extend ViewState<View<T>> with the mixin:
+  /// This functions is already defined for this [ViewWidget] class so typically doesn't need to be overridden. An exception
+  /// is when you need to add a mixin to the state class. To add a mixin, extend ViewState<ViewWidget<T>> with the mixin:
   ///
-  ///    class MyWidget extends View<MyWidgetViewModel> {
+  ///    class MyWidget extends ViewWidget<MyWidgetViewModel> {
   ///      MyWidget({super.key}) : super(builder: () => MyWidgetViewModel());
   ///
   ///      // Overriding createState is only required when adding mixins
@@ -135,7 +135,7 @@ abstract class View<T extends ViewModel> extends StatefulWidget {
   ///    }
   ///
   @override
-  State<View<T>> createState() => ViewState<T>();
+  State<ViewWidget<T>> createState() => ViewState<T>();
 }
 
 /// [ViewState] stores the states of [ViewWidget], including its [ViewModel]
@@ -283,13 +283,13 @@ abstract class Model extends ChangeNotifier with Observer {
   }
 }
 
-/// Base class for View Models
+/// Base class for ViewWidget Models
 ///
 /// [register] is whether the subclass ([ViewModel], [ValueNotifier]) should "register", meaning that it can be located
 /// using [ViewModel.get], [ViewWidget.get], [ViewModel.listenTo], or [ViewWidget.listenTo], Subclasses are typically only
 /// registered when they need to be located by widgets "far away" (e.g., descendants or on another branch.)
-/// [name] is the optional unique name of the registered View Model. Typically registered View Models are not named.
-/// On rare occasions when multiple View Models of the same type are registered, unique names uniquely identify them.
+/// [name] is the optional unique name of the registered ViewWidget Model. Typically registered ViewWidget Models are not named.
+/// On rare occasions when multiple ViewWidget Models of the same type are registered, unique names uniquely identify them.
 abstract class ViewModel extends Model {
   /// The BuildContext of the associated [ViewWidget]
   @nonVirtual
@@ -332,7 +332,7 @@ abstract class ViewModel extends Model {
   /// function that counts the number of times the build function is called. [buildViewCalls] returns the number of
   /// calls made to this counter function.
   ///
-  /// Returns -1 if [buildView] was overridden. E.g., when a ViewModel is pair with a View widget.
+  /// Returns -1 if [buildView] was overridden. E.g., when a ViewModel is pair with a ViewWidget.
   int buildViewCalls() => buildView == _defaultBuildView ? _buildViewCalls : -1;
 
   /// see the comments in [buildViewCalls]
@@ -408,9 +408,15 @@ abstract class ViewModel extends Model {
   /// If [listener] is null then [buildView] is used as the listener. See [Model.listenTo] for more details.
   @protected
   @override
-  T listenTo<T extends ChangeNotifier>({BuildContext? context, T? notifier, String? name, void Function()? listener}) {
+  T listenTo<T extends ChangeNotifier>({
+    BuildContext? context,
+    T? notifier,
+    String? name,
+    Filter? filter,
+    void Function()? listener,
+  }) {
     final listenerToAdd = listener ?? buildView;
-    return super.listenTo(context: context, name: name, notifier: notifier, listener: listenerToAdd);
+    return super.listenTo(context: context, name: name, filter: filter, notifier: notifier, listener: listenerToAdd);
   }
 
   @protected
@@ -426,12 +432,12 @@ class _StatelessViewModel extends ViewModel {}
 /// This is a convenience class for creating Views that don't have any states but update on changes to registered
 /// ChangeNotifiers. E.g., a widget that listens to a service but doesn't have its own states.
 ///
-/// So, if a View has no states but you want to listen to a registered ChangeNotifier, instead of creating an empty
-/// ViewModel and a View that consumes it:
+/// So, if a ViewWidget has no states but you want to listen to a registered ChangeNotifier, instead of creating an empty
+/// ViewModel and a ViewWidget that consumes it:
 ///
 ///     class MyStatelessViewModel extends ViewModel {}
 ///
-///     class MyView extends View<MyStatelessViewModel> {
+///     class MyView extends ViewWidget<MyStatelessViewModel> {
 ///       MyView({super.key}) : super(viewModelBuilder: () => MyStatelessViewModel());
 ///       Widget build(BuildContext context) => Container();
 ///     }
@@ -446,15 +452,15 @@ class _StatelessViewModel extends ViewModel {}
 ///
 /// Under the hood, an empty ViewModel is created for [StatelessViewWidget]
 ///
-typedef StatelessViewWidget = StatelessView;
-
-/// Deprecated because of a name collision with [View] in Flutter beta channel
 @Deprecated('This class was renamed to [StatelessViewWidget]')
-typedef StatelessView = ViewWithStatelessViewModel;
+typedef StatelessView = StatelessViewWidget;
 
-@Deprecated('This class was renamed to [StatelessView]')
-abstract class ViewWithStatelessViewModel extends View<_StatelessViewModel> {
-  ViewWithStatelessViewModel({super.key}) : super(builder: () => _StatelessViewModel());
+/// Deprecated because of a name collision with [ViewWidget] in Flutter beta channel
+@Deprecated('This class was renamed to [StatelessViewWidget]')
+typedef ViewWithStatelessViewModel = StatelessViewWidget;
+
+abstract class StatelessViewWidget extends ViewWidget<_StatelessViewModel> {
+  StatelessViewWidget({super.key}) : super(builder: () => _StatelessViewModel());
 
   @override
   @protected
