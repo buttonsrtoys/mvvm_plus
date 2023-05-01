@@ -1,3 +1,6 @@
+## 1.4.2
+- Updated ReadMe
+
 ## 1.4.1
 - Reformatted code to 80 chars wide
 
