@@ -370,10 +370,11 @@ If you are migrating from Provider, see [How to Migrate Your Flutter App from Pr
 
 # Example
 
-(The source code for the repo example is under the Pub.dev "Example" tab and in the
-GitHub `example/lib/main.dart` file.)
+The source code for the repo example is under the Pub.dev "Example" tab and in the
+GitHub `example/lib/main.dart` file.
 
-The example has several counter which demonstrate the the typical uses of MVVM+.
+The example is a great way to familiarize yourself with MVVM+. It has several counters which 
+demonstrate most of the classes in MVVM+.
 
 ![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/example.png)
 
