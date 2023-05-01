@@ -1,5 +1,5 @@
 ## 1.4.2
-- Fixed link in ReadMe
+- Updated ReadMe
 
 ## 1.4.1
 - Reformatted code to 80 chars wide
