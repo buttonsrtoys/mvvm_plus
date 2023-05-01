@@ -375,7 +375,7 @@ GitHub `example/lib/main.dart` file.)
 
 The example has several counter which demonstrate the the typical uses of MVVM+.
 
-![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/example/example.png)
+![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/Example.png)
 
 ## That's it!
 
