@@ -1,3 +1,6 @@
+## 1.4.3
+- Cleaned up example
+
 ## 1.4.2
 - Updated ReadMe
 
