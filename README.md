@@ -122,17 +122,11 @@ and `dispose` member functions which are handy for initialization and teardown.
 
 ```dart
 class MyWidgetViewModel extends ViewModel {
-  late final StreamSubscription<bool> _streamSubscription;
-
-  @override
-  initState() {
-    super.initState();
-    _streamSubscription = Services.someStream.listen(myListener);
-  }
+  late final streamCounter = createStreamProperty<int>(Stream.value(0));
 
   @override
   void dispose() {
-    _streamSubscription.cancel();
+    streamCounter.subscription.cancel();
     super.dispose();
   }
 }
@@ -312,13 +306,14 @@ Widget build(BuildContext context) {
 }
 ```
 
+For Streams, use the `subscription` getter for pausing or canceling listening to the stream.
+
 ```dart
-@override
-Widget build(BuildContext context) {
-  return weatherConditionsStream.hasData
-    ? Text('${weatherConditionsStream.data}')
-    : CircularProgressIndicator();
-}
+late final streamCounter = createStreamProperty<int>(Stream.value(0));
+        :
+streamCounter.subscription.pause();
+        :
+streamCounter.subscription.cancel();
 ```
 
 ## Mixins

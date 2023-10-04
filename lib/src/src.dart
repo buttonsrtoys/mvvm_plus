@@ -538,6 +538,7 @@ class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
 ///     }
 ///
 class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
+  /// Creates a [StreamProperty] that listens to the given Stream
   StreamProperty(super.value) {
     _setStream(value);
   }
@@ -552,9 +553,16 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
     }
   }
 
+  bool _haveStreamSubscription = false;
   late StreamSubscription<T> _streamSubscription;
 
-  void cancel() => _streamSubscription.cancel();
+  /// Getter for the subscription to the stream.
+  StreamSubscription<T> get subscription {
+    if (!_haveStreamSubscription) {
+      throw Exception('StreamProperty.subscription was called when no Stream has been subscribed to.');
+    }
+    return _streamSubscription;
+  }
 
   /// Returns true if one ore more values in stream resolved (so [data] is value).
   bool get hasData => _hasData;
@@ -571,6 +579,7 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
 
   void _setStream(Stream<T> stream) async {
     _hasData = false;
+    _haveStreamSubscription = true;
     _streamSubscription = stream.listen((newData) {
       _data = newData;
       _hasData = true;
