@@ -256,11 +256,11 @@ class FutureWidgetViewModel extends ViewModel {
 }
 
 /// Demonstrates [StreamProperty] by streaming numbers with a delay.
-int streamCounter = 0;
+int streamCount = 0;
 Stream<int> addFiveSlowly() async* {
-  int i = streamCounter;
-  streamCounter += 5;
-  for (; i <= streamCounter; i++) {
+  int i = streamCount;
+  streamCount += 5;
+  for (; i <= streamCount; i++) {
     await Future.delayed(const Duration(milliseconds: 350));
     yield i;
   }
