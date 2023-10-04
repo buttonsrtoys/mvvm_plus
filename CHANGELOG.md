@@ -1,3 +1,7 @@
+## 1.5.0
+- Added StreamProperty.dispose function which cancels stream subscription.
+- Added StreamProperty.subscription getter to expose StreamSubscription.
+
 ## 1.4.3
 - Cleaned up example
 
