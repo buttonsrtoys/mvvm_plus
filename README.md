@@ -316,6 +316,8 @@ streamCounter.subscription.pause();
 streamCounter.subscription.cancel();
 ```
 
+Alternatively, the `StreamProperty.dispose()` cancels the subscription.
+
 ## Mixins
 
 The `ViewWidget` class is an extensions of a `StatefulWidget`, complete with the usual `State` class under the hood

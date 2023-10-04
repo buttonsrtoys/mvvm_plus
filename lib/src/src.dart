@@ -553,6 +553,14 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
     }
   }
 
+  @override
+  void dispose() {
+    if (_haveStreamSubscription) {
+      _streamSubscription.cancel();
+    }
+    super.dispose();
+  }
+
   bool _haveStreamSubscription = false;
   late StreamSubscription<T> _streamSubscription;
 
