@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bilocator/bilocator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -537,7 +539,7 @@ class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
 ///
 class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
   StreamProperty(super.value) {
-    _getStream(value);
+    _setStream(value);
   }
 
   /// Setter for a new Stream.
@@ -545,10 +547,14 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
   set value(Stream<T> newValue) {
     if (super.value != newValue) {
       super.value = newValue;
-      _getStream(value);
+      _setStream(value);
       notifyListeners();
     }
   }
+
+  late StreamSubscription<T> _streamSubscription;
+
+  void cancel() => _streamSubscription.cancel();
 
   /// Returns true if one ore more values in stream resolved (so [data] is value).
   bool get hasData => _hasData;
@@ -563,13 +569,13 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
     return _data;
   }
 
-  void _getStream(Stream<T> stream) async {
+  void _setStream(Stream<T> stream) async {
     _hasData = false;
-    await for (final value in stream) {
-      _data = value;
+    _streamSubscription = stream.listen((newData) {
+      _data = newData;
       _hasData = true;
       notifyListeners();
-    }
+    });
   }
 }
 
