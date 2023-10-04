@@ -126,7 +126,7 @@ class MyWidgetViewModel extends ViewModel {
 
   @override
   void dispose() {
-    streamCounter.subscription.cancel();
+    streamCounter.dispose();
     super.dispose();
   }
 }
