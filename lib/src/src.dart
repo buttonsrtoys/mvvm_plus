@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bilocator/bilocator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -536,8 +538,9 @@ class FutureProperty<T extends Object?> extends ValueNotifier<Future<T>> {
 ///     }
 ///
 class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
+  /// Creates a [StreamProperty] that listens to the given Stream
   StreamProperty(super.value) {
-    _getStream(value);
+    _setStream(value);
   }
 
   /// Setter for a new Stream.
@@ -545,9 +548,28 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
   set value(Stream<T> newValue) {
     if (super.value != newValue) {
       super.value = newValue;
-      _getStream(value);
+      _setStream(value);
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    if (_haveStreamSubscription) {
+      _streamSubscription.cancel();
+    }
+    super.dispose();
+  }
+
+  bool _haveStreamSubscription = false;
+  late StreamSubscription<T> _streamSubscription;
+
+  /// Getter for the subscription to the stream.
+  StreamSubscription<T> get subscription {
+    if (!_haveStreamSubscription) {
+      throw Exception('StreamProperty.subscription was called when no Stream has been subscribed to.');
+    }
+    return _streamSubscription;
   }
 
   /// Returns true if one ore more values in stream resolved (so [data] is value).
@@ -563,13 +585,14 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
     return _data;
   }
 
-  void _getStream(Stream<T> stream) async {
+  void _setStream(Stream<T> stream) async {
     _hasData = false;
-    await for (final value in stream) {
-      _data = value;
+    _haveStreamSubscription = true;
+    _streamSubscription = stream.listen((newData) {
+      _data = newData;
       _hasData = true;
       notifyListeners();
-    }
+    });
   }
 }
 
