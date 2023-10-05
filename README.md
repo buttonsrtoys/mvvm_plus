@@ -1,6 +1,6 @@
 # mvvm_plus (mvvm+)
 
-![mvvm plus logo](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmPlusLogo.png)
+![mvvm plus logo](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus/main/assets/MvvmPlusLogo.png)
 
 MVVM+ is a lightweight Flutter implementation of MVVM, plus a locator for sharing states via a global registry (like GetIt) or inherited widgets (like Provider).
 
@@ -8,11 +8,11 @@ MVVM+ is a lightweight Flutter implementation of MVVM, plus a locator for sharin
 
 A one-minute introduction to MVVM+:
 
-[![short vid](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/ShortVidThumbnail.png)](https://youtu.be/GZ_aErgShOU)
+[![short vid](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus/main/assets/ShortVidThumbnail.png)](https://youtu.be/GZ_aErgShOU)
 
 A longer demo video:
 
-[![long vid](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/LongVidThumbnail.png)](https://youtu.be/-N6v9t9GgtA)
+[![long vid](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus/main/assets/LongVidThumbnail.png)](https://youtu.be/-N6v9t9GgtA)
 
 ## Tiny API
 
@@ -37,7 +37,7 @@ As with all MVVM implementations, MVVM+ organizes UI into an object called the V
 logic associated with a View is organized into an object called a View Model. Business logic that
 spans two or more View Models is organized into one or more Models.
 
-![mvvm flow](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/MvvmFlow.png)
+![mvvm flow](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus/main/assets/MvvmFlow.png)
 
 States are mutated in the View Model and the Model, but not the View. With MVVM+, the View is a
 Flutter widget and the View Model and Model are Dart models that extend ChangeNotifier.
@@ -84,7 +84,7 @@ field or a button.
 
 The boilerplate for the ViewWidget and ViewModel classes is very similar to that of StatefulWidget and its State class. So, like the Flutter extension adds a "stful" snippet for writing StatefulWidget boilerplate, the `mvvm plus` extension adds a snippet for writing ViewWidget and ViewModel classes.
 
-![mvvm plus extension](https://github.com/buttonsrtoys/mvvm_plus_vsce/blob/main/images/Snippet.gif)
+![mvvm plus extension](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus_vsce/main/images/Snippet.gif)
 
 Search the VSCode extension marketplace for "mvvm plus". After installing the extension, just start typing "mvvm+" in the edit window and hit `Enter` when the `mvvm+` snippet is highlighted. Then type the name of your widget and the extension will populate the naming for you. Hit tab to edit the build function.
 
@@ -373,7 +373,7 @@ GitHub `example/lib/main.dart` file.
 The example is a great way to familiarize yourself with MVVM+. It has several counters which 
 demonstrate most of the classes in MVVM+.
 
-![example](https://github.com/buttonsrtoys/mvvm_plus/blob/main/assets/example.png)
+![example](https://raw.githubusercontent.com/buttonsrtoys/mvvm_plus/main/assets/example.png)
 
 ## That's it!
 
