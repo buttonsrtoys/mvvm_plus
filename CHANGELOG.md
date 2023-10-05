@@ -1,3 +1,6 @@
+## 1.5.2
+- Fixed ReadMe.md images.
+
 ## 1.5.1
 - Fixed bug where StreamProperty.value did not unsubscribe from previous stream.
 
@@ -6,17 +9,17 @@
 - Added StreamProperty.subscription getter to expose StreamSubscription.
 
 ## 1.4.3
-- Cleaned up example
+- Cleaned up example.
 
 ## 1.4.2
-- Updated ReadMe
+- Updated ReadMe.
 
 ## 1.4.1
-- Reformatted code to 80 chars wide
+- Reformatted code to 80 chars wide.
 
 ## 1.4.0
 - Upgraded bilocator to 1.6.0
-- Cleanup of renaming of View to ViewModel and StatelessView to StatelessViewWidget
+- Cleanup of renaming of View to ViewModel and StatelessView to StatelessViewWidget.
 
 ## 1.3.0
 - Renamed View to ViewWidget because of a name collision on the Flutter beta channel.
