@@ -547,6 +547,7 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
   @override
   set value(Stream<T> newValue) {
     if (super.value != newValue) {
+      _cancelSubscription();
       super.value = newValue;
       _setStream(value);
       notifyListeners();
@@ -555,14 +556,19 @@ class StreamProperty<T extends Object?> extends ValueNotifier<Stream<T>> {
 
   @override
   void dispose() {
-    if (_haveStreamSubscription) {
-      _streamSubscription.cancel();
-    }
+    _cancelSubscription();
     super.dispose();
   }
 
   bool _haveStreamSubscription = false;
   late StreamSubscription<T> _streamSubscription;
+
+  void _cancelSubscription() {
+    if (_haveStreamSubscription) {
+      _streamSubscription.cancel();
+      _haveStreamSubscription = false;
+    }
+  }
 
   /// Getter for the subscription to the stream.
   StreamSubscription<T> get subscription {

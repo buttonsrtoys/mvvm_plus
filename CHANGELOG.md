@@ -1,3 +1,6 @@
+## 1.5.1
+- Fixed bug where StreamProperty.value did not unsubscribe from previous stream.
+
 ## 1.5.0
 - Added StreamProperty.dispose function which cancels stream subscription.
 - Added StreamProperty.subscription getter to expose StreamSubscription.
