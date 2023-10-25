@@ -1,3 +1,6 @@
+## 1.5.3
+- Fixed viewModel getter on didUpdateWidget.
+
 ## 1.5.2
 - Fixed ReadMe.md images.
 

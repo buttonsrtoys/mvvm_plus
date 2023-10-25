@@ -151,6 +151,7 @@ class ViewState<T extends ViewModel> extends State<ViewWidget<T>> with Bilocator
   @mustCallSuper
   void initState() {
     super.initState();
+    widget._stateInstance.value = this;
     _viewModel = _buildViewModel();
     _viewModel.initState();
     initStateImpl(
@@ -181,6 +182,7 @@ class ViewState<T extends ViewModel> extends State<ViewWidget<T>> with Bilocator
 
   @override
   void didUpdateWidget(covariant ViewWidget<T> oldWidget) {
+    widget._stateInstance.value = this;
     widget.didUpdateWidget(oldWidget);
     super.didUpdateWidget(oldWidget);
   }
@@ -211,7 +213,6 @@ class ViewState<T extends ViewModel> extends State<ViewWidget<T>> with Bilocator
 
   @override
   Widget build(BuildContext context) {
-    widget._stateInstance.value = this;
     return buildImpl(location: widget._location, child: widget.build(context));
   }
 }
