@@ -1,3 +1,6 @@
+## 1.5.4
+- Fixed ViewWidget.get for fetching from registry.
+
 ## 1.5.3
 - Fixed viewModel getter on didUpdateWidget.
 

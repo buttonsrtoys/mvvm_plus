@@ -45,9 +45,14 @@ abstract class ViewWidget<T extends ViewModel> extends StatefulWidget {
 
   /// Get a registered object.
   ///
-  /// Uses [ViewModel.get] to get a registered object. (See [ViewModel.get] for more details.)
+  /// If [context] is null, uses [Bilocator.get] to get a registered object, otherwise uses [ViewModel.get].
+  /// (See [ViewModel.get] for more details.)
   @protected
-  U get<U extends Object>({BuildContext? context, String? name}) => viewModel.get<U>(context: context, name: name);
+  U get<U extends Object>({BuildContext? context, String? name, Filter? filter}) {
+    return context == null
+        ? Bilocator.get<U>(name: name, filter: filter)
+        : viewModel.get<U>(context: context, name: name, filter: filter);
+  }
 
   /// Get a registered ChangeNotifier and adds a [ViewModel.buildView] listener to [U].
   ///
